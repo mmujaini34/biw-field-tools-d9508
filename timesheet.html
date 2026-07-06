@@ -1,0 +1,1777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Time Sheet</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f5f7;color:#111827;font-family:Arial,sans-serif}.app-shell{max-width:920px;margin:0 auto;padding:18px}.input-panel{background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,.06)}.input-title{margin:0 0 6px;font-size:24px;font-weight:900}.input-note{margin:0 0 16px;color:#6b7280;font-size:13px}.form-section{border:1px solid #e5e7eb;border-radius:16px;padding:14px;margin:14px 0;background:#fbfbfc}.section-head{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}.step-badge{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#111827;color:#fff;font-weight:900}.section-title-wrap h3,.form-section h3{margin:0 0 4px;font-size:17px;font-weight:900}.section-title-wrap p{margin:0;color:#6b7280;font-size:12px}.job-grid,.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.form-field label{display:block;margin-bottom:6px;font-size:12px;font-weight:900;color:#374151;text-transform:uppercase}input,textarea,select{width:100%;border:1px solid #cfd6df;border-radius:10px;min-height:44px;padding:10px 12px;font-size:15px;font-weight:700;outline:none;background:#fff;color:#111827}input:focus,textarea:focus,select:focus{border-color:#111827}.select-card,.auto-value{width:100%;min-height:44px;border:1px solid #cfd6df;border-radius:10px;padding:11px 12px;background:#fff;font-size:15px;font-weight:800;cursor:pointer;white-space:pre-line}.placeholder{color:#9ca3af;font-weight:700}.required-hint{margin-top:6px;font-size:11px;color:#6b7280}.items-display-title{font-weight:900}.items-display-sub{font-size:12px;color:#6b7280;margin-top:3px;font-weight:700}.items-summary{margin-top:10px;font-size:12px;color:#374151;white-space:pre-line;line-height:1.35}.form-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}.btn{border:0;border-radius:11px;padding:12px 16px;min-height:44px;font-weight:900;cursor:pointer}.btn-primary{background:#111827;color:#fff}.btn-secondary{background:#e5e7eb;color:#111827}.status-text{margin-top:10px;font-size:13px;font-weight:800;color:#374151}.validation-hint{display:none;margin-top:10px;padding:10px 12px;border-radius:10px;background:#fff1f2;color:#9f1239;font-weight:800;font-size:13px}.validation-hint.active{display:block}.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:9999;align-items:center;justify-content:center;padding:18px}.modal-overlay.active{display:flex}.modal-box{width:100%;max-width:440px;background:#fff;border-radius:16px;padding:18px;box-shadow:0 14px 40px rgba(0,0,0,.25)}.modal-box h3{margin:0 0 12px;font-size:20px;font-weight:900}.modal-field{margin:12px 0}.modal-field label{display:block;margin-bottom:6px;font-size:12px;font-weight:900;text-transform:uppercase;color:#374151}.modal-preview{margin-top:12px;padding:10px;border-radius:10px;background:#f3f4f6;font-weight:900}.modal-actions{display:flex;gap:10px;margin-top:16px}.modal-actions button{flex:1;border:0;border-radius:10px;min-height:42px;font-weight:900;cursor:pointer}.cancel-btn{background:#e5e7eb;color:#111827}.done-btn{background:#111827;color:#fff}.items-modal-box{max-width:930px;max-height:90vh;overflow:auto}.items-modal-note{margin:0 0 12px;color:#6b7280;font-size:12px;line-height:1.4}.item-editor-row{border:1px solid #e5e7eb;border-radius:14px;padding:12px;margin:12px 0;background:#fafafa}.item-row-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}.item-row-title{font-weight:900}.item-remove-btn{border:0;border-radius:9px;background:#fee2e2;color:#991b1b;padding:8px 10px;font-weight:900}.item-mode-line{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;color:#374151;margin:6px 0 10px}.item-mode-line input,.engineer-option input{width:auto;min-height:auto}.item-row-grid{display:grid;grid-template-columns:.65fr 1.7fr 1fr 1fr 1.1fr;gap:10px}.item-row-grid.manual-mode{grid-template-columns:.65fr 1.6fr 1fr 1fr 1.1fr}.item-mini-field label{display:block;font-size:11px;font-weight:900;color:#4b5563;margin-bottom:5px}.item-mini-field input,.item-mini-field select{min-height:40px;font-size:13px;padding:8px 9px}.serial-status{display:block;margin-top:5px;font-size:11px;font-weight:900}.serial-status.ok{color:#166534}.serial-status.bad{color:#991b1b}.auto-readonly{background:#f3f4f6;color:#374151}.engineer-option{display:block;padding:10px 8px;border:1px solid #e5e7eb;border-radius:10px;margin:8px 0;font-weight:800}.pdf-stage{position:absolute;left:-12000px;top:0;width:794px;height:1123px;overflow:hidden;background:#fff}body.generating-pdf .pdf-stage{left:0;top:0;opacity:0;pointer-events:none}.page{width:794px;height:1123px;margin:0;background:#fff;padding:18px 22px;font-family:"Times New Roman",serif;color:#000;overflow:hidden}table{width:100%;border-collapse:collapse;table-layout:fixed}td,th{border:2px solid #000;vertical-align:top;overflow:hidden;color:#000}.cell{padding:7px 8px;font-size:18px;font-weight:bold;line-height:1.08}.center{text-align:center;vertical-align:middle}.top-title{font-family:Arial,sans-serif;font-size:25px;font-weight:900;line-height:1.35;text-transform:uppercase}.top-table td{height:135px}.top-left{width:28%}.top-center{width:42%}.top-right{width:30%}.logo-cell{background:#fff;vertical-align:middle;text-align:center}.logo-wrap{width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#fff;padding:4px}.logo-img{width:100%;height:100%;object-fit:contain;display:block}.info-table{margin-top:0}.info-table td{height:52px}.info-label{width:20%}.info-value{width:43%}.info-right-label{width:13%}.info-right-value{width:24%}
+.motor-days-value{width:16%}
+.motor-type-label{width:13%}
+.motor-type-value{width:14%;padding:7px 8px}
+.info-value,.info-right-value,.motor-type-value{vertical-align:middle}
+.engineer-names{vertical-align:middle}.days-label{font-size:17px;line-height:1.15}.report-value{display:block;width:100%;white-space:nowrap;overflow:hidden;text-overflow:clip;font-size:18px;font-weight:bold;line-height:1.05}.items-table{margin-top:0}.items-table th{height:54px;font-weight:bold;text-align:center;vertical-align:middle;padding:5px 6px;line-height:1.05}.items-table td{height:360px}.qty{width:15%;font-size:18px}.desc{width:33%;font-size:20px}.part{width:19%;font-size:19px}.manual{width:17%;font-size:16px}.serial{width:16%;font-size:18px}.report-items-cell{padding:7px 8px;font-size:14px;font-weight:bold;line-height:1.12;white-space:pre-line;word-break:break-word}.transport td{height:46px;border-top:none}.transport .cell{font-size:18px;padding:7px 9px;line-height:1.1}.sign-table{margin-top:0}.sign-table td{height:62px}.sign-table .header-row td{height:54px}.sign-left{width:14%}.engineer{width:23%}.representative{width:43%}.supervisor{width:20%}.small-header{font-size:16px;font-weight:bold;line-height:1.05;padding:7px 8px}.company-header{font-size:20px;font-weight:bold;line-height:1.08;padding:7px 8px}.name-label,.sign-label-text,.comment-label{font-size:18px;font-weight:bold;padding:7px 8px;line-height:1.05}.comment-label{white-space:nowrap}.engineer-names{font-size:14px;font-weight:bold;line-height:1.12;white-space:pre-line;padding:5px 7px}.signature-box{width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:4px}.signature-img{max-width:95%;max-height:46px;object-fit:contain;display:none}@media(max-width:760px){.job-grid,.form-grid{grid-template-columns:1fr}.input-panel{padding:14px}.app-shell{padding:12px}.item-row-grid,.item-row-grid.manual-mode{grid-template-columns:1fr}}
+
+/* UI polish only - PDF page remains unchanged */
+:root{--ui-primary:#0f172a;--ui-primary2:#1e3a8a;--ui-accent:#0d9488;--ui-bg1:#eef6ff;--ui-bg2:#f6f7fb;--ui-card:#ffffff;--ui-border:#d9e2ec;--ui-text:#111827;--ui-muted:#64748b;--ui-warn:#b45309;--ui-danger:#b91c1c;--ui-ok:#15803d}.ui-toolbar{display:grid;grid-template-columns:1fr;gap:10px;margin:12px 0 16px;padding:12px;border:1px solid var(--ui-border);border-radius:18px;background:linear-gradient(135deg,#f8fbff,#eef7f4);box-shadow:0 8px 22px rgba(15,23,42,.07)}.ui-toolbar-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}.mode-buttons,.quick-buttons{display:flex;flex-wrap:wrap;gap:8px}.ui-pill{border:0;border-radius:999px;padding:10px 13px;min-height:40px;font-weight:900;cursor:pointer;background:#e9eef7;color:#111827;box-shadow:0 3px 10px rgba(0,0,0,.05)}.ui-pill.primary{background:linear-gradient(135deg,var(--ui-primary),var(--ui-primary2));color:#fff}.ui-pill.danger{background:#fee2e2;color:#991b1b}.ui-pill.teal{background:#ccfbf1;color:#115e59}.autosave-badge{font-size:12px;font-weight:900;color:var(--ui-muted);padding:8px 10px;border-radius:999px;background:rgba(255,255,255,.75)}.input-panel{background:linear-gradient(180deg,#ffffff,#fbfdff)!important;border-color:var(--ui-border)!important}.form-section{background:linear-gradient(180deg,#ffffff,#f8fafc)!important;border-color:var(--ui-border)!important}.step-badge{background:linear-gradient(135deg,#0f172a,#2563eb)!important}.btn-primary{background:linear-gradient(135deg,#0f172a,#1d4ed8)!important}.btn-secondary{background:#dbeafe!important;color:#0f172a!important}.select-card,.auto-value,input,textarea,select{border-color:#cbd5e1!important}.item-pn-wrap{grid-column:span 3}.pn-description-preview{margin-top:7px;padding:8px 10px;border-radius:10px;background:#ecfeff;color:#155e75;font-size:12px;font-weight:900;line-height:1.25;border:1px solid #bae6fd}.item-counter-badge{display:inline-flex;margin-inline-start:8px;align-items:center;justify-content:center;min-width:32px;height:24px;border-radius:999px;background:#0f766e;color:#fff;font-size:12px;font-weight:900;padding:0 9px}.items-action-line{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.inline-error-box{margin-top:10px;padding:10px 12px;border-radius:12px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-weight:900;font-size:13px;white-space:pre-line}body.ui-night{background:#111827;color:#e5e7eb}body.ui-night .input-panel{background:linear-gradient(180deg,#182235,#111827)!important;border-color:#334155!important;color:#e5e7eb}body.ui-night .form-section{background:linear-gradient(180deg,#1f2937,#172033)!important;border-color:#334155!important;color:#e5e7eb}body.ui-night .input-note,body.ui-night .section-title-wrap p,body.ui-night .items-display-sub,body.ui-night .required-hint,body.ui-night .items-summary,body.ui-night .modal-field label{color:#cbd5e1!important}body.ui-night input,body.ui-night select,body.ui-night textarea,body.ui-night .select-card,body.ui-night .auto-value{background:#0f172a!important;color:#f8fafc!important;border-color:#475569!important}body.ui-night .modal-box{background:#172033;color:#e5e7eb}body.ui-night .ui-toolbar{background:linear-gradient(135deg,#0f172a,#1e293b);border-color:#334155}body.ui-night .autosave-badge{background:#0f172a;color:#cbd5e1}body.ui-night{background:#050816;color:#dbeafe}body.ui-night .input-panel{background:linear-gradient(180deg,#0b1220,#050816)!important;border-color:#1e40af!important;color:#dbeafe;box-shadow:0 12px 30px rgba(0,0,0,.4)}body.ui-night .form-section{background:linear-gradient(180deg,#0f172a,#08111f)!important;border-color:#1e3a8a!important;color:#dbeafe}body.ui-night input,body.ui-night select,body.ui-night textarea,body.ui-night .select-card,body.ui-night .auto-value{background:#020617!important;color:#eff6ff!important;border-color:#2563eb!important}body.ui-night .modal-box{background:#08111f;color:#eff6ff}body.ui-night .input-note,body.ui-night .section-title-wrap p,body.ui-night .items-display-sub,body.ui-night .required-hint,body.ui-night .items-summary{color:#bfdbfe!important}body.ui-night .ui-toolbar{background:linear-gradient(135deg,#020617,#0f172a 50%,#172554);border-color:#1d4ed8}body.ui-night .autosave-badge{background:#020617;color:#bfdbfe}.page,.page *{color:#000!important}.page{background:#fff!important}
+
+
+.pn-options{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.pn-option{border:1px solid #cfd6df;background:#fff;color:#111827;border-radius:9px;padding:8px 10px;font-size:12px;font-weight:900;cursor:pointer}.pn-option.active{background:#111827;color:#fff;border-color:#111827}.pn-no-result{font-size:12px;font-weight:900;color:#991b1b;margin-top:8px}.pn-description-preview{margin-top:7px;padding:8px;border-radius:9px;background:#eef2ff;color:#374151;font-size:11px;font-weight:900;line-height:1.25}.theme-night .pn-option,.theme-night .pn-option{background:#111827;color:#f9fafb;border-color:#4b5563}.theme-night .pn-option.active,.theme-night .pn-option.active{background:#38bdf8;color:#082f49;border-color:#38bdf8}.theme-night .pn-description-preview,.theme-night .pn-description-preview{background:#1f2937;color:#e5e7eb}
+
+/* ===== v6 PDF TEXT BREATHING SPACE ONLY - STRUCTURE UNCHANGED ===== */
+#reportPage .cell{
+  padding:8px 11px !important;
+}
+#reportPage .report-value{
+  padding-left:3px !important;
+  padding-right:3px !important;
+  box-sizing:border-box !important;
+}
+#reportPage .report-items-cell{
+  padding:9px 11px !important;
+}
+#reportPage .small-header,
+#reportPage .company-header,
+#reportPage .name-label,
+#reportPage .sign-label-text,
+#reportPage .comment-label{
+  padding:8px 11px !important;
+}
+#reportPage .engineer-names{
+  padding:6px 10px !important;
+}
+#reportPage .items-table th{
+  padding:6px 8px !important;
+}
+/* ===== end v6 pdf text breathing space ===== */
+
+
+/* ===== v7 INPUT UI + DARK/NIGHT FIX ONLY - PDF STRUCTURE UNCHANGED ===== */
+.item-editor-row{
+  background:linear-gradient(180deg,#ffffff,#f8fafc);
+  border:1px solid rgba(15,23,42,.12);
+  border-radius:18px;
+  padding:14px;
+  margin:14px 0;
+  box-shadow:0 8px 20px rgba(15,23,42,.06);
+}
+.item-row-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom:12px;
+  padding-bottom:10px;
+  border-bottom:1px solid rgba(148,163,184,.35);
+}
+.item-row-title{font-weight:900;font-size:15px;color:#0f172a}
+.item-row-grid,.item-row-grid.manual-mode{
+  display:grid;
+  grid-template-columns:90px minmax(260px,2fr) minmax(150px,1fr) minmax(180px,1.2fr);
+  gap:14px;
+  align-items:start;
+}
+.item-mini-field{min-width:0}
+.item-mini-field label{
+  display:block;
+  font-size:11px;
+  font-weight:900;
+  color:#475569;
+  margin-bottom:6px;
+  letter-spacing:.02em;
+}
+.item-mini-field input,.item-mini-field select{
+  min-height:44px;
+  font-size:14px;
+  padding:9px 10px;
+  border-radius:12px;
+}
+.item-part-card{
+  margin-top:7px;
+  min-height:34px;
+  border-radius:10px;
+  background:#eef2ff;
+  color:#1e1b4b;
+  padding:8px 10px;
+  font-size:13px;
+  font-weight:900;
+}
+.item-results-box{
+  display:none;
+  position:relative;
+  margin-top:7px;
+  border:1px solid #d1d5db;
+  border-radius:12px;
+  background:#fff;
+  overflow:hidden;
+  max-height:220px;
+  overflow-y:auto;
+  box-shadow:0 10px 24px rgba(15,23,42,.10);
+  z-index:5;
+}
+.item-results-box.active{display:block}
+.item-result-btn{
+  display:block;
+  width:100%;
+  border:0;
+  border-bottom:1px solid #eef2f7;
+  background:#fff;
+  text-align:left;
+  padding:10px 11px;
+  cursor:pointer;
+}
+.item-result-btn:hover{background:#f1f5f9}
+.item-result-desc{
+  display:block;
+  font-size:13px;
+  font-weight:900;
+  color:#111827;
+  line-height:1.25;
+}
+.item-result-pn{
+  display:block;
+  margin-top:4px;
+  font-size:12px;
+  font-weight:900;
+  color:#2563eb;
+}
+.serial-status-ok{margin-top:6px;color:#15803d;font-size:12px;font-weight:900}
+.serial-status-warn{margin-top:6px;color:#b45309;font-size:12px;font-weight:900}
+.serial-status-error{margin-top:6px;color:#b91c1c;font-size:12px;font-weight:900}
+
+/* Night/Night: make every input card readable. This is input UI only. */
+body.ui-night,
+body.ui-night{color:#e5e7eb}
+body.ui-night .input-panel,
+body.ui-night .form-section,
+body.ui-night .modal-box,
+body.ui-night .item-editor-row,
+body.ui-night .input-panel,
+body.ui-night .form-section,
+body.ui-night .modal-box,
+body.ui-night .item-editor-row{
+  background:#0f172a !important;
+  color:#e5e7eb !important;
+  border-color:#334155 !important;
+}
+body.ui-night .input-panel,
+body.ui-night .form-section,
+body.ui-night .modal-box,
+body.ui-night .item-editor-row{
+  background:#020617 !important;
+}
+body.ui-night input,
+body.ui-night textarea,
+body.ui-night select,
+body.ui-night .select-card,
+body.ui-night .auto-value,
+body.ui-night .auto-readonly,
+body.ui-night .item-results-box,
+body.ui-night .item-result-btn,
+body.ui-night input,
+body.ui-night textarea,
+body.ui-night select,
+body.ui-night .select-card,
+body.ui-night .auto-value,
+body.ui-night .auto-readonly,
+body.ui-night .item-results-box,
+body.ui-night .item-result-btn{
+  background:#111827 !important;
+  color:#f8fafc !important;
+  border-color:#475569 !important;
+}
+body.ui-night input,
+body.ui-night textarea,
+body.ui-night select,
+body.ui-night .select-card,
+body.ui-night .auto-value,
+body.ui-night .auto-readonly,
+body.ui-night .item-results-box,
+body.ui-night .item-result-btn{
+  background:#020617 !important;
+}
+body.ui-night input::placeholder,
+body.ui-night textarea::placeholder,
+body.ui-night input::placeholder,
+body.ui-night textarea::placeholder{color:#94a3b8 !important}
+body.ui-night label,
+body.ui-night .section-title-wrap p,
+body.ui-night .input-note,
+body.ui-night .items-display-sub,
+body.ui-night .required-hint,
+body.ui-night .modal-field label,
+body.ui-night .item-mini-field label,
+body.ui-night label,
+body.ui-night .section-title-wrap p,
+body.ui-night .input-note,
+body.ui-night .items-display-sub,
+body.ui-night .required-hint,
+body.ui-night .modal-field label,
+body.ui-night .item-mini-field label{color:#cbd5e1 !important}
+body.ui-night .item-row-title,
+body.ui-night .input-title,
+body.ui-night h3,
+body.ui-night .item-result-desc,
+body.ui-night .item-row-title,
+body.ui-night .input-title,
+body.ui-night h3,
+body.ui-night .item-result-desc{color:#f8fafc !important}
+body.ui-night .item-result-btn:hover,
+body.ui-night .item-result-btn:hover{background:#1e293b !important}
+body.ui-night .item-part-card,
+body.ui-night .item-part-card{
+  background:#172554 !important;
+  color:#dbeafe !important;
+}
+body.ui-night .btn-secondary,
+body.ui-night .btn-secondary{
+  background:#334155 !important;
+  color:#f8fafc !important;
+}
+@media(max-width:760px){
+  .item-row-grid,.item-row-grid.manual-mode{grid-template-columns:1fr;gap:12px}
+}
+/* ===== end v7 input ui + theme fix ===== */
+
+
+
+
+
+/* ===== v11 ENGINEER NAME AUTOFIT ONLY - PDF SHAPE UNCHANGED ===== */
+#reportPage .engineer-names{
+  font-size:17px !important;
+  line-height:1.08 !important;
+  font-weight:bold !important;
+  padding:6px 9px !important;
+  white-space:pre-line !important;
+  word-break:break-word !important;
+  overflow:hidden !important;
+}
+#reportPage #outBiwEngineerName,
+#reportPage #outEspEngineerName{
+  display:block;
+  width:100%;
+  max-height:100%;
+}
+/* ===== end v11 engineer name autofit ===== */
+
+
+
+
+
+/* ===== v16 NIGHT ORANGE ACCENT UI ONLY - PDF UNCHANGED ===== */
+:root{
+  --orange-accent:#f59e0b;
+  --orange-accent-2:#fb923c;
+  --orange-soft:#fff7ed;
+}
+.ui-toolbar,
+.form-actions{
+  position:relative;
+}
+.input-panel{
+  border-top:5px solid var(--orange-accent) !important;
+}
+.form-section{
+  border-color:rgba(245,158,11,.32) !important;
+}
+.section-head .step-badge,
+.step-badge{
+  background:linear-gradient(135deg,#f59e0b,#ea580c) !important;
+  color:#111827 !important;
+}
+.input-title{
+  color:#111827;
+}
+.btn-primary{
+  background:linear-gradient(135deg,#f59e0b,#ea580c) !important;
+  color:#111827 !important;
+  box-shadow:0 8px 18px rgba(245,158,11,.25);
+}
+.btn-secondary{
+  border:1px solid rgba(245,158,11,.35) !important;
+}
+.select-card:focus,
+input:focus,
+textarea:focus,
+select:focus{
+  border-color:#f59e0b !important;
+  box-shadow:0 0 0 3px rgba(245,158,11,.16) !important;
+}
+.item-part-card{
+  background:#fff7ed !important;
+  color:#9a3412 !important;
+  border:1px solid rgba(245,158,11,.28);
+}
+.item-result-pn{
+  color:#ea580c !important;
+}
+
+/* Night mode orange accent */
+body.ui-night .input-panel,
+body.ui-night .form-section,
+body.ui-night .modal-box,
+body.ui-night .item-editor-row{
+  border-color:rgba(245,158,11,.38) !important;
+}
+body.ui-night .input-panel{
+  border-top:5px solid #f59e0b !important;
+  box-shadow:0 12px 30px rgba(245,158,11,.12) !important;
+}
+body.ui-night .input-title,
+body.ui-night h3{
+  color:#fed7aa !important;
+}
+body.ui-night .step-badge{
+  background:linear-gradient(135deg,#f59e0b,#fb923c) !important;
+  color:#0f172a !important;
+}
+body.ui-night .btn-primary{
+  background:linear-gradient(135deg,#f59e0b,#fb923c) !important;
+  color:#0f172a !important;
+}
+body.ui-night .btn-secondary{
+  border:1px solid rgba(245,158,11,.42) !important;
+}
+body.ui-night .item-part-card{
+  background:#431407 !important;
+  color:#fed7aa !important;
+  border-color:rgba(245,158,11,.45) !important;
+}
+body.ui-night .item-result-pn{
+  color:#fdba74 !important;
+}
+body.ui-night .serial-status-warn{
+  color:#fdba74 !important;
+}
+/* ===== end v16 night orange accent ===== */
+
+
+
+
+
+
+
+
+
+/* ===== CLEAN PDF ITEMS ENGINE - SINGLE FULL VERTICAL LINES + NICE FLEX FONT ===== */
+#reportPage #tsItemsCleanRow > td{
+  height:360px !important;
+  padding:7px 8px !important;
+  border:2px solid #000 !important;
+  vertical-align:top !important;
+  overflow:hidden !important;
+  position:relative !important;
+  background-color:#fff !important;
+}
+#reportPage #tsItemsCleanRow > td .ts-items-vline{
+  position:absolute !important;
+  top:0 !important;
+  bottom:0 !important;
+  width:1.6px !important;
+  background:#000 !important;
+  z-index:0 !important;
+  pointer-events:none !important;
+}
+#reportPage #tsItemsCleanRow > td .ts-v1{left:15% !important;}
+#reportPage #tsItemsCleanRow > td .ts-v2{left:48% !important;}
+#reportPage #tsItemsCleanRow > td .ts-v3{left:67% !important;}
+#reportPage #tsItemsCleanRow > td .ts-v4{left:84% !important;}
+#reportPage .ts-clean-items-table{
+  width:100% !important;
+  height:auto !important;
+  border-collapse:collapse !important;
+  table-layout:fixed !important;
+  margin:0 !important;
+  background:transparent !important;
+  position:relative !important;
+  z-index:1 !important;
+}
+#reportPage .ts-clean-items-table td{
+  border:0 !important;
+  vertical-align:top !important;
+  padding:2px 7px !important;
+  font-weight:bold !important;
+  line-height:1.14 !important;
+  word-break:normal !important;
+  overflow-wrap:anywhere !important;
+  white-space:normal !important;
+  color:#000 !important;
+  overflow:visible !important;
+  background:transparent !important;
+}
+#reportPage .ts-clean-items-table tr{
+  border:0 !important;
+  height:auto !important;
+  min-height:0 !important;
+}
+#reportPage .items-table .ts-clean-items-table td,
+#reportPage .ts-clean-items-table td{
+  height:auto !important;
+  min-height:0 !important;
+  max-height:none !important;
+}
+#reportPage .ts-clean-items-table .c-qty{width:15%;text-align:center!important;}
+#reportPage .ts-clean-items-table .c-desc{width:33%;text-align:left!important;}
+#reportPage .ts-clean-items-table .c-part{width:19%;text-align:center!important;}
+#reportPage .ts-clean-items-table .c-manual{width:17%;text-align:center!important;}
+#reportPage .ts-clean-items-table .c-serial{width:16%;text-align:center!important;}
+/* ===== end clean PDF items engine single vertical lines + nice flex font ===== */
+
+
+
+/* ===== BIW CLEAN WIZARD / NEXT-BACK LAYER ===== */
+.biw-wizard-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0 14px;padding:12px 14px;border:1px solid #d9e2ec;border-radius:16px;background:linear-gradient(135deg,#f8fbff,#eef7f4);box-shadow:0 8px 22px rgba(15,23,42,.07);font-family:Arial,sans-serif}
+.biw-wizard-title{font-size:14px;font-weight:900;color:#0f3d5e;line-height:1.35}.biw-wizard-sub{font-size:12px;color:#64748b;margin-top:3px}.biw-wizard-dots{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.biw-wizard-dot{width:9px;height:9px;border-radius:99px;background:#cbd5e1}.biw-wizard-dot.done{background:#0f3d5e}.biw-wizard-dot.active{background:#c69a2b;transform:scale(1.18)}
+.biw-wizard-page{display:none!important}.biw-wizard-page.active{display:block!important;animation:biwWizardFade .22s ease;min-height:calc(100vh - 240px)}@keyframes biwWizardFade{from{opacity:.25;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.biw-wizard-nav{position:sticky;bottom:0;z-index:9999;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:16px 0 0;padding:12px;border:1px solid #d9e2ec;border-radius:16px;background:rgba(255,255,255,.96);box-shadow:0 -8px 24px rgba(15,23,42,.08);font-family:Arial,sans-serif}.biw-wizard-nav button{border:0;border-radius:12px;padding:12px 16px;min-height:44px;font-weight:900;cursor:pointer}.biw-wizard-back{background:#e5e7eb;color:#111827}.biw-wizard-next{background:linear-gradient(135deg,#0f172a,#1d4ed8);color:#fff}.biw-wizard-nav button:disabled{opacity:.45;cursor:not-allowed}.biw-wizard-counter{font-size:13px;font-weight:900;color:#64748b;text-align:center;flex:1;min-width:140px}.biw-actions-hidden{display:none!important}@media(max-width:760px){.biw-wizard-top{align-items:flex-start;flex-direction:column}.biw-wizard-dots{justify-content:flex-start}.biw-wizard-nav button{width:calc(50% - 5px)}.biw-wizard-counter{order:-1;flex:0 0 100%;width:100%;margin-bottom:4px}}
+body.generating-pdf .biw-wizard-top,body.generating-pdf .biw-wizard-nav{display:none!important} @media print{.biw-wizard-top,.biw-wizard-nav{display:none!important}}
+/* ===== END BIW CLEAN WIZARD ===== */
+
+</style>
+
+<style id="backNavStyle">
+.app-back-bar{position:sticky;top:0;z-index:99999;background:linear-gradient(135deg,#0f172a,#1e3a8a);color:#fff;padding:10px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 12px rgba(0,0,0,.15);font-family:Arial,sans-serif}
+.app-back-bar a{color:#fff;text-decoration:none;display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:700;padding:6px 12px;border-radius:8px;background:rgba(255,255,255,.15);transition:background .2s}
+.app-back-bar a:hover{background:rgba(255,255,255,.25)}
+.app-back-bar .app-back-title{flex:1;font-size:14px;font-weight:700;text-align:center;opacity:.9}
+@media print{.app-back-bar{display:none !important}}
+body.generating-pdf .app-back-bar{display:none !important}
+</style>
+</head><body>
+<!-- ===== شريط الرئيسية والتجديد ===== -->
+<style>
+.biw-topbar{position:fixed;top:8px;left:8px;z-index:99990;font-family:Arial,sans-serif}
+.biw-topbar a,.biw-topbar button{display:inline-block;vertical-align:middle;margin-right:6px;
+  padding:7px 12px;border-radius:999px;border:1px solid rgba(120,130,150,.45);
+  background:rgba(20,26,38,.82);color:#fff;font-size:12px;text-decoration:none;cursor:pointer;
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.biw-topbar a:active,.biw-topbar button:active{background:rgba(232,163,61,.35)}
+@media print{.biw-topbar{display:none!important}}
+</style>
+<div class="biw-topbar">
+  <a href="index.html">&#8962; HOME</a>
+  <button type="button" onclick="location.reload()">&#10227;</button>
+</div>
+
+<div class="app-back-bar">
+  <a href="index.html">← Menu</a>
+  <span class="app-back-title"></span>
+  <span style="width:60px"></span>
+</div>
+
+<div class="app-shell"><div class="input-panel"><h1 class="input-title">Installation Time Sheet</h1><p class="input-note">واجهة إدخال منظمة. املأ البيانات ثم اختر Download PDF أو Share PDF. التقرير النهائي PDF يبقى إنجليزي فقط.</p><div class="form-section" id="section-job-info"><div class="section-head"><div class="step-badge">1</div><div class="section-title-wrap"><h3>تسجيل المعلومات / Job Information</h3><p>يجب إكمال بيانات Job Information الأساسية قبل إنشاء PDF.</p></div></div><div class="job-grid"><div class="form-field"><label>Client</label><div id="clientDisplay" class="select-card placeholder" onclick="openClientModal()">اضغط لاختيار Client / Company</div><div class="required-hint">Required: Client + Company</div><input id="clientInput" type="hidden"><input id="companyInput" type="hidden"></div><div class="form-field"><label>Date</label><div id="dateDisplay" class="select-card placeholder" onclick="openDateModal()">اضغط لاختيار فترة التاريخ</div><input id="dateFromInput" type="hidden"><input id="dateToInput" type="hidden"><input id="dateInput" type="hidden"><input id="daysInput" type="hidden"></div><div class="form-field"><label>Total Number of Days</label><div id="daysDisplay" class="auto-value placeholder">يحسب تلقائيًا</div></div><div class="form-field"><label for="fieldInput">Field</label><input id="fieldInput" type="text" placeholder="Example: Yibal"></div><div class="form-field"><label for="wellInput">Well</label><input id="wellInput" type="text" placeholder="Example: UF-33"></div><div class="form-field"><label for="hoistInput">Hoist / Rig</label><input id="hoistInput" type="text" placeholder="Example: H-65 or R-65"></div><div class="form-field"><label for="motorTypeInput">Motor Type</label><select id="motorTypeInput"><option value=""></option><option>Induction</option><option>PMM</option></select></div></div><div id="validationHint" class="validation-hint"></div></div><div class="form-section" id="section-items"><h3>الأغراض / Items & Tools</h3><div id="itemsDisplay" class="select-card placeholder" onclick="openItemsModal()"><div class="items-display-title">اضغط لإضافة الأغراض</div><div class="items-display-sub">Select saved Description or use Manual Entry for anything not listed.</div></div><div id="itemsSummary" class="items-summary">No items added yet.</div></div><div class="form-section" id="section-signatures"><h3>المهندسين / Engineers</h3><div class="form-grid"><div class="form-field"><label>BIW Engineer</label><div id="biwEngineerDisplay" class="select-card placeholder" onclick="openEngineerModal()">اضغط لاختيار BIW Engineer</div></div><div class="form-field"><label for="espEngineerInput">ESP Engineer Name</label><input id="espEngineerInput" type="text" placeholder="اكتب اسم ESP Engineer"></div></div></div><div class="form-actions"><button class="btn btn-primary" type="button" onclick="downloadPDF()">Download PDF</button><button class="btn btn-secondary" type="button" onclick="sharePDF()">Share PDF</button></div><div id="pdfStatus" class="status-text"></div></div></div>
+<div id="clientModal" class="modal-overlay" onclick="closeClientModalByBackdrop(event)"><div class="modal-box"><h3>Select Client</h3><div class="modal-field"><label>Client</label><select id="modalClient" onchange="updateModalClientPreview()"><option value="">Select Client</option><option value="PDO">PDO</option><option value="OQ">OQ</option><option value="OXY">OXY</option><option value="Daleel">Daleel</option><option value="Petrogas">Petrogas</option><option value="ARA">ARA</option><option value="BP">BP</option><option value="Halliburton">Halliburton</option></select></div><div class="modal-field"><label>Company</label><select id="modalCompany" onchange="updateModalClientPreview()"><option value="">Select Company</option><option value="SLB">SLB</option><option value="Baker Hughes">Baker Hughes</option><option value="Levare">Levare</option><option value="Al Khorayef">Al Khorayef</option><option value="Halliburton">Halliburton</option></select></div><div class="modal-preview">Result: <span id="modalClientPreview">---</span></div><div class="modal-actions"><button class="cancel-btn" type="button" onclick="closeClientModal()">Cancel</button><button class="done-btn" type="button" onclick="saveClientSelection()">Done</button></div></div></div>
+<div id="dateModal" class="modal-overlay" onclick="closeDateModalByBackdrop(event)"><div class="modal-box"><h3>Select Date Range</h3><div class="modal-field"><label>From Date</label><input id="modalDateFrom" type="date" onchange="updateDateModalPreview()"></div><div class="modal-field"><label>To Date</label><input id="modalDateTo" type="date" onchange="updateDateModalPreview()"></div><div class="modal-preview">Result: <span id="modalDatePreview">---</span><br>Days: <span id="modalDaysPreview">---</span></div><div class="modal-actions"><button class="cancel-btn" type="button" onclick="closeDateModal()">Cancel</button><button class="done-btn" type="button" onclick="saveDateSelection()">Done</button></div></div></div>
+<div id="itemsModal" class="modal-overlay"><div class="modal-box items-modal-box"><h3>Items / Tools Information</h3><p class="items-modal-note">Choose Part Number only. Description will fill automatically. For S/N, type 6 digits per serial; for multiple serials keep typing and the slash will be added automatically. N/A items will fill N/A automatically. Instruction Manual prints once only in the first item line.</p><div id="itemsEditor" class="items-editor"></div><div class="form-actions"><button class="btn btn-secondary" type="button" onclick="addItemEditorRow()">+ Add Item</button></div><div class="modal-actions"><button class="cancel-btn" type="button" onclick="closeItemsModal()">Cancel</button><button class="done-btn" type="button" onclick="saveItemsSelection()">Done</button></div></div></div>
+<div id="engineerModal" class="modal-overlay"><div class="modal-box"><h3>Select BIW Engineer</h3><div id="engineerOptions"></div><div class="modal-actions"><button class="cancel-btn" type="button" onclick="closeEngineerModal()">Cancel</button><button class="done-btn" type="button" onclick="saveEngineerSelection()">Done</button></div></div></div>
+<div id="pdfStage" class="pdf-stage"><div id="reportPage" class="page"><table class="top-table"><tr><td class="top-left logo-cell"><div class="logo-wrap"><img class="logo-img" src="assets/timesheet-image-1.webp" alt="ITT BIW Logo"></div></td><td class="top-center center"><div class="top-title">INSTALLATION<br>TIME SHEET</div></td><td class="top-right logo-cell"><div class="logo-wrap"><img class="logo-img" src="assets/timesheet-image-2.webp" alt="BIW Connector Systems"></div></td></tr></table><table class="info-table"><tr><td class="info-label cell">Client</td><td class="info-value" colspan="3"><span id="outClient" class="report-value"></span></td><td class="info-right-label cell">Field</td><td class="info-right-value"><span id="outField" class="report-value"></span></td></tr><tr><td class="info-label cell">Date</td><td class="info-value" colspan="3"><span id="outDate" class="report-value"></span></td><td class="info-right-label cell">Well</td><td class="info-right-value"><span id="outWell" class="report-value"></span></td></tr><tr><td class="info-label cell days-label">Total Number<br>of Days</td><td class="info-value motor-days-value"><span id="outDays" class="report-value"></span></td><td class="cell motor-type-label">Motor<br>Type</td><td class="motor-type-value"><span id="outMotorType" class="report-value"></span></td><td id="outHoistLabel" class="info-right-label cell">Hoist</td><td class="info-right-value"><span id="outHoist" class="report-value"></span></td></tr></table><table class="items-table"><tr><th class="qty">Quantity</th><th class="desc">Description</th><th class="part">Part Number</th><th class="manual">Instruction<br>Manual</th><th class="serial">Serial<br>Number</th></tr><tr><td class="report-items-cell" id="outQty"></td><td class="report-items-cell" id="outDesc"></td><td class="report-items-cell" id="outPart"></td><td class="report-items-cell" id="outManual"></td><td class="report-items-cell" id="outSerial"></td></tr></table><table class="transport"><tr><td class="cell">Transportation to location by: &nbsp; BIW</td></tr><tr><td class="cell">Transportation from location by: &nbsp; BIW</td></tr></table><table class="sign-table"><tr class="header-row"><td class="sign-left"></td><td class="engineer small-header">BIW Engineer</td><td class="representative company-header">Company Representative</td><td class="supervisor small-header">ESP Engineer</td></tr><tr><td class="name-label">Name</td><td id="outBiwEngineerName" class="engineer-names"></td><td rowspan="3"></td><td id="outEspEngineerName" class="engineer-names"></td></tr><tr><td class="comment-label">Comment</td><td></td><td></td></tr><tr><td class="sign-label-text">Sign</td><td><div class="signature-box"><img id="outBiwSignature" class="signature-img" alt="BIW Signature"></div></td><td></td></tr></table></div></div>
+<script src="libs/html2canvas.min.js"></script><script src="libs/jspdf.umd.min.js"></script>
+<script>
+const SAVED_ITEMS=[{"desc":"UNI-LOK PRESSURE BLOCK ASSY 5000PSI","part":"ULK55-04","serialRequired":true},{"desc":"UNI-LOK PRESSURE BLOCK ASSY 5000PSI","part":"ULK55-02","serialRequired":true},{"desc":"KIT PRESS BLOCK FA UNI-LOK 4AWG FLAT 48","part":"ULK56-04","serialRequired":true},{"desc":"KIT PRESS BLOCK FA UNI-LOK 4AWG FLAT 48","part":"ULK56-02","serialRequired":true},{"desc":"PKR FEEDTHRU TRU-LOK FA 120#2 OR 4FL","part":"SPT120-F99-F99","serialRequired":true},{"desc":"UNI-LOK SURFACE CONN CID2 SD","part":"ULK5302-CD2","serialRequired":true},{"desc":"BOOT SEAL","part":"P300-0220-40","serialRequired":false},{"desc":"BOOT SEAL","part":"P300-0220-45","serialRequired":false},{"desc":"BOOT SEAL","part":"P300-0220-50","serialRequired":false},{"desc":"BOOT SEAL","part":"P300-0220-60","serialRequired":false},{"desc":"BOOT SEAL","part":"P300-0220-20","serialRequired":false},{"desc":"BOOT SEAL","part":"P300-0220-10","serialRequired":false},{"desc":"ASSY FEEDTHRU ADAPTER UNI-LOK HEM15333-0","part":"P175-0089","serialRequired":true},{"desc":"FITTINGS","part":"A125-0047","serialRequired":false},{"desc":"TRU-LOK WH FEEDTHRU FLAT GENERIC","part":"TLK0077160-F99","serialRequired":true},{"desc":"TRU-LOK SURF CONN C1D2 SD","part":"TLK5302-CD2","serialRequired":true},{"desc":"BRACKET","part":"P152-0301","serialRequired":false},{"desc":"REPAIR KIT TRU-LOK SURFACE C1D2 SD","part":"RKTLK5302-CD2","serialRequired":true},{"desc":"X-OVER ADAPTOR ASSY 3 INTO 1 , TRI-LOK SG","part":"P177-0237","serialRequired":true},{"desc":"1.9MU-10RD BOX 2 3/8 NU-10RD PIN","part":"A177-0295","serialRequired":false},{"desc":"WORKOVER KIT TRU-LOK WH FEED THRU","part":"WKTLK77160-F99","serialRequired":true},{"desc":"WORKOVER KIT TRI-LOK PKR FT 2-4 AWG FLAT","part":"WKSPT120-F99-F99","serialRequired":true},{"desc":"TRI-LOK PKR FT FLT#4MLE TO RND#4 120","part":"SPT120-F45-R40","serialRequired":true}];const INSTRUCTION_MANUAL_VALUE="A400-0405 REV";const ENGINEERS=["Mohammed Mujaini","Said Mujaini","Hamed Sadi","Mohammed Busaidi"];const ENGINEER_SIGNATURES={"Mohammed Mujaini":"assets/timesheet-image-3.webp","Said Mujaini":"assets/timesheet-image-4.webp","Hamed Sadi":"assets/timesheet-image-5.webp","Mohammed Busaidi":"assets/timesheet-image-6.webp"};const itemColumns=["qty","desc","part","manual","serial"];let selectedClient="",selectedCompany="",savedItemRows=[],draftItemRows=[],selectedEngineerNames=[],draftEngineerNames=[];const copyRows=rows=>JSON.parse(JSON.stringify(rows||[]));const setText=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value||""};const escapeHtml=value=>String(value||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");function openClientModal(){document.getElementById("modalClient").value=selectedClient;document.getElementById("modalCompany").value=selectedCompany;updateModalClientPreview();document.getElementById("clientModal").classList.add("active")}function closeClientModal(){document.getElementById("clientModal").classList.remove("active")}function closeClientModalByBackdrop(e){if(e.target.id==="clientModal")closeClientModal()}function buildClientText(client=selectedClient,company=selectedCompany){return client&&company?`${client} / ${company}`:""}function updateModalClientPreview(){const client=document.getElementById("modalClient").value.trim(),company=document.getElementById("modalCompany").value.trim();document.getElementById("modalClientPreview").textContent=buildClientText(client,company)||"---"}function saveClientSelection(){selectedClient=document.getElementById("modalClient").value.trim();selectedCompany=document.getElementById("modalCompany").value.trim();document.getElementById("clientInput").value=selectedClient;document.getElementById("companyInput").value=selectedCompany;updateClientDisplay();updateReport();closeClientModal()}function updateClientDisplay(){const result=buildClientText(),display=document.getElementById("clientDisplay");display.textContent=result||"اضغط لاختيار Client / Company";display.classList.toggle("placeholder",!result)}function openDateModal(){document.getElementById("modalDateFrom").value=document.getElementById("dateFromInput").value||"";document.getElementById("modalDateTo").value=document.getElementById("dateToInput").value||"";updateDateModalPreview();document.getElementById("dateModal").classList.add("active")}function closeDateModal(){document.getElementById("dateModal").classList.remove("active")}function closeDateModalByBackdrop(e){if(e.target.id==="dateModal")closeDateModal()}function formatDateDisplay(value){if(!value)return"";const [y,m,d]=value.split("-").map(Number),date=new Date(y,m-1,d),months=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];return`${String(d).padStart(2,"0")}-${months[date.getMonth()]}-${date.getFullYear()}`}function countInclusiveDays(from,to){if(!from||!to)return"";const a=new Date(from+"T00:00:00"),b=new Date(to+"T00:00:00");if(isNaN(a)||isNaN(b)||b<a)return"";return Math.round((b-a)/86400000)+1}function buildDateRange(from,to){return from&&to?`${formatDateDisplay(from)} to ${formatDateDisplay(to)}`:""}function updateDateModalPreview(){const from=document.getElementById("modalDateFrom").value,to=document.getElementById("modalDateTo").value,days=countInclusiveDays(from,to);document.getElementById("modalDatePreview").textContent=buildDateRange(from,to)||"---";document.getElementById("modalDaysPreview").textContent=days?`${days} days`:"---"}function saveDateSelection(){document.getElementById("dateFromInput").value=document.getElementById("modalDateFrom").value;document.getElementById("dateToInput").value=document.getElementById("modalDateTo").value;updateDateRange();updateReport();closeDateModal()}function updateDateRange(){const from=document.getElementById("dateFromInput").value,to=document.getElementById("dateToInput").value,dateText=buildDateRange(from,to),days=countInclusiveDays(from,to);document.getElementById("dateInput").value=dateText;document.getElementById("daysInput").value=days?`${days} days`:"";const d=document.getElementById("dateDisplay");d.textContent=dateText||"اضغط لاختيار فترة التاريخ";d.classList.toggle("placeholder",!dateText);const dd=document.getElementById("daysDisplay");dd.textContent=days?`${days} days`:"يحسب تلقائيًا";dd.classList.toggle("placeholder",!days)}function smartCapitalWords(text){return String(text||"").trim().toLowerCase().replace(/\b[a-z]/g,c=>c.toUpperCase())}function normalizeWell(value){const raw=String(value||"").trim().toUpperCase(),m=raw.match(/^([A-Z]+)\s*[- ]?\s*([0-9]+)$/);return m?`${m[1]}-${m[2]}`:raw}function normalizeHoistRig(value){const raw=String(value||"").trim().toUpperCase(),m=raw.match(/^([HR])\s*[-, ]?\s*([0-9]+)$/);if(!m)return{valid:false,label:"Hoist",value:raw};return{valid:true,label:m[1]==="R"?"Rig":"Hoist",value:`${m[1]}-${m[2]}`}}function createBlankItemRow(){return{manualMode:false,savedIndex:"",qty:"1",desc:"",part:"",manual:"",serial:"",serialRequired:false}}function openItemsModal(){draftItemRows=savedItemRows.length?copyRows(savedItemRows):[createBlankItemRow()];renderItemsEditor();document.getElementById("itemsModal").classList.add("active")}function closeItemsModal(){document.getElementById("itemsModal").classList.remove("active")}function addItemEditorRow(){draftItemRows.push(createBlankItemRow());renderItemsEditor()}function removeItemEditorRow(index){draftItemRows.splice(index,1);if(!draftItemRows.length)draftItemRows.push(createBlankItemRow());renderItemsEditor()}function isValidSerialValue(value){const clean=(value||"").trim();if(!clean)return false;return clean.split("/").map(x=>x.trim()).every(x=>/^\d{6}$/.test(x))}function formatSerialValue(value,manualMode){let raw=(value||"").toUpperCase().trim();if(manualMode&&raw==="N/A")return "N/A";let digits=raw.replace(/\D/g,"");if(!digits)return "";return digits.match(/.{1,6}/g).join("/")}function getSerialStatusText(value,manualMode){const clean=(value||"").trim();if(manualMode&&clean.toUpperCase()==="N/A")return "تم";if(isValidSerialValue(clean))return "تم";if(!clean)return "";return "أدخل 6 أرقام أو 6/6"}function handleSerialInput(index,input,manualMode){const v=formatSerialValue(input.value,manualMode);input.value=v;updateDraftItem(index,"serial",v);const st=input.parentElement.querySelector(".serial-status");if(st){const text=getSerialStatusText(v,manualMode);st.textContent=text;st.className="serial-status "+(text==="تم"?"ok":(text?"bad":""))}}function getSerialError(rowNumber,value){return`Item ${rowNumber}: Each Serial Number must be exactly 6 digits. Example: 123456 or 123456/654321/112233.`}function updateDraftItem(index,key,value){if(!draftItemRows[index])return;draftItemRows[index][key]=value;if(key==="serial"){draftItemRows[index].serial=formatSerialValue(value,draftItemRows[index].manualMode);return}if(key==="qty"||key==="desc"||key==="part"){return}if(key==="manualMode"){draftItemRows[index].manualMode=Boolean(value);draftItemRows[index].savedIndex="";draftItemRows[index].desc="";draftItemRows[index].part="";draftItemRows[index].manual="";draftItemRows[index].serial="";draftItemRows[index].serialRequired=false;renderItemsEditor();return}if(key==="savedIndex"){const item=SAVED_ITEMS[Number(value)];draftItemRows[index].desc=item?item.desc:"";draftItemRows[index].part=item?item.part:"";draftItemRows[index].manual=item?INSTRUCTION_MANUAL_VALUE:"";draftItemRows[index].serialRequired=item?Boolean(item.serialRequired):false;draftItemRows[index].serial=item?(item.serialRequired?(draftItemRows[index].serial==="N/A"?"":draftItemRows[index].serial):"N/A"):"";renderItemsEditor();return}renderItemsEditor()}function updatePartSearch(index,value){if(!draftItemRows[index])return;let v=(value||"").toUpperCase().trim();const exact=SAVED_ITEMS.findIndex(item=>item.part.toUpperCase()===v);if(exact>=0){choosePartNumber(index,exact);return}draftItemRows[index].savedIndex="";draftItemRows[index].partSearch=v;draftItemRows[index].part=v;draftItemRows[index].desc="";draftItemRows[index].manual="";draftItemRows[index].serialRequired=false;draftItemRows[index].serial="";renderItemsEditor()}function choosePartNumber(index,savedIndex){if(!draftItemRows[index])return;const item=SAVED_ITEMS[Number(savedIndex)];if(!item)return;draftItemRows[index].manualMode=false;draftItemRows[index].savedIndex=String(savedIndex);draftItemRows[index].partSearch=item.part;draftItemRows[index].desc=item.desc;draftItemRows[index].part=item.part;draftItemRows[index].manual=INSTRUCTION_MANUAL_VALUE;draftItemRows[index].serialRequired=Boolean(item.serialRequired);draftItemRows[index].serial=item.serialRequired?(draftItemRows[index].serial==="N/A"?"":draftItemRows[index].serial):"N/A";renderItemsEditor()}function renderItemsEditor(){const editor=document.getElementById("itemsEditor");editor.innerHTML="";draftItemRows.forEach((row,index)=>{const wrapper=document.createElement("div");wrapper.className="item-editor-row";const selectedItem=SAVED_ITEMS[Number(row.savedIndex)];const searchValue=(row.partSearch||row.part||"").toUpperCase();const matches=SAVED_ITEMS.map((item,i)=>({item,i})).filter(x=>!searchValue||x.item.part.toUpperCase().includes(searchValue));const partButtons=matches.length?matches.map(x=>`<button type="button" class="pn-option ${String(row.savedIndex)===String(x.i)?"active":""}" onclick="choosePartNumber(${index}, ${x.i})">${escapeHtml(x.item.part)}</button>`).join(""):`<div class="pn-no-result">No Part Number found</div>`;const savedFields=row.manualMode?"":`<div class="item-mini-field item-pn-wrap"><label>Search Part Number</label><input type="text" value="${escapeHtml(searchValue)}" oninput="updatePartSearch(${index}, this.value)" placeholder="Type Part Number"><div class="pn-options">${partButtons}</div><div class="pn-description-preview">${row.desc?escapeHtml(row.desc):"Description will appear here after selecting Part Number"}</div></div>`;const manualFields=row.manualMode?`<div class="item-mini-field"><label>Description</label><input type="text" value="${escapeHtml(row.desc)}" oninput="updateDraftItem(${index}, 'desc', this.value)"></div><div class="item-mini-field"><label>Part Number</label><input type="text" value="${escapeHtml(row.part)}" oninput="updateDraftItem(${index}, 'part', this.value)"></div><div class="item-mini-field"><label>Instruction Manual</label><input class="auto-readonly" type="text" value="${index===0?escapeHtml(INSTRUCTION_MANUAL_VALUE):""}" readonly></div>`:"";const serialStatus=getSerialStatusText(row.serial,row.manualMode);const serialHtml=!row.manualMode&&selectedItem&&!selectedItem.serialRequired?`<input class="auto-readonly" type="text" value="N/A" readonly><span class="serial-status ok">تم</span>`:`<input type="text" inputmode="numeric" pattern="[0-9/]*" value="${escapeHtml(row.serial)}" oninput="handleSerialInput(${index}, this, ${row.manualMode?'true':'false'})" placeholder="123456 or 123456/654321${row.manualMode?' or N/A':''}"><span class="serial-status ${serialStatus==='تم'?'ok':(serialStatus?'bad':'')}">${serialStatus}</span>`;wrapper.innerHTML=`<div class="item-row-top"><div class="item-row-title">Item ${index+1}</div><button class="item-remove-btn" type="button" onclick="removeItemEditorRow(${index})">Remove</button></div><label class="item-mode-line"><input type="checkbox" ${row.manualMode?"checked":""} onchange="updateDraftItem(${index}, 'manualMode', this.checked)"> Manual Entry for item not saved</label><div class="item-row-grid ${row.manualMode?"manual-mode":""}"><div class="item-mini-field"><label>Quantity</label><input type="text" value="${escapeHtml(row.qty)}" oninput="updateDraftItem(${index}, 'qty', this.value)" placeholder="1"></div>${row.manualMode?manualFields:savedFields}<div class="item-mini-field"><label>Serial Number</label>${serialHtml}</div></div>`;editor.appendChild(wrapper)})}function saveItemsSelection(){const normalized=copyRows(draftItemRows).map((row,index)=>{const item=!row.manualMode?SAVED_ITEMS[Number(row.savedIndex)]:null;return{manualMode:Boolean(row.manualMode),savedIndex:row.savedIndex,qty:(row.qty||"").trim()||"1",desc:(row.desc||"").trim(),part:(row.part||"").trim(),manual:index===0?INSTRUCTION_MANUAL_VALUE:"",serial:item&&!item.serialRequired?"N/A":(row.serial||"").trim(),serialRequired:item?Boolean(item.serialRequired):false}}).filter(row=>itemColumns.some(col=>row[col]));for(let i=0;i<normalized.length;i++){const row=normalized[i];if(!row.manualMode&&row.serialRequired&&!isValidSerialValue(row.serial)){alert(getSerialError(i+1,row.serial));return}if(row.manualMode&&row.serial&&row.serial.toUpperCase()!=="N/A"&&!isValidSerialValue(row.serial)){alert(getSerialError(i+1,row.serial));return}}savedItemRows=normalized;updateItemsDisplay();updateReport();closeItemsModal()}function updateItemsDisplay(){const display=document.getElementById("itemsDisplay"),summary=document.getElementById("itemsSummary");if(!savedItemRows.length){display.classList.add("placeholder");display.innerHTML=`<div class="items-display-title">اضغط لإضافة الأغراض</div><div class="items-display-sub">Select saved Description or use Manual Entry for anything not listed.</div>`;summary.textContent="No items added yet.";return}display.classList.remove("placeholder");display.innerHTML=`<div class="items-display-title">${savedItemRows.length} item(s) added</div><div class="items-display-sub">Tap to review or edit items.</div>`;summary.textContent=savedItemRows.map((row,i)=>`${i+1}. ${row.qty} | ${row.desc} | ${row.part} | ${i===0?INSTRUCTION_MANUAL_VALUE:""} | ${row.serial}`).join("\n")}function renderEngineerOptions(){const box=document.getElementById("engineerOptions");box.innerHTML=ENGINEERS.map(name=>`<label class="engineer-option"><input type="checkbox" value="${escapeHtml(name)}" ${draftEngineerNames.includes(name)?"checked":""} onchange="toggleEngineerName(this)"> ${escapeHtml(name)}</label>`).join("")}function openEngineerModal(){draftEngineerNames=[...selectedEngineerNames];renderEngineerOptions();document.getElementById("engineerModal").classList.add("active")}function closeEngineerModal(){document.getElementById("engineerModal").classList.remove("active")}function toggleEngineerName(input){const name=input.value;if(input.checked&&!draftEngineerNames.includes(name))draftEngineerNames.push(name);if(!input.checked)draftEngineerNames=draftEngineerNames.filter(n=>n!==name)}function saveEngineerSelection(){selectedEngineerNames=[...draftEngineerNames];updateEngineerDisplay();updateReport();closeEngineerModal()}function updateEngineerDisplay(){const display=document.getElementById("biwEngineerDisplay");display.textContent=selectedEngineerNames.length?selectedEngineerNames.join("\n"):"اضغط لاختيار BIW Engineer";display.classList.toggle("placeholder",!selectedEngineerNames.length)}function updateBiwEngineerReport(){setText("outBiwEngineerName",selectedEngineerNames.join("\n"));const img=document.getElementById("outBiwSignature"),first=selectedEngineerNames.find(name=>ENGINEER_SIGNATURES[name]);if(first){img.src=ENGINEER_SIGNATURES[first];img.style.display="block"}else{img.removeAttribute("src");img.style.display="none"}}function updateReport(){updateDateRange();setText("outClient",buildClientText());setText("outDate",document.getElementById("dateInput").value);setText("outDays",document.getElementById("daysInput").value);const field=smartCapitalWords(document.getElementById("fieldInput").value);setText("outField",field||"");setText("outWell",normalizeWell(document.getElementById("wellInput").value));const hoistData=normalizeHoistRig(document.getElementById("hoistInput").value);document.getElementById("outHoistLabel").textContent=hoistData.label;setText("outHoist",hoistData.value);setText("outEspEngineerName",document.getElementById("espEngineerInput").value.trim());const mtEl=document.getElementById("motorTypeInput");setText("outMotorType",mtEl?mtEl.value:"");const grouped={qty:[],desc:[],part:[],manual:[],serial:[]};savedItemRows.forEach(row=>{if(!itemColumns.some(col=>row[col]))return;grouped.qty.push(row.qty||"");grouped.desc.push(row.desc||"");grouped.part.push(row.part||"");grouped.manual.push(row.manual||"");grouped.serial.push(row.serial||"")});setText("outQty",grouped.qty.join("\n"));setText("outDesc",grouped.desc.join("\n"));setText("outPart",grouped.part.join("\n"));setText("outManual",grouped.manual.join("\n"));setText("outSerial",grouped.serial.join("\n"));updateBiwEngineerReport();autoFitReport()}function getItemFontSize(count){if(count<=5)return 11;if(count<=7)return 10;if(count<=10)return 9;if(count<=14)return 8;if(count<=18)return 7;return 6}function autoFitSingleLineValues(){document.querySelectorAll(".report-value").forEach(el=>{el.style.fontSize="18px";let size=18;while(el.scrollWidth>el.clientWidth&&size>8){size-=1;el.style.fontSize=size+"px"}})}function autoFitReport(){const count=Math.max(1,savedItemRows.filter(row=>itemColumns.some(col=>row[col])).length),font=getItemFontSize(count);document.querySelectorAll(".report-items-cell").forEach(cell=>{cell.style.fontSize=font+"px";cell.style.lineHeight=count>10?"1.02":"1.12"});autoFitSingleLineValues()}function validateBeforePDF(){updateReport();const missing=[];if(!selectedClient)missing.push("Client");if(!selectedCompany)missing.push("Company");if(!document.getElementById("dateFromInput").value)missing.push("From Date");if(!document.getElementById("dateToInput").value)missing.push("To Date");if(!document.getElementById("daysInput").value)missing.push("Valid Date Range");if(!document.getElementById("fieldInput").value.trim())missing.push("Field");if(!document.getElementById("wellInput").value.trim())missing.push("Well");const hRaw=document.getElementById("hoistInput").value.trim(),h=normalizeHoistRig(hRaw);if(!hRaw)missing.push("Hoist/Rig");else if(!h.valid)missing.push("Hoist/Rig format must be H-65 or R-65");const mtV=document.getElementById("motorTypeInput");if(!mtV||!mtV.value)missing.push("Motor Type");const hint=document.getElementById("validationHint");if(missing.length){const msg="Complete Section 1 before generating PDF: "+missing.join(", ");hint.textContent=msg;hint.classList.add("active");throw new Error(msg)}hint.textContent="";hint.classList.remove("active")}function setStatus(message){const el=document.getElementById("pdfStatus");if(el)el.textContent=message||""}function formatDateForFile(){const d=new Date(),pad=n=>String(n).padStart(2,"0");return`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}`}async function createPdfBlob(){updateReport();if(!window.html2canvas||!window.jspdf)throw new Error("PDF libraries are not loaded. Please check your internet connection, then try again.");const report=document.getElementById("reportPage");document.body.classList.add("generating-pdf");setStatus("Generating PDF...");await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));autoFitReport();try{const canvas=await html2canvas(report,{scale:2,useCORS:true,allowTaint:true,backgroundColor:"#ffffff",logging:false,windowWidth:794,windowHeight:1123});const imgData=canvas.toDataURL("image/jpeg",1.0),jsPDF=window.jspdf.jsPDF,pdf=new jsPDF({orientation:"portrait",unit:"mm",format:"a4",compress:true});pdf.addImage(imgData,"JPEG",0,0,210,297,undefined,"FAST");return pdf.output("blob")}finally{document.body.classList.remove("generating-pdf");setStatus("")}}async function downloadPDF(){try{const blob=await createPdfBlob(),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="time_sheet_"+formatDateForFile()+".pdf";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);setStatus("PDF downloaded.");setTimeout(()=>setStatus(""),2500)}catch(error){setStatus(error.message||"Failed to generate PDF.")}}async function sharePDF(){try{const blob=await createPdfBlob(),file=new File([blob],"time_sheet_"+formatDateForFile()+".pdf",{type:"application/pdf"});if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({title:"Installation Time Sheet",text:"Installation Time Sheet PDF",files:[file]});setStatus("PDF shared.")}else{const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=file.name;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);setStatus("Sharing is not supported here. PDF downloaded instead.")}setTimeout(()=>setStatus(""),3000)}catch(error){setStatus(error.message||"Failed to share PDF.")}}document.addEventListener("DOMContentLoaded",()=>{updateClientDisplay();updateDateRange();updateItemsDisplay();updateEngineerDisplay();document.querySelectorAll("input,textarea,select").forEach(field=>{field.addEventListener("input",updateReport);field.addEventListener("change",updateReport)});updateReport()});
+</script><script>
+/* Safety fallback: keeps Date Range functions available globally */
+(function(){
+  function byId(id){ return document.getElementById(id); }
+  function pad(n){ return String(n).padStart(2,'0'); }
+  window.formatDateDisplay = window.formatDateDisplay || function(value){
+    if(!value) return '';
+    var d = new Date(value + 'T00:00:00');
+    if(isNaN(d)) return value;
+    return pad(d.getDate()) + '-' + pad(d.getMonth()+1) + '-' + d.getFullYear();
+  };
+  window.countInclusiveDays = window.countInclusiveDays || function(from,to){
+    if(!from || !to) return 0;
+    var a = new Date(from + 'T00:00:00');
+    var b = new Date(to + 'T00:00:00');
+    if(isNaN(a) || isNaN(b) || b < a) return 0;
+    return Math.round((b-a)/86400000) + 1;
+  };
+  window.buildDateRange = window.buildDateRange || function(from,to){
+    if(from && to) return window.formatDateDisplay(from) + ' to ' + window.formatDateDisplay(to);
+    if(from) return window.formatDateDisplay(from);
+    if(to) return window.formatDateDisplay(to);
+    return '';
+  };
+  window.updateDateRange = window.updateDateRange || function(){
+    var from = byId('dateFromInput') ? byId('dateFromInput').value : '';
+    var to = byId('dateToInput') ? byId('dateToInput').value : '';
+    var dateText = window.buildDateRange(from,to);
+    var days = window.countInclusiveDays(from,to);
+    if(byId('dateInput')) byId('dateInput').value = dateText;
+    if(byId('daysInput')) byId('daysInput').value = days ? (days + ' days') : '';
+    var d = byId('dateDisplay');
+    if(d){ d.textContent = dateText || 'اضغط لاختيار فترة التاريخ'; d.classList.toggle('placeholder', !dateText); }
+    var dd = byId('daysDisplay');
+    if(dd){ dd.textContent = days ? (days + ' days') : 'يحسب تلقائيًا'; dd.classList.toggle('placeholder', !days); }
+  };
+})();
+</script>
+
+<script>
+/* v3 UI helpers: top reset, themes, item counter, validation, autosave. PDF layout is untouched. */
+(function(){
+  const STORAGE_KEY='time_sheet_v3_autosave';
+  const THEME_KEY='time_sheet_v3_theme';
+  const $=id=>document.getElementById(id);
+  function updateAutosaveBadge(text){const b=$('autosaveBadge'); if(b) b.textContent=text||'Auto-save ready';}
+  function getState(){
+    return {
+      selectedClient: typeof selectedClient!=='undefined'?selectedClient:'',
+      selectedCompany: typeof selectedCompany!=='undefined'?selectedCompany:'',
+      dateFrom:$('dateFromInput')?.value||'',dateTo:$('dateToInput')?.value||'',dateText:$('dateInput')?.value||'',days:$('daysInput')?.value||'',
+      field:$('fieldInput')?.value||'',well:$('wellInput')?.value||'',hoist:$('hoistInput')?.value||'',motor:$('motorTypeInput')?.value||'',esp:$('espEngineerInput')?.value||'',
+      items: typeof savedItemRows!=='undefined'?copyRows(savedItemRows):[],
+      engineers: typeof selectedEngineerNames!=='undefined'?[...selectedEngineerNames]:[]
+    };
+  }
+  window.saveTimeSheetDraft=function(){
+    try{localStorage.setItem(STORAGE_KEY,JSON.stringify(getState()));updateAutosaveBadge('Saved automatically');setTimeout(()=>updateAutosaveBadge('Auto-save ready'),1200)}catch(e){updateAutosaveBadge('Auto-save unavailable')}
+  };
+  window.restoreTimeSheetDraft=function(){
+    try{
+      const raw=localStorage.getItem(STORAGE_KEY); if(!raw) return false; const st=JSON.parse(raw)||{};
+      if(typeof selectedClient!=='undefined') selectedClient=st.selectedClient||'';
+      if(typeof selectedCompany!=='undefined') selectedCompany=st.selectedCompany||'';
+      if($('dateFromInput')) $('dateFromInput').value=st.dateFrom||''; if($('dateToInput')) $('dateToInput').value=st.dateTo||'';
+      if($('fieldInput')) $('fieldInput').value=st.field||''; if($('wellInput')) $('wellInput').value=st.well||''; if($('hoistInput')) $('hoistInput').value=st.hoist||''; if($('motorTypeInput')) $('motorTypeInput').value=st.motor||''; if($('espEngineerInput')) $('espEngineerInput').value=st.esp||'';
+      if(typeof savedItemRows!=='undefined') savedItemRows=copyRows(st.items||[]);
+      if(typeof selectedEngineerNames!=='undefined') selectedEngineerNames=[...(st.engineers||[])];
+      updateClientDisplay(); updateDateRange(); updateItemsDisplay(); updateEngineerDisplay(); updateReport(); updateItemCounter();
+      updateAutosaveBadge('Restored saved draft'); setTimeout(()=>updateAutosaveBadge('Auto-save ready'),1500); return true;
+    }catch(e){return false;}
+  };
+  function applyTheme(theme){document.body.classList.remove('ui-night'); if(theme==='night') document.body.classList.add('ui-night'); localStorage.setItem(THEME_KEY,theme||'light');}
+  window.setUiTheme=applyTheme;
+  window.updateItemCounter=function(){const c=typeof savedItemRows!=='undefined'?savedItemRows.length:0; const b=$('itemCounterBadge'); if(b) b.textContent=String(c); const b2=$('topItemCount'); if(b2) b2.textContent='Items: '+c;};
+  const oldUpdateItemsDisplay=window.updateItemsDisplay || updateItemsDisplay;
+  window.updateItemsDisplay=function(){oldUpdateItemsDisplay(); updateItemCounter(); saveTimeSheetDraft();};
+  const oldSaveItemsSelection=window.saveItemsSelection || saveItemsSelection;
+  window.saveItemsSelection=function(){oldSaveItemsSelection(); updateItemCounter(); saveTimeSheetDraft();};
+  const oldSaveClientSelection=window.saveClientSelection || saveClientSelection;
+  window.saveClientSelection=function(){oldSaveClientSelection(); saveTimeSheetDraft();};
+  const oldSaveDateSelection=window.saveDateSelection || saveDateSelection;
+  window.saveDateSelection=function(){oldSaveDateSelection(); saveTimeSheetDraft();};
+  const oldSaveEngineerSelection=window.saveEngineerSelection || saveEngineerSelection;
+  window.saveEngineerSelection=function(){oldSaveEngineerSelection(); saveTimeSheetDraft();};
+  window.clearAllItems=function(){if(!confirm('Clear all Items?')) return; savedItemRows=[]; draftItemRows=[]; updateItemsDisplay(); updateReport(); saveTimeSheetDraft();};
+  window.resetWholeForm=function(){
+    if(!confirm('Reset everything and start again?')) return;
+    ['fieldInput','wellInput','hoistInput','espEngineerInput','dateFromInput','dateToInput','dateInput','daysInput','clientInput','companyInput'].forEach(id=>{if($(id)) $(id).value='';});
+    selectedClient=''; selectedCompany=''; savedItemRows=[]; draftItemRows=[]; selectedEngineerNames=[]; draftEngineerNames=[];
+    localStorage.removeItem(STORAGE_KEY); updateClientDisplay(); updateDateRange(); updateItemsDisplay(); updateEngineerDisplay(); updateReport(); updateAutosaveBadge('Cleared');
+  };
+  window.validateBeforePDF=function(){
+    updateReport();
+    const missing=[];
+    if(!selectedClient) missing.push('Client'); if(!selectedCompany) missing.push('Company');
+    if(!$('dateFromInput')?.value) missing.push('From Date'); if(!$('dateToInput')?.value) missing.push('To Date'); if(!$('daysInput')?.value) missing.push('Valid Date Range');
+    if(!$('fieldInput')?.value.trim()) missing.push('Field'); if(!$('wellInput')?.value.trim()) missing.push('Well');
+    const hRaw=$('hoistInput')?.value.trim()||'', h=normalizeHoistRig(hRaw); if(!hRaw) missing.push('Hoist/Rig'); else if(!h.valid) missing.push('Hoist/Rig format must be H-65 or R-65');
+    if(!$('motorTypeInput')?.value) missing.push('Motor Type');
+    const itemErrors=[];
+    (savedItemRows||[]).forEach((row,i)=>{ if(row.serialRequired&&!isValidSerialValue(row.serial)){ itemErrors.push('Item '+(i+1)+' ('+(row.part||row.desc||'')+'): Each Serial Number must be exactly 6 digits (e.g. 123456 or 123456/654321/112233).'); }});
+    const hint=$('validationHint');
+    if(missing.length||itemErrors.length){const msg=(missing.length?'Complete Section 1: '+missing.join(', '):'')+(missing.length&&itemErrors.length?'\\n':'')+itemErrors.join('\n'); if(hint){hint.textContent=msg;hint.classList.add('active');} alert(msg); throw new Error(msg);}
+    if(hint){hint.textContent='';hint.classList.remove('active');}
+  };
+  const oldCreatePdfBlob=window.createPdfBlob || createPdfBlob;
+  window.createPdfBlob=async function(){validateBeforePDF(); return await oldCreatePdfBlob();};
+  window.downloadPDF=async function(){try{const blob=await window.createPdfBlob(),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='time_sheet_'+formatDateForFile()+'.pdf';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);setStatus('PDF downloaded.');setTimeout(()=>setStatus(''),2500)}catch(error){setStatus(error.message||'Failed to generate PDF.')}};
+  window.sharePDF=async function(){try{const blob=await window.createPdfBlob(),file=new File([blob],'time_sheet_'+formatDateForFile()+'.pdf',{type:'application/pdf'});if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({title:'Installation Time Sheet',text:'Installation Time Sheet PDF',files:[file]});setStatus('PDF shared.')}else{const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=file.name;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);setStatus('Sharing is not supported on this device. PDF downloaded instead.')}setTimeout(()=>setStatus(''),3000)}catch(error){setStatus(error.message||'Failed to share PDF.')}};
+  function buildToolbar(){
+    const panel=document.querySelector('.input-panel'); if(!panel || $('uiToolbar')) return;
+    const toolbar=document.createElement('div'); toolbar.id='uiToolbar'; toolbar.className='ui-toolbar';
+    toolbar.innerHTML=`<div class="ui-toolbar-row"><div class="quick-buttons"><button class="ui-pill danger" type="button" onclick="resetWholeForm()">Reset / إعادة من جديد</button><button class="ui-pill teal" type="button" onclick="clearAllItems()">Clear Items</button><span id="topItemCount" class="autosave-badge">Items: 0</span></div><div class="mode-buttons"><button class="ui-pill" type="button" onclick="setUiTheme('light')">Light</button><button class="ui-pill primary" type="button" onclick="setUiTheme('night')">Night</button></div></div><div class="ui-toolbar-row"><span id="autosaveBadge" class="autosave-badge">Auto-save ready</span></div>`;
+    const note=panel.querySelector('.input-note'); if(note) note.insertAdjacentElement('afterend',toolbar); else panel.prepend(toolbar);
+    const h=document.querySelector('#section-items h3'); if(h&&!$('itemCounterBadge')) h.insertAdjacentHTML('beforeend',' <span id="itemCounterBadge" class="item-counter-badge">0</span>');
+    const itemsSec=$('section-items'); if(itemsSec&&!$('itemsExtraActions')){const line=document.createElement('div');line.id='itemsExtraActions';line.className='items-action-line';line.innerHTML='<button class="btn btn-secondary" type="button" onclick="clearAllItems()">Clear Items</button>'; const summary=$('itemsSummary'); if(summary) summary.insertAdjacentElement('beforebegin',line);}
+  }
+  document.addEventListener('DOMContentLoaded',function(){
+    buildToolbar(); applyTheme(localStorage.getItem(THEME_KEY)||'light'); restoreTimeSheetDraft(); updateItemCounter();
+    document.querySelectorAll('input,textarea,select').forEach(el=>{el.addEventListener('input',saveTimeSheetDraft);el.addEventListener('change',saveTimeSheetDraft);});
+  });
+})();
+</script>
+
+
+
+
+
+<script>
+/* ===== v9 FINAL ITEMS FIX - SINGLE SOURCE + DIRECT PDF FILL ===== */
+(function(){
+  const CATALOG = SAVED_ITEMS; /* موحّد: مصدر واحد للقطع */
+  const IM_VALUE = "A400-0405 REV";
+
+  window.TS_ITEMS_FINAL = window.TS_ITEMS_FINAL || [];
+  window.TS_ITEMS_DRAFT = window.TS_ITEMS_DRAFT || [];
+
+  const originalUpdateReport = window.updateReport;
+  const originalAutoFitReport = window.autoFitReport;
+  const originalSetStatus = window.setStatus;
+  const originalFormatDateForFile = window.formatDateForFile;
+
+  function esc(v){
+    return String(v ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+  }
+  function setTextSafe(id, value){
+    const el = document.getElementById(id);
+    if(el) el.textContent = value || "";
+  }
+  function copyRows(rows){
+    return (rows || []).map(r => ({...r}));
+  }
+  function blankRow(){
+    return {manualMode:false, qty:"", desc:"", part:"", manual:"", serial:"", serialRequired:true, savedIndex:""};
+  }
+  function normalizeSerial(raw){
+    const digits = String(raw || "").replace(/\D/g,"");
+    if(!digits) return "";
+    return digits.match(/.{1,6}/g).join("/");
+  }
+  function validSerial(v){
+    v = String(v || "").trim();
+    return /^\d{6}(\/\d{6})*$/.test(v);
+  }
+  function serialStatus(row){
+    if(row.serialRequired === false) return {cls:"serial-status-ok", text:"N/A"};
+    const v = String(row.serial || "").trim();
+    if(!v) return {cls:"serial-status-warn", text:"Enter 6 digits per serial. Slash is added automatically."};
+    if(validSerial(v)) return {cls:"serial-status-ok", text:"تم"};
+    return {cls:"serial-status-error", text:"Each Serial Number must be exactly 6 digits. Example: 123456/654321/112233."};
+  }
+  function syncOriginalSavedRows(){
+    const rows = copyRows(window.TS_ITEMS_FINAL);
+    try { savedItemRows = rows; } catch(e) {}
+    try { window.savedItemRows = rows; } catch(e) {}
+    return rows;
+  }
+  function getInitialSavedRows(){
+    if(window.TS_ITEMS_FINAL && window.TS_ITEMS_FINAL.length) return copyRows(window.TS_ITEMS_FINAL);
+    try {
+      if(Array.isArray(savedItemRows) && savedItemRows.length) return copyRows(savedItemRows);
+    } catch(e) {}
+    return [];
+  }
+
+  function applyItemsToPdf(){
+    const rows = copyRows(window.TS_ITEMS_FINAL || []);
+    syncOriginalSavedRows();
+
+    const qty = [];
+    const desc = [];
+    const part = [];
+    const manual = [];
+    const serial = [];
+
+    rows.forEach((row, index) => {
+      if(!row) return;
+      const hasData = ["qty","desc","part","serial"].some(k => String(row[k] || "").trim());
+      if(!hasData) return;
+      qty.push(row.qty || "");
+      desc.push(row.desc || "");
+      part.push(row.part || "");
+      manual.push(index === 0 ? IM_VALUE : "");
+      serial.push(row.serialRequired === false ? "N/A" : (row.serial || ""));
+    });
+
+    setTextSafe("outQty", qty.join("\n"));
+    setTextSafe("outDesc", desc.join("\n"));
+    setTextSafe("outPart", part.join("\n"));
+    setTextSafe("outManual", manual.join("\n"));
+    setTextSafe("outSerial", serial.join("\n"));
+  }
+
+  function updateItemsDisplayFinal(){
+    const display = document.getElementById("itemsDisplay");
+    const summary = document.getElementById("itemsSummary");
+    const rows = window.TS_ITEMS_FINAL || [];
+    if(!display || !summary) return;
+
+    if(!rows.length){
+      display.classList.add("placeholder");
+      display.innerHTML = `<div class="items-display-title">اضغط لإضافة الأغراض</div><div class="items-display-sub">Search by Description. Part Number fills automatically.</div>`;
+      summary.textContent = "No items added yet.";
+      document.querySelectorAll("[data-items-count]").forEach(el => el.textContent = "0");
+      return;
+    }
+
+    display.classList.remove("placeholder");
+    display.innerHTML = `<div class="items-display-title">${rows.length} item(s) added</div><div class="items-display-sub">Tap to review or edit items.</div>`;
+    summary.textContent = rows.map((row, i) => {
+      const im = i === 0 ? IM_VALUE : "";
+      return `${i+1}. Qty: ${row.qty || "-"} | ${row.desc || "-"} | ${row.part || "-"} | ${im} | ${row.serial || "-"}`;
+    }).join("\n");
+    document.querySelectorAll("[data-items-count]").forEach(el => el.textContent = String(rows.length));
+  }
+
+  window.updateReport = function(){
+    if(typeof originalUpdateReport === "function"){
+      try { originalUpdateReport(); } catch(e) { console.warn("Original updateReport warning:", e); }
+    }
+    applyItemsToPdf();
+    if(typeof originalAutoFitReport === "function"){
+      try { originalAutoFitReport(); } catch(e) {}
+    }
+  };
+
+  window.openItemsModal = function(){
+    const saved = getInitialSavedRows();
+    window.TS_ITEMS_FINAL = saved;
+    window.TS_ITEMS_DRAFT = saved.length ? copyRows(saved) : [blankRow()];
+    renderItemsEditorFinal();
+    const modal = document.getElementById("itemsModal");
+    if(modal) modal.classList.add("active");
+  };
+
+  window.renderItemsEditorFinal = function(){
+    const editor = document.getElementById("itemsEditor");
+    if(!editor) return;
+
+    if(!window.TS_ITEMS_DRAFT.length) window.TS_ITEMS_DRAFT = [blankRow()];
+
+    editor.innerHTML = window.TS_ITEMS_DRAFT.map((row, index) => {
+      const manual = !!row.manualMode;
+      if(row.serialRequired !== false) row.serialRequired = true;
+      const status = serialStatus(row);
+
+      return `
+      <div class="item-editor-row" data-index="${index}">
+        <div class="item-row-top">
+          <div class="item-row-title">Item ${index + 1}</div>
+          <button class="item-remove-btn" type="button" onclick="removeItemEditorRow(${index})">Remove</button>
+        </div>
+
+        <label class="item-mode-line">
+          <input type="checkbox" ${manual ? "checked" : ""} onchange="updateDraftItemFinal(${index}, 'manualMode', this.checked)">
+          Manual Entry for item not saved
+        </label>
+
+        <div class="item-row-grid ${manual ? "manual-mode" : ""}">
+          <div class="item-mini-field">
+            <label>Quantity</label>
+            <input type="number" min="1" inputmode="numeric" value="${esc(row.qty || "")}" oninput="updateDraftItemFinal(${index}, 'qty', this.value)" placeholder="1">
+          </div>
+
+          <div class="item-mini-field">
+            <label>${manual ? "Description" : "Search Description"}</label>
+            ${manual ? `
+              <input value="${esc(row.desc || "")}" oninput="updateDraftItemFinal(${index}, 'desc', this.value)" placeholder="Type Description">
+            ` : `
+              <input value="${esc(row.desc || "")}" oninput="searchDescriptionFinal(${index}, this.value)" onfocus="searchDescriptionFinal(${index}, this.value)" placeholder="Type Description">
+              <div id="itemResultsFinal_${index}" class="item-results-box"></div>
+              <div class="item-part-card">${row.part ? "Part Number: " + esc(row.part) : "Part Number will appear here"}</div>
+            `}
+          </div>
+
+          <div class="item-mini-field">
+            <label>Part Number</label>
+            <input class="${manual ? "" : "auto-readonly"}" value="${esc(row.part || "")}" ${manual ? `oninput="updateDraftItemFinal(${index}, 'part', this.value)"` : "readonly"} placeholder="Part Number">
+          </div>
+
+          <div class="item-mini-field">
+            <label>Serial Number</label>
+            ${row.serialRequired === false ? `
+              <input class="auto-readonly" value="N/A" readonly>
+              <div class="serial-status-ok">N/A</div>
+            ` : `
+              <input inputmode="numeric" pattern="[0-9/]*" value="${esc(row.serial || "")}" oninput="updateSerialFinal(${index}, this.value)" placeholder="123456 or 123456/654321">
+              <div class="${status.cls}">${status.text}</div>
+            `}
+          </div>
+        </div>
+      </div>`;
+    }).join("");
+  };
+
+  window.searchDescriptionFinal = function(index, value){
+    const row = window.TS_ITEMS_DRAFT[index];
+    if(!row) return;
+
+    row.desc = value;
+    row.part = "";
+    row.savedIndex = "";
+    row.serialRequired = true;
+    row.serial = "";
+
+    const box = document.getElementById("itemResultsFinal_" + index);
+    if(!box) return;
+
+    const q = String(value || "").trim().toLowerCase();
+    const results = q
+      ? CATALOG.filter(x => x.desc.toLowerCase().includes(q) || x.part.toLowerCase().includes(q))
+      : CATALOG;
+
+    box.innerHTML = results.map(item => `
+      <button class="item-result-btn" type="button" onclick="selectCatalogItemFinal(${index}, '${esc(item.part)}')">
+        <span class="item-result-desc">${esc(item.desc)}</span>
+        <span class="item-result-pn">${esc(item.part)}</span>
+      </button>
+    `).join("");
+
+    box.classList.toggle("active", results.length > 0);
+  };
+
+  window.selectCatalogItemFinal = function(index, part){
+    const item = CATALOG.find(x => x.part === part);
+    if(!item || !window.TS_ITEMS_DRAFT[index]) return;
+
+    window.TS_ITEMS_DRAFT[index] = {
+      ...window.TS_ITEMS_DRAFT[index],
+      manualMode:false,
+      savedIndex:String(CATALOG.findIndex(x => x.part === part)),
+      desc:item.desc,
+      part:item.part,
+      manual:"",
+      serialRequired:!!item.serialRequired,
+      serial:item.serialRequired ? "" : "N/A"
+    };
+    renderItemsEditorFinal();
+  };
+
+  window.updateDraftItemFinal = function(index, field, value){
+    const row = window.TS_ITEMS_DRAFT[index];
+    if(!row) return;
+
+    if(field === "manualMode"){
+      row.manualMode = !!value;
+      row.savedIndex = "";
+      row.serialRequired = true;
+      if(row.serial === "N/A") row.serial = "";
+      if(!value){
+        row.desc = "";
+        row.part = "";
+        row.serial = "";
+      }
+      renderItemsEditorFinal();
+      return;
+    }
+
+    row[field] = value;
+  };
+
+  window.updateSerialFinal = function(index, value){
+    const row = window.TS_ITEMS_DRAFT[index];
+    if(!row) return;
+
+    row.serial = normalizeSerial(value);
+    renderItemsEditorFinal();
+
+    const input = document.querySelector(`.item-editor-row[data-index="${index}"] input[placeholder*="123456"]`);
+    if(input){
+      input.focus();
+      const p = input.value.length;
+      input.setSelectionRange(p, p);
+    }
+  };
+
+  window.addItemEditorRow = function(){
+    window.TS_ITEMS_DRAFT.push(blankRow());
+    renderItemsEditorFinal();
+  };
+
+  window.removeItemEditorRow = function(index){
+    window.TS_ITEMS_DRAFT.splice(index, 1);
+    if(!window.TS_ITEMS_DRAFT.length) window.TS_ITEMS_DRAFT = [blankRow()];
+    renderItemsEditorFinal();
+  };
+
+  window.saveItemsSelection = function(){
+    const normalized = (window.TS_ITEMS_DRAFT || []).map((row, index) => {
+      const empty = !String(row.qty || "").trim() &&
+                    !String(row.desc || "").trim() &&
+                    !String(row.part || "").trim() &&
+                    !String(row.serial || "").trim();
+      if(empty) return null;
+
+      const serialRequired = row.serialRequired !== false;
+      return {
+        manualMode:!!row.manualMode,
+        savedIndex:row.savedIndex || "",
+        qty:String(row.qty || "").trim() || "1",
+        desc:String(row.desc || "").trim(),
+        part:String(row.part || "").trim(),
+        manual:index === 0 ? IM_VALUE : "",
+        serial:serialRequired ? String(row.serial || "").trim() : "N/A",
+        serialRequired:serialRequired
+      };
+    }).filter(Boolean);
+
+    for(let i=0; i<normalized.length; i++){
+      const row = normalized[i];
+      if(!row.qty || !row.desc || !row.part){
+        alert("Item " + (i+1) + ": Quantity, Description, and Part Number are required.");
+        return;
+      }
+      if(row.serialRequired && !validSerial(row.serial)){
+        alert("Item " + (i+1) + ": Each Serial Number must be exactly 6 digits. Example: 123456 or 123456/654321/112233.");
+        return;
+      }
+    }
+
+    window.TS_ITEMS_FINAL = normalized;
+    syncOriginalSavedRows();
+    updateItemsDisplayFinal();
+    window.updateReport();
+
+    if(typeof saveTimeSheetDraft === "function"){
+      try { saveTimeSheetDraft(); } catch(e) {}
+    }
+
+    const modal = document.getElementById("itemsModal");
+    if(modal) modal.classList.remove("active");
+  };
+
+  window.clearAllItems = function(){
+    if(!confirm("Clear all Items?")) return;
+    window.TS_ITEMS_FINAL = [];
+    window.TS_ITEMS_DRAFT = [];
+    syncOriginalSavedRows();
+    updateItemsDisplayFinal();
+    window.updateReport();
+    if(typeof saveTimeSheetDraft === "function"){
+      try { saveTimeSheetDraft(); } catch(e) {}
+    }
+  };
+
+  function validateItemsFinal(){
+    const errors = [];
+    (window.TS_ITEMS_FINAL || []).forEach((row, i) => {
+      if(!row.qty || !row.desc || !row.part) errors.push("Item " + (i+1) + ": Quantity, Description, and Part Number are required.");
+      if(row.serialRequired && !validSerial(row.serial)) errors.push("Item " + (i+1) + ": Each Serial Number must be exactly 6 digits. Example: 123456 or 123456/654321/112233.");
+    });
+    return errors;
+  }
+
+  const originalValidateBeforePDF = window.validateBeforePDF;
+  window.validateBeforePDF = function(){
+    if(typeof originalValidateBeforePDF === "function") originalValidateBeforePDF();
+    const errors = validateItemsFinal();
+    if(errors.length){
+      const msg = errors.join("\n");
+      const hint = document.getElementById("validationHint");
+      if(hint){
+        hint.textContent = msg;
+        hint.classList.add("active");
+      }
+      alert(msg);
+      throw new Error(msg);
+    }
+  };
+
+  function waitFrame(){ return new Promise(resolve => requestAnimationFrame(resolve)); }
+  function waitMs(ms){ return new Promise(resolve => setTimeout(resolve, ms)); }
+  async function waitForRender(){
+    if(document.fonts && document.fonts.ready){
+      try { await document.fonts.ready; } catch(e) {}
+    }
+    for(let i=0; i<5; i++) await waitFrame();
+    await waitMs(250);
+  }
+
+  function formatDateForFileFinal(){
+    if(typeof originalFormatDateForFile === "function"){
+      try { return originalFormatDateForFile(); } catch(e) {}
+    }
+    const d = new Date();
+    const pad = n => String(n).padStart(2,"0");
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}`;
+  }
+
+  function setStatusFinal(msg){
+    if(typeof originalSetStatus === "function"){
+      try { originalSetStatus(msg); return; } catch(e) {}
+    }
+    const el = document.getElementById("pdfStatus");
+    if(el) el.textContent = msg || "";
+  }
+
+  window.createPdfBlob = async function(){
+    if(typeof window.validateBeforePDF === "function") window.validateBeforePDF();
+
+    syncOriginalSavedRows();
+    window.updateReport();
+    applyItemsToPdf();
+
+    if(!window.html2canvas || !window.jspdf){
+      throw new Error("PDF libraries are not loaded. Please check your internet connection, then try again.");
+    }
+
+    const report = document.getElementById("reportPage");
+    if(!report) throw new Error("Report page was not found.");
+
+    document.body.classList.add("generating-pdf");
+    setStatusFinal("Generating PDF...");
+
+    try{
+      syncOriginalSavedRows();
+      window.updateReport();
+      applyItemsToPdf();
+      report.offsetHeight;
+      if(typeof originalAutoFitReport === "function"){
+        try { originalAutoFitReport(); } catch(e) {}
+      }
+      report.offsetHeight;
+      await waitForRender();
+
+      const canvas = await html2canvas(report,{
+        scale:2,
+        useCORS:true,
+        allowTaint:true,
+        backgroundColor:"#ffffff",
+        logging:false,
+        windowWidth:794,
+        windowHeight:1123,
+        scrollX:0,
+        scrollY:0
+      });
+
+      const imgData = canvas.toDataURL("image/jpeg",1.0);
+      const jsPDF = window.jspdf.jsPDF;
+      const pdf = new jsPDF({orientation:"portrait", unit:"mm", format:"a4", compress:true});
+      pdf.addImage(imgData,"JPEG",0,0,210,297,undefined,"FAST");
+      return pdf.output("blob");
+    } finally {
+      document.body.classList.remove("generating-pdf");
+      setStatusFinal("");
+    }
+  };
+
+  window.downloadPDF = async function(){
+    try{
+      const blob = await window.createPdfBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "time_sheet_" + formatDateForFileFinal() + ".pdf";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      setStatusFinal("PDF downloaded.");
+      setTimeout(() => setStatusFinal(""), 2500);
+    }catch(error){
+      setStatusFinal(error.message || "Failed to generate PDF.");
+    }
+  };
+
+  window.sharePDF = async function(){
+    try{
+      const blob = await window.createPdfBlob();
+      const file = new File([blob], "time_sheet_" + formatDateForFileFinal() + ".pdf", {type:"application/pdf"});
+      if(navigator.canShare && navigator.canShare({files:[file]})){
+        await navigator.share({title:"Installation Time Sheet", files:[file]});
+        setStatusFinal("PDF shared.");
+      }else{
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = file.name;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        setStatusFinal("Sharing not supported. PDF downloaded instead.");
+      }
+      setTimeout(() => setStatusFinal(""), 2500);
+    }catch(error){
+      setStatusFinal(error.message || "Failed to share PDF.");
+    }
+  };
+
+  document.addEventListener("click", function(e){
+    document.querySelectorAll(".item-results-box.active").forEach(box => {
+      const field = box.closest(".item-mini-field");
+      if(field && !field.contains(e.target)) box.classList.remove("active");
+    });
+  });
+
+  document.addEventListener("DOMContentLoaded", function(){
+    const initial = getInitialSavedRows();
+    window.TS_ITEMS_FINAL = initial;
+    syncOriginalSavedRows();
+    updateItemsDisplayFinal();
+    applyItemsToPdf();
+  });
+
+  setTimeout(function(){
+    const initial = getInitialSavedRows();
+    if(initial.length && !window.TS_ITEMS_FINAL.length) window.TS_ITEMS_FINAL = initial;
+    syncOriginalSavedRows();
+    updateItemsDisplayFinal();
+    applyItemsToPdf();
+  }, 300);
+})();
+</script>
+
+
+<script>
+/* ===== v11 ENGINEER NAME AUTOFIT - PDF SHAPE UNCHANGED ===== */
+(function(){
+  const prevUpdateReport = window.updateReport;
+  const prevCreatePdfBlob = window.createPdfBlob;
+
+  function fitEngineerNameCell(id){
+    const el = document.getElementById(id);
+    if(!el) return;
+
+    const text = (el.textContent || "").trim();
+    if(!text){
+      el.style.fontSize = "17px";
+      el.style.lineHeight = "1.08";
+      return;
+    }
+
+    const lines = text.split(/\n+/).filter(Boolean).length;
+    let size = lines >= 3 ? 12 : (lines === 2 ? 14.5 : 17);
+    const min = 10;
+
+    el.style.fontSize = size + "px";
+    el.style.lineHeight = lines >= 2 ? "1.04" : "1.08";
+
+    const cell = el.closest("td");
+    if(!cell) return;
+
+    let guard = 0;
+    while((el.scrollHeight > cell.clientHeight - 6 || el.scrollWidth > cell.clientWidth - 8) && size > min && guard < 30){
+      size -= 0.5;
+      el.style.fontSize = size + "px";
+      guard++;
+    }
+  }
+
+  function fitEngineerNames(){
+    fitEngineerNameCell("outBiwEngineerName");
+    fitEngineerNameCell("outEspEngineerName");
+  }
+
+  window.updateReport = function(){
+    if(typeof prevUpdateReport === "function") prevUpdateReport();
+    fitEngineerNames();
+  };
+
+  window.createPdfBlob = async function(){
+    window.updateReport();
+    fitEngineerNames();
+    if(typeof prevCreatePdfBlob === "function"){
+      return await prevCreatePdfBlob();
+    }
+    throw new Error("PDF generator is not available.");
+  };
+
+  document.addEventListener("DOMContentLoaded", function(){
+    setTimeout(fitEngineerNames, 350);
+  });
+})();
+</script>
+
+
+<script>
+/* ===== v16 NIGHT ONLY + UNLIMITED SERIAL FIX ===== */
+(function(){
+  function normalizeOpenSerial(value){
+    const digits = String(value || "").replace(/\D/g, "");
+    if(!digits) return "";
+    return digits.match(/.{1,6}/g).join("/");
+  }
+
+  function isValidOpenSerial(value){
+    const clean = String(value || "").trim();
+    if(!clean) return false;
+    const parts = clean.split("/");
+    return parts.length >= 1 && parts.every(part => /^\d{6}$/.test(part));
+  }
+
+  function openSerialError(rowNumber){
+    return "Item " + rowNumber + ": Each Serial Number must be exactly 6 digits. Example: 123456/654321/112233/445566/778899.";
+  }
+
+  window.isValidSerialValue = function(value){
+    return isValidOpenSerial(value);
+  };
+
+  window.formatSerialValue = function(value, manualMode){
+    const raw = String(value || "").toUpperCase().trim();
+    if(manualMode && raw === "N/A") return "N/A";
+    return normalizeOpenSerial(raw);
+  };
+
+  window.getSerialStatusText = function(value, manualMode){
+    const clean = String(value || "").trim();
+    if(manualMode && clean.toUpperCase() === "N/A") return "تم";
+    if(isValidOpenSerial(clean)) return "تم";
+    if(!clean) return "";
+    return "كل Serial Number لازم يكون 6 أرقام";
+  };
+
+  window.getSerialError = function(rowNumber, value){
+    return openSerialError(rowNumber);
+  };
+
+  /* Override all known serial handlers, including final item layer */
+  window.updateSerialFinal = function(index, value){
+    const row = window.TS_ITEMS_DRAFT && window.TS_ITEMS_DRAFT[index];
+    if(!row) return;
+    row.serial = normalizeOpenSerial(value);
+    if(typeof renderItemsEditorFinal === "function"){
+      renderItemsEditorFinal();
+    }
+    const input = document.querySelector(`.item-editor-row[data-index="${index}"] input[placeholder*="123456"]`);
+    if(input){
+      input.focus();
+      const p = input.value.length;
+      input.setSelectionRange(p, p);
+    }
+  };
+
+  window.updateSerialV8 = window.updateSerialFinal;
+  window.updateSerialV7 = window.updateSerialFinal;
+  window.updateSerialV5 = window.updateSerialFinal;
+
+  window.handleSerialInput = function(index, input, manualMode){
+    const v = window.formatSerialValue(input.value, manualMode);
+    input.value = v;
+
+    try{
+      if(Array.isArray(draftItemRows) && draftItemRows[index]){
+        draftItemRows[index].serial = v;
+      }
+    }catch(e){}
+    if(Array.isArray(window.draftItemRows) && window.draftItemRows[index]){
+      window.draftItemRows[index].serial = v;
+    }
+    if(Array.isArray(window.TS_ITEMS_DRAFT) && window.TS_ITEMS_DRAFT[index]){
+      window.TS_ITEMS_DRAFT[index].serial = v;
+    }
+
+    const st = input.parentElement ? input.parentElement.querySelector(".serial-status") : null;
+    if(st){
+      const text = window.getSerialStatusText(v, manualMode);
+      st.textContent = text;
+      st.className = "serial-status " + (text === "تم" ? "ok" : (text ? "bad" : ""));
+    }
+  };
+
+  function validateOpenSerialsBeforePdf(){
+    let rows = [];
+    if(Array.isArray(window.TS_ITEMS_FINAL) && window.TS_ITEMS_FINAL.length){
+      rows = window.TS_ITEMS_FINAL;
+    }else{
+      try{
+        if(Array.isArray(savedItemRows)) rows = savedItemRows;
+      }catch(e){}
+    }
+
+    const errors = [];
+    rows.forEach((row, index) => {
+      if(!row) return;
+      const serial = String(row.serial || "").trim();
+      const isNA = row.serialRequired === false || serial.toUpperCase() === "N/A";
+      if(isNA) return;
+      if(!isValidOpenSerial(serial)){
+        errors.push(openSerialError(index + 1));
+      }
+    });
+
+    if(errors.length){
+      const msg = errors.join("\n");
+      const hint = document.getElementById("validationHint");
+      if(hint){
+        hint.textContent = msg;
+        hint.classList.add("active");
+        try{ hint.scrollIntoView({behavior:"smooth", block:"center"}); }catch(e){}
+      }
+      alert(msg);
+      throw new Error(msg);
+    }
+  }
+
+  const previousValidate = window.validateBeforePDF;
+  window.validateBeforePDF = function(){
+    if(typeof previousValidate === "function") previousValidate();
+    validateOpenSerialsBeforePdf();
+  };
+
+  const previousCreatePdfBlob = window.createPdfBlob;
+  window.createPdfBlob = async function(){
+    validateOpenSerialsBeforePdf();
+    if(typeof previousCreatePdfBlob === "function"){
+      return await previousCreatePdfBlob();
+    }
+    throw new Error("PDF generator is not available.");
+  };
+
+})();
+</script>
+
+
+<script>
+/* ===== v20 UPPERCASE DESCRIPTION/PART NUMBER RULE ONLY ===== */
+(function(){
+  function upper(v){
+    return String(v || "").toUpperCase();
+  }
+
+  function uppercaseRows(rows){
+    if(!Array.isArray(rows)) return rows;
+    rows.forEach(function(row){
+      if(!row) return;
+      if("desc" in row) row.desc = upper(row.desc);
+      if("part" in row) row.part = upper(row.part);
+    });
+    return rows;
+  }
+
+  const previousUpdateDraftItemFinal = window.updateDraftItemFinal;
+  window.updateDraftItemFinal = function(index, field, value){
+    if(field === "desc" || field === "part"){
+      value = upper(value);
+    }
+    if(typeof previousUpdateDraftItemFinal === "function"){
+      previousUpdateDraftItemFinal(index, field, value);
+    }else if(window.TS_ITEMS_DRAFT && window.TS_ITEMS_DRAFT[index]){
+      window.TS_ITEMS_DRAFT[index][field] = value;
+    }
+  };
+
+  const previousSaveItemsSelection = window.saveItemsSelection;
+  window.saveItemsSelection = function(){
+    uppercaseRows(window.TS_ITEMS_DRAFT);
+    if(typeof previousSaveItemsSelection === "function"){
+      previousSaveItemsSelection.apply(this, arguments);
+    }
+    uppercaseRows(window.TS_ITEMS_FINAL);
+    try{ uppercaseRows(savedItemRows); }catch(e){}
+    if(typeof window.updateReport === "function") window.updateReport();
+  };
+
+  const previousUpdateReport = window.updateReport;
+  window.updateReport = function(){
+    uppercaseRows(window.TS_ITEMS_FINAL);
+    try{ uppercaseRows(savedItemRows); }catch(e){}
+    if(typeof previousUpdateReport === "function"){
+      previousUpdateReport.apply(this, arguments);
+    }
+  };
+
+  document.addEventListener("input", function(e){
+    const el = e.target;
+    if(!el || !el.closest) return;
+    const itemRow = el.closest(".item-editor-row");
+    if(!itemRow) return;
+    const ph = (el.getAttribute("placeholder") || "").toLowerCase();
+    const label = el.parentElement ? (el.parentElement.querySelector("label")?.textContent || "").toLowerCase() : "";
+    if(ph.includes("description") || ph.includes("part number") || label.includes("description") || label.includes("part number")){
+      const pos = el.selectionStart;
+      el.value = upper(el.value);
+      try{ el.setSelectionRange(pos, pos); }catch(err){}
+    }
+  });
+})();
+</script>
+
+
+<script>
+/* ===== CLEAN PDF ITEMS ENGINE - SINGLE SOURCE OF TRUTH ===== */
+(function(){
+  const ROW_ID = "tsItemsCleanRow";
+  const IM_VALUE = "A400-0405 REV";
+
+  function esc(value){
+    return String(value ?? "").replace(/[&<>"']/g, function(ch){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch];
+    });
+  }
+
+  function getRows(){
+    let rows = [];
+    if(Array.isArray(window.TS_ITEMS_FINAL) && window.TS_ITEMS_FINAL.length){
+      rows = window.TS_ITEMS_FINAL;
+    }else{
+      try{
+        if(Array.isArray(savedItemRows) && savedItemRows.length) rows = savedItemRows;
+      }catch(e){}
+    }
+    return (rows || []).filter(function(row){
+      if(!row) return false;
+      return ["qty","desc","part","serial"].some(function(key){
+        return String(row[key] || "").trim();
+      });
+    });
+  }
+
+  function fontFor(count, rows){
+    const lengths = (rows || []).map(function(row){
+      return Math.max(
+        String(row.desc || "").length,
+        String(row.part || "").length,
+        String(row.serial || "").length,
+        String(row.qty || "").length
+      );
+    });
+    const maxText = lengths.length ? Math.max.apply(null, lengths) : 0;
+
+    let size;
+    if(count <= 2) size = 17.4;
+    else if(count <= 3) size = 16.8;
+    else if(count <= 5) size = 15.7;
+    else if(count <= 7) size = 14.2;
+    else if(count <= 9) size = 12.8;
+    else if(count <= 12) size = 11.4;
+    else if(count <= 16) size = 9.8;
+    else size = 8.4;
+
+    if(maxText > 50) size -= .35;
+    if(maxText > 75) size -= .45;
+    if(maxText > 100) size -= .45;
+    if(maxText > 130) size -= .35;
+
+    return Math.max(7.2, Math.min(17.6, size));
+  }
+
+  function lineFor(count){
+    if(count > 14) return 1.05;
+    if(count > 10) return 1.07;
+    if(count > 7) return 1.09;
+    if(count > 5) return 1.11;
+    return 1.18;
+  }
+
+  function applyItemFont(table, size, line){
+    if(!table) return;
+    table.querySelectorAll("td").forEach(function(td){
+      td.style.fontSize = size + "px";
+      td.style.lineHeight = line;
+    });
+  }
+
+  function fitItemsFont(table, cell, startSize, startLine){
+    if(!table || !cell) return;
+    let size = startSize;
+    let line = startLine;
+    const maxHeight = Math.max(40, cell.clientHeight - 12);
+    applyItemFont(table, size, line);
+
+    while(table.scrollHeight > maxHeight && size > 7.0){
+      size -= 0.35;
+      line = Math.max(1.0, line - 0.01);
+      applyItemFont(table, size, line);
+    }
+
+    while(table.scrollHeight < maxHeight * 0.48 && size < 17.6){
+      size += 0.35;
+      applyItemFont(table, size, line);
+      if(table.scrollHeight > maxHeight * 0.58){
+        size -= 0.35;
+        applyItemFont(table, size, line);
+        break;
+      }
+    }
+  }
+
+  function buildItemsTable(){
+    const rows = getRows();
+    const outQty = document.getElementById("outQty");
+    if(!outQty) return;
+
+    let originalRow = outQty;
+    while(originalRow && originalRow.tagName !== "TR") originalRow = originalRow.parentNode;
+    if(!originalRow || !originalRow.parentNode) return;
+
+    const oldCleanRow = document.getElementById(ROW_ID);
+    if(oldCleanRow && oldCleanRow.parentNode) oldCleanRow.parentNode.removeChild(oldCleanRow);
+
+    if(!rows.length){
+      originalRow.style.display = "";
+      return;
+    }
+
+    const size = fontFor(rows.length, rows);
+    const line = lineFor(rows.length);
+    const htmlRows = rows.map(function(row, index){
+      const serial = row.serialRequired === false ? "N/A" : (row.serial || "");
+      const manual = index === 0 ? IM_VALUE : "";
+      return '<tr>' +
+        '<td class="c-qty" style="font-size:'+size+'px;line-height:'+line+'">' + esc(row.qty || "") + '</td>' +
+        '<td class="c-desc" style="font-size:'+size+'px;line-height:'+line+'">' + esc(row.desc || "") + '</td>' +
+        '<td class="c-part" style="font-size:'+size+'px;line-height:'+line+'">' + esc(row.part || "") + '</td>' +
+        '<td class="c-manual" style="font-size:'+size+'px;line-height:'+line+'">' + esc(manual) + '</td>' +
+        '<td class="c-serial" style="font-size:'+size+'px;line-height:'+line+'">' + esc(serial) + '</td>' +
+      '</tr>';
+    }).join("");
+
+    const cleanRow = document.createElement("tr");
+    cleanRow.id = ROW_ID;
+    const cell = document.createElement("td");
+    cell.colSpan = 5;
+    cell.innerHTML = '<div class="ts-items-vline ts-v1"></div><div class="ts-items-vline ts-v2"></div><div class="ts-items-vline ts-v3"></div><div class="ts-items-vline ts-v4"></div><table class="ts-clean-items-table"><tbody>' + htmlRows + '</tbody></table>';
+    cleanRow.appendChild(cell);
+
+    originalRow.parentNode.insertBefore(cleanRow, originalRow.nextSibling);
+    originalRow.style.display = "none";
+    fitItemsFont(cell.querySelector(".ts-clean-items-table"), cell, size, line);
+  }
+
+  window.TS_RENDER_ITEMS_CLEAN = buildItemsTable;
+
+  const previousUpdateReport = window.updateReport;
+  window.updateReport = function(){
+    const result = typeof previousUpdateReport === "function" ? previousUpdateReport.apply(this, arguments) : undefined;
+    try{ buildItemsTable(); }catch(e){ console.warn("clean items table:", e); }
+    return result;
+  };
+
+  const previousCreatePdfBlob = window.createPdfBlob;
+  if(typeof previousCreatePdfBlob === "function"){
+    window.createPdfBlob = async function(){
+      if(typeof window.updateReport === "function"){
+        try{ window.updateReport(); }catch(e){}
+      }
+      try{ buildItemsTable(); }catch(e){}
+      await new Promise(function(resolve){
+        requestAnimationFrame(function(){
+          requestAnimationFrame(function(){
+            try{ buildItemsTable(); }catch(e){}
+            resolve();
+          });
+        });
+      });
+      return await previousCreatePdfBlob.apply(this, arguments);
+    };
+  }
+
+  window.__cleanBuildItemsTable = buildItemsTable;
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", buildItemsTable);
+  }else{
+    buildItemsTable();
+  }
+})();
+/* ===== end clean PDF items engine ===== */
+
+
+/* ===== v27 PDF FILE NAME FROM WELL ONLY - NO PDF DESIGN CHANGE ===== */
+(function(){
+  "use strict";
+
+  function normalizeWellForFileName(value){
+    var v = String(value || "").trim().toUpperCase();
+    v = v.replace(/[^A-Z0-9]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+    var m = v.match(/^([A-Z]+)-?(.+)$/);
+    if(m) v = m[1] + "-" + m[2].replace(/^-+/, "");
+    return v || "Time_Sheet";
+  }
+
+  window.getTimeSheetPdfFileName = function(){
+    var wellEl = document.getElementById("wellInput");
+    var well = normalizeWellForFileName(wellEl ? wellEl.value : "");
+    return well + ".pdf";
+  };
+
+  var oldDownloadPDF = window.downloadPDF;
+  if(typeof oldDownloadPDF === "function" && !window.__v27WellPdfNameDownload){
+    window.__v27WellPdfNameDownload = true;
+    window.downloadPDF = async function(){
+      try{
+        if(typeof validateRequiredForPdf === "function" && !validateRequiredForPdf()) return;
+      }catch(e){}
+
+      try{
+        var status = document.getElementById("pdfStatus");
+        if(status) status.textContent = "Creating PDF...";
+        var blob = await createPdfBlob();
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url;
+        a.download = window.getTimeSheetPdfFileName();
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
+        if(status) status.textContent = "PDF ready: " + window.getTimeSheetPdfFileName();
+      }catch(err){
+        var status2 = document.getElementById("pdfStatus");
+        if(status2) status2.textContent = "حدث خطأ عند إنشاء الملف: " + (err && err.message ? err.message : err);
+      }
+    };
+  }
+
+  var oldSharePDF = window.sharePDF;
+  if(typeof oldSharePDF === "function" && !window.__v27WellPdfNameShare){
+    window.__v27WellPdfNameShare = true;
+    window.sharePDF = async function(){
+      try{
+        if(typeof validateRequiredForPdf === "function" && !validateRequiredForPdf()) return;
+      }catch(e){}
+
+      try{
+        var status = document.getElementById("pdfStatus");
+        if(status) status.textContent = "Creating PDF...";
+        var blob = await createPdfBlob();
+        var fileName = window.getTimeSheetPdfFileName();
+        var file = new File([blob], fileName, {type:"application/pdf"});
+
+        if(navigator.canShare && navigator.canShare({files:[file]})){
+          await navigator.share({files:[file], title:fileName, text:fileName});
+          if(status) status.textContent = "Shared: " + fileName;
+        }else{
+          var url = URL.createObjectURL(blob);
+          var a = document.createElement("a");
+          a.href = url;
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
+          if(status) status.textContent = "Download fallback: " + fileName;
+        }
+      }catch(err){
+        var status2 = document.getElementById("pdfStatus");
+        if(status2) status2.textContent = "حدث خطأ عند مشاركة الملف: " + (err && err.message ? err.message : err);
+      }
+    };
+  }
+
+  console.log("v27 loaded: PDF file name uses Well only, example UF-33.pdf");
+})();
+/* ===== end v27 pdf file name from well only ===== */
+
+
+
+/* ===== v29 PRINT SAFE PDF MARGIN - SCALE CONTENT ONLY ===== */
+(function(){
+  "use strict";
+
+  const OLD_CREATE_PDF_BLOB = window.createPdfBlob;
+  if(typeof OLD_CREATE_PDF_BLOB === "function" && !window.__v29PrintSafePdfMargin){
+    window.__v29PrintSafePdfMargin = true;
+
+    window.createPdfBlob = async function(){
+      if(typeof updateReport === "function") updateReport();
+
+      document.body.classList.add("generating-pdf");
+      await new Promise(resolve => setTimeout(resolve, 260));
+
+      const target = document.getElementById("reportPage");
+      const canvas = await html2canvas(target, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: "#ffffff",
+        logging: false
+      });
+
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF("p", "pt", "a4");
+
+      const pageW = pdf.internal.pageSize.getWidth();
+      const pageH = pdf.internal.pageSize.getHeight();
+
+      /* 96% gives safe printer margin without changing the report layout itself */
+      const safeScale = 0.96;
+      const imgW = pageW * safeScale;
+      const imgH = pageH * safeScale;
+      const x = (pageW - imgW) / 2;
+      const y = (pageH - imgH) / 2;
+
+      pdf.addImage(canvas.toDataURL("image/jpeg", 0.98), "JPEG", x, y, imgW, imgH);
+
+      document.body.classList.remove("generating-pdf");
+      return pdf.output("blob");
+    };
+  }
+
+  console.log("v29 loaded: PDF content scaled to 96% and centered for safer printing.");
+})();
+/* ===== end v29 print safe pdf margin ===== */
+
+</script>
+
+
+<script>
+/* ===== BIW TIMESHEET CLEAN FINAL OVERRIDE ===== */
+(function(){
+  function $(id){ return document.getElementById(id); }
+  function safeText(id, value){ var el=$(id); if(el) el.textContent=value||''; }
+  function currentWell(){
+    var raw=($('wellInput')&&$('wellInput').value)||($('outWell')&&$('outWell').textContent)||'time_sheet';
+    raw=String(raw||'').trim().toUpperCase().replace(/\s+/g,'-').replace(/[^A-Z0-9_-]/g,'');
+    return raw || 'time_sheet';
+  }
+  function pdfFileName(){ return currentWell()+'.pdf'; }
+  function validateRequired(){
+    if(typeof validateBeforePDF==='function'){ validateBeforePDF(); return; }
+    var missing=[];
+    if(!$('clientInput')?.value && !(window.selectedClient)) missing.push('Client');
+    if(!$('companyInput')?.value && !(window.selectedCompany)) missing.push('Company');
+    if(!$('dateFromInput')?.value) missing.push('From Date');
+    if(!$('dateToInput')?.value) missing.push('To Date');
+    if(!$('fieldInput')?.value.trim()) missing.push('Field');
+    if(!$('wellInput')?.value.trim()) missing.push('Well');
+    if(!$('hoistInput')?.value.trim()) missing.push('Hoist/Rig');
+    if(!$('motorTypeInput')?.value) missing.push('Motor Type');
+    var hint=$('validationHint');
+    if(missing.length){
+      var msg='Complete Section 1 before generating PDF: '+missing.join(', ');
+      if(hint){ hint.textContent=msg; hint.classList.add('active'); }
+      throw new Error(msg);
+    }
+    if(hint){ hint.textContent=''; hint.classList.remove('active'); }
+  }
+  function status(msg){ if(typeof setStatus==='function') setStatus(msg||''); else safeText('pdfStatus',msg||''); }
+  function beforeRender(){
+    if(typeof updateReport==='function') updateReport();
+    if(typeof window.TS_RENDER_ITEMS_CLEAN==='function') window.TS_RENDER_ITEMS_CLEAN();
+    if(typeof autoFitReport==='function') autoFitReport();
+  }
+  window.createPdfBlob = async function(){
+    validateRequired();
+    beforeRender();
+    if(!window.html2canvas || !window.jspdf || !window.jspdf.jsPDF){
+      throw new Error('PDF libraries are not loaded. Open the app online once, then try again.');
+    }
+    var report=$('reportPage');
+    if(!report) throw new Error('PDF template not found.');
+    document.body.classList.add('generating-pdf');
+    status('Generating PDF...');
+    await new Promise(function(resolve){ requestAnimationFrame(function(){ requestAnimationFrame(resolve); }); });
+    try{
+      beforeRender();
+      var canvas=await html2canvas(report,{scale:2,useCORS:true,allowTaint:true,backgroundColor:'#ffffff',logging:false,windowWidth:794,windowHeight:1123});
+      if(!canvas || canvas.width<10 || canvas.height<10) throw new Error('PDF canvas is empty.');
+      var pdf=new window.jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
+      pdf.addImage(canvas.toDataURL('image/jpeg',1),'JPEG',0,0,210,297,undefined,'FAST');
+      return pdf.output('blob');
+    }finally{
+      document.body.classList.remove('generating-pdf');
+      status('');
+    }
+  };
+  window.downloadPDF = async function(){
+    try{
+      var blob=await window.createPdfBlob();
+      var url=URL.createObjectURL(blob); var a=document.createElement('a');
+      a.href=url; a.download=pdfFileName(); document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){URL.revokeObjectURL(url);},1000); status('PDF downloaded.'); setTimeout(function(){status('');},2500);
+    }catch(err){ status(err && err.message ? err.message : 'Failed to generate PDF.'); }
+  };
+  window.sharePDF = async function(){
+    try{
+      var blob=await window.createPdfBlob(); var file=new File([blob],pdfFileName(),{type:'application/pdf'});
+      if(navigator.canShare && navigator.canShare({files:[file]})){
+        await navigator.share({title:'Installation Time Sheet',text:'Installation Time Sheet PDF',files:[file]}); status('PDF shared.');
+      }else{
+        var url=URL.createObjectURL(blob); var a=document.createElement('a'); a.href=url; a.download=file.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(function(){URL.revokeObjectURL(url);},1000); status('Sharing is not supported here. PDF downloaded instead.');
+      }
+      setTimeout(function(){status('');},3000);
+    }catch(err){ status(err && err.message ? err.message : 'Failed to share PDF.'); }
+  };
+  document.addEventListener('DOMContentLoaded', function(){
+    var note=document.querySelector('.input-note');
+    if(note) note.textContent='واجهة إدخال منظمة بنظام Next / Back. يجب إكمال Job Information الأساسية قبل إنشاء PDF. التقرير النهائي PDF يبقى إنجليزي فقط.';
+  });
+})();
+</script>
+
+</body></html>
