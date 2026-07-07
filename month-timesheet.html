@@ -98,6 +98,7 @@ table.ts{width:100%;border-collapse:collapse;margin-top:14px;font-size:11px}
 tr.work td{background:#ED7D31;color:#000}
 tr.dbl td{background:#FFC000;color:#000}
 tr.wait td{background:#fff}
+tr.trip td{background:#BDD7EE;color:#000}
 tr.total td{background:#92D050;font-weight:800}
 .dayTap{cursor:pointer;-webkit-user-select:none;user-select:none}
 .tapnote{font-size:11px;color:rgba(255,255,255,.5);margin:10px 2px 0;text-align:center}
@@ -193,7 +194,7 @@ tr.total td{background:#92D050;font-weight:800}
     <button class="btn" type="button" onclick="backToEdit()">→ رجوع للتعديل</button>
     <button class="btn gold" type="button" onclick="previewPdf()">👁 معاينة ومشاركة PDF</button>
   </div>
-  <div class="tapnote no-print">💡 اضغط على خانة No of Days لأي يوم عمل لتبديلها: 1 ⇄ 2 ⇄ 0.5</div>
+  <div class="tapnote no-print">💡 اضغط No of Days: 1 → 2 → 0.5 → أزرق بدون مبلغ → انتظار • واضغط نص الخطة لتعديله (مثلاً: Work in Nizwa)</div>
   <div class="sheet" id="sheet"></div>
 </div>
 
@@ -497,7 +498,7 @@ function renderSheet(){
     h+='<tr class="'+cls+'" data-i="'+i+'">'+
        '<td class="c">'+(i+1)+'</td>'+
        '<td class="c" style="white-space:nowrap">'+fmtSheetDate(r.date)+'</td>'+
-       '<td>'+esc(r.text)+'</td>'+
+       '<td class="planTap">'+esc(r.text)+'</td>'+
        '<td class="c dayTap">'+(r.days>0?fmtDays(r.days):'')+'</td>'+
        '<td class="r">'+(r.days>0?fmt2(r.days*RATE):'')+'</td></tr>';
   });
@@ -507,18 +508,35 @@ function renderSheet(){
      '<span style="font-weight:700">Approved By:</span>'+
      '<span style="border-bottom:1px solid #000;width:240px">&nbsp;</span></div>';
   document.getElementById('sheet').innerHTML=h;
-  /* تدوير الأيام بالضغط: 1 → 2 → 0.5 → 1 */
+  /* تدوير الأيام بالضغط: 1 → 2 → 0.5 → أزرق(بدون مبلغ) → انتظار → 1 */
   var taps=document.querySelectorAll('#sheet .dayTap');
   for(var i=0;i<taps.length;i++){
     (function(cell){
       cell.addEventListener('click',function(){
         var tr=cell.parentElement;var idx=parseInt(tr.getAttribute('data-i'),10);
-        var r=dayRows[idx];if(!r||r.type==='wait')return;
-        r.days = (r.days===1)?2:(r.days===2?0.5:1);
-        r.type = (r.days===2)?'dbl':'work';
+        var r=dayRows[idx];if(!r)return;
+        if(r.type==='work'&&r.days===1){r.days=2;r.type='dbl';}
+        else if(r.type==='dbl'){r.days=0.5;r.type='work';}
+        else if(r.type==='work'&&r.days===0.5){r.days=0;r.type='trip';
+          if(!r.text||r.text==='In Suwaiq waiting for callout')r.text='Work in Nizwa base';}
+        else if(r.type==='trip'){r.days=0;r.type='wait';r.text='In Suwaiq waiting for callout';}
+        else{r.days=1;r.type='work';
+          if(r.text==='In Suwaiq waiting for callout')r.text='Work day';}
         renderSheet();
       });
     })(taps[i]);
+  }
+  /* تعديل نص الخطة بالضغط على الخانة */
+  var plans=document.querySelectorAll('#sheet .planTap');
+  for(var j=0;j<plans.length;j++){
+    (function(cell){
+      cell.addEventListener('click',function(){
+        var tr=cell.parentElement;var idx=parseInt(tr.getAttribute('data-i'),10);
+        var r=dayRows[idx];if(!r)return;
+        var nv=prompt('نص الخطة لليوم '+fmtSheetDate(r.date)+':', r.text||'');
+        if(nv!==null){r.text=nv;renderSheet();}
+      });
+    })(plans[j]);
   }
 }
 
@@ -536,19 +554,13 @@ function makePdf(el,done,fail){
   html2canvas(el,{scale:2,backgroundColor:'#ffffff',useCORS:true}).then(function(canvas){
     var jsPDFC=(window.jspdf&&window.jspdf.jsPDF)?window.jspdf.jsPDF:window.jsPDF;
     var pdf=new jsPDFC('p','mm','a4');
-    var pw=210,ph=297,margin=8,iw=pw-2*margin;
-    var ratio=iw/canvas.width;
-    var pageH=Math.floor((ph-2*margin)/ratio);
-    var y=0,first=true;
-    while(y<canvas.height){
-      var slice=document.createElement('canvas');
-      slice.width=canvas.width;
-      slice.height=Math.min(pageH,canvas.height-y);
-      slice.getContext('2d').drawImage(canvas,0,y,canvas.width,slice.height,0,0,canvas.width,slice.height);
-      if(!first)pdf.addPage();
-      pdf.addImage(slice.toDataURL('image/jpeg',0.92),'JPEG',margin,margin,iw,slice.height*ratio);
-      first=false;y+=pageH;
-    }
+    /* صفحة A4 وحدة دائماً: نصغّر المحتوى ليدخل كامل */
+    var pw=210,ph=297,margin=7;
+    var iw=pw-2*margin, ih=ph-2*margin;
+    var r=Math.min(iw/canvas.width, ih/canvas.height);
+    var w=canvas.width*r, hh=canvas.height*r;
+    var x=(pw-w)/2, y=margin;
+    pdf.addImage(canvas.toDataURL('image/jpeg',0.92),'JPEG',x,y,w,hh);
     done(pdf.output('blob'));
   }).catch(function(e){fail(e);});
 }
