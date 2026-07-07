@@ -53,9 +53,11 @@ select.inp option{color:#000;background:#fff}
 .btn.red{border-color:rgba(255,120,110,.7);background:rgba(255,90,80,.12);color:#ffb9b2}
 
 /* ===== قائمة الحالة ===== */
-.qrow{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:5px 0;border-bottom:1px dashed rgba(255,255,255,.08)}
+.qrow{display:flex;align-items:center;gap:10px;font-size:12.5px;padding:6px 0;border-bottom:1px dashed rgba(255,255,255,.08);direction:ltr}
+.qicon{flex:0 0 24px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.qtext{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .qrow:last-child{border-bottom:none}
-.qname{font-weight:700;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:ltr}
+.qname{font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:ltr;text-align:left}
 .qst{color:rgba(255,255,255,.6)}
 .qst.err{color:#ff9d94}
 .spin{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,196,106,.35);
@@ -211,8 +213,7 @@ table.ft{width:100%;border-collapse:collapse;margin-top:13px;font-size:10.5px}
 /* ============================================================
    BIW Expenses — v1.0
    ============================================================ */
-var PROXY_URL = "https://szomlyrlpznrdyewknec.supabase.co/functions/v1/claude-proxy";
-var APP_TOKEN = "biw-fss-2026";
+var PROXY_URL = "/.netlify/functions/read-invoices";
 
 var NAMES = ["M Mohammed","B Mohammed","Said almujaini","Hamed alsadi"];
 var MONTHS = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
@@ -319,26 +320,19 @@ function extractFromFile(file, setStatus){
     setStatus("قراءة الفواتير بالذكاء الاصطناعي…");
     return fetch(PROXY_URL,{
       method:"POST",
-      headers:{"Content-Type":"application/json","X-App-Token":APP_TOKEN},
-      body:JSON.stringify({
-        model:"claude-sonnet-4-6",
-        max_tokens:6000,
-        messages:[{role:"user",content:[block,{type:"text",text:PROMPT}]}]
-      })
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({ block: block, prompt: PROMPT })
     });
   }).then(function(resp){
     if(!resp.ok){
-      if(resp.status===401||resp.status===403) throw new Error("مفتاح الخدمة غير مفعّل — راجع إعداد claude-proxy");
-      throw new Error("تعذر الاتصال بخدمة القراءة ("+resp.status+")");
+      var msg="تعذر الاتصال بخدمة القراءة ("+resp.status+")";
+      return resp.json().then(function(err){
+        if(err && err.error) msg=err.error;
+        throw new Error(msg);
+      }, function(){ throw new Error(msg); });
     }
     return resp.json();
-  }).then(function(data){
-    var text=(data.content||[]).filter(function(b){return b.type==="text";})
-      .map(function(b){return b.text;}).join("\n");
-    var clean=text.replace(/```json|```/g,"").trim();
-    var a=clean.indexOf("{"),b=clean.lastIndexOf("}");
-    if(a===-1||b===-1) throw new Error("ما قدرت أقرا محتوى الملف");
-    var parsed=JSON.parse(clean.slice(a,b+1));
+  }).then(function(parsed){
     return Array.isArray(parsed.invoices)?parsed.invoices:[];
   });
 }
@@ -350,7 +344,7 @@ function qAdd(name){
   var box=document.getElementById('queue');
   var div=document.createElement('div');div.className='qrow';
   div.innerHTML='<span class="qicon"><span class="spin"></span></span>'+
-    '<span class="qname"></span><span class="qst"></span>';
+    '<div class="qtext"><span class="qname"></span><span class="qst"></span></div>';
   div.querySelector('.qname').textContent=name;
   box.appendChild(div);
   return {
