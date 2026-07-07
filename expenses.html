@@ -580,19 +580,13 @@ function makePdf(el,done,fail){
   html2canvas(el,{scale:2,backgroundColor:'#ffffff',useCORS:true}).then(function(canvas){
     var jsPDFC=(window.jspdf&&window.jspdf.jsPDF)?window.jspdf.jsPDF:window.jsPDF;
     var pdf=new jsPDFC('p','mm','a4');
-    var pw=210,ph=297,margin=8,iw=pw-2*margin;
-    var ratio=iw/canvas.width;
-    var pageH=Math.floor((ph-2*margin)/ratio);
-    var y=0,first=true;
-    while(y<canvas.height){
-      var slice=document.createElement('canvas');
-      slice.width=canvas.width;
-      slice.height=Math.min(pageH,canvas.height-y);
-      slice.getContext('2d').drawImage(canvas,0,y,canvas.width,slice.height,0,0,canvas.width,slice.height);
-      if(!first)pdf.addPage();
-      pdf.addImage(slice.toDataURL('image/jpeg',0.92),'JPEG',margin,margin,iw,slice.height*ratio);
-      first=false;y+=pageH;
-    }
+    /* صفحة A4 وحدة دائماً: نصغّر المحتوى ليدخل كامل */
+    var pw=210,ph=297,margin=7;
+    var iw=pw-2*margin, ih=ph-2*margin;
+    var r=Math.min(iw/canvas.width, ih/canvas.height);
+    var w=canvas.width*r, hh=canvas.height*r;
+    var x=(pw-w)/2, y=margin;
+    pdf.addImage(canvas.toDataURL('image/jpeg',0.92),'JPEG',x,y,w,hh);
     done(pdf.output('blob'));
   }).catch(function(e){fail(e);});
 }
