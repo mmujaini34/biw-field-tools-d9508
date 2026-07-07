@@ -213,7 +213,8 @@ table.ft{width:100%;border-collapse:collapse;margin-top:13px;font-size:10.5px}
 /* ============================================================
    BIW Expenses — v1.0
    ============================================================ */
-var PROXY_URL = "/.netlify/functions/read-invoices";
+var PROXY_URL = "https://szomlyrlpznrdyewknec.supabase.co/functions/v1/claude-proxy";
+var APP_TOKEN = "biw-fss-2026";
 
 var NAMES = ["M Mohammed","B Mohammed","Said almujaini","Hamed alsadi"];
 var MONTHS = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
@@ -320,7 +321,7 @@ function extractFromFile(file, setStatus){
     setStatus("قراءة الفواتير بالذكاء الاصطناعي…");
     return fetch(PROXY_URL,{
       method:"POST",
-      headers:{"Content-Type":"application/json"},
+      headers:{"Content-Type":"application/json","X-App-Token":APP_TOKEN},
       body:JSON.stringify({ block: block, prompt: PROMPT })
     });
   }).then(function(resp){
