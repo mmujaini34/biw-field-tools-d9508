@@ -222,6 +222,11 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
     <span class="glass-en">EXPENSES</span>
     <span class="glass-ar">المصاريف</span>
   </a>
+  <a class="glass" href="month-timesheet.html">
+    <span class="glass-orb"><svg class="glass-ico" viewBox="0 0 34 34"><rect x="6" y="7" width="22" height="21" rx="3"/><line x1="6" y1="13" x2="28" y2="13"/><line x1="12" y1="4" x2="12" y2="9"/><line x1="22" y1="4" x2="22" y2="9"/><line x1="11" y1="18" x2="15" y2="18"/><line x1="19" y1="18" x2="23" y2="18"/><line x1="11" y1="23" x2="15" y2="23"/><line x1="19" y1="23" x2="23" y2="23"/></svg></span>
+    <span class="glass-en">MONTH TS</span>
+    <span class="glass-ar">إثبات عمل</span>
+  </a>
 </nav>
 
 <div class="devsig">Developed by Mohammed Al Mujaini</div>
@@ -230,7 +235,7 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
   <div class="dock-inner">
     <span class="net" id="net"><span class="dot"></span><span id="netTx">ONLINE</span></span>
     <span class="sep"></span>
-    <span class="ver">v3.7.5</span>
+    <span class="ver">v3.8.0</span>
     <span class="sep"></span>
     <span class="ver" id="cacheState">...</span>
   </div>
@@ -292,7 +297,7 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
   function verify(){
     /* نتأكد فعليًا إن كل الصفحات والمكتبات بالكاش */
     if(!window.caches){setState('READY',true);return;}
-    var must=['timesheet.html','checklist.html','report.html','empty-timesheet.html','expenses.html','libs/jspdf.umd.min.js','libs/html2canvas.min.js','bg.jpg'];
+    var must=['timesheet.html','checklist.html','report.html','empty-timesheet.html','expenses.html','month-timesheet.html','libs/jspdf.umd.min.js','libs/html2canvas.min.js','bg.jpg'];
     caches.keys().then(function(ks){
       var name=null;
       for(var i=0;i<ks.length;i++){if(ks[i].indexOf('biw-field-tools')===0){name=ks[i];}}
