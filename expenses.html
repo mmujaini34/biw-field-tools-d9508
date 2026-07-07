@@ -84,8 +84,11 @@ select.inp option{color:#000;background:#fff}
   border-radius:9px;padding:4px 13px;direction:ltr;font-variant-numeric:tabular-nums;transform:rotate(-1.5deg)}
 .lownote{font-size:12px;color:#ffd79a;margin-top:9px}
 .hint{font-size:11px;color:rgba(255,255,255,.4);text-align:center;margin-top:12px}
-.flash{margin-top:10px;background:rgba(255,90,80,.14);border:1px solid rgba(255,120,110,.5);
-  color:#ffc4be;border-radius:10px;padding:9px 13px;font-size:12.5px;display:none}
+.flash{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));z-index:99;
+  -webkit-transform:translateX(-50%);transform:translateX(-50%);
+  background:rgba(40,12,10,.96);border:1.5px solid rgba(255,140,120,.8);
+  color:#ffd2cc;border-radius:12px;padding:12px 18px;font-size:13.5px;font-weight:700;
+  max-width:min(92vw,480px);text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.6);display:none}
 .actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
 .empty{text-align:center;color:rgba(255,255,255,.35);margin-top:30px;font-size:13px}
 
@@ -249,7 +252,7 @@ var idc = 1;
 function flash(m){
   var f=document.getElementById('flash');
   f.textContent=m; f.style.display='block';
-  setTimeout(function(){f.style.display='none';},4200);
+  setTimeout(function(){f.style.display='none';},5500);
 }
 function fmt3(n){var x=parseFloat(n);return isNaN(x)?"0.000":x.toFixed(3);}
 function fmtFormDate(iso){
@@ -455,12 +458,21 @@ function resetAll(){clearRows();location.reload();}
 
 /* ---------- النموذج الرسمي ---------- */
 function approve(){
-  if(!rows.length){flash("ما في فواتير");return;}
-  if(hasLow()){flash("في صفوف مظللة لازم تراجعها أول — عدّلها أو أكد بياناتها");return;}
-  buildSheet();
-  document.getElementById('uiStage').classList.add('off');
-  document.getElementById('formStage').classList.add('on');
-  window.scrollTo(0,0);
+  try{
+    if(!rows.length){flash("ما في فواتير — ارفع ملف أول");return;}
+    if(hasLow()){
+      flash("⚠️ في صفوف صفراء لازم تراجعها قبل الاعتماد — عدّل أي خانة فيها ويروح التظليل");
+      var firstLow=document.querySelector('#rowsBox .lrow.low');
+      if(firstLow&&firstLow.scrollIntoView){firstLow.scrollIntoView({behavior:'smooth',block:'center'});}
+      return;
+    }
+    buildSheet();
+    document.getElementById('uiStage').classList.add('off');
+    document.getElementById('formStage').classList.add('on');
+    window.scrollTo(0,0);
+  }catch(e){
+    flash("خطأ غير متوقع: "+(e.message||e));
+  }
 }
 function backToEdit(){
   document.getElementById('uiStage').classList.remove('off');
