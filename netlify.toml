@@ -1,3 +1,18 @@
-# BIW Field Tools - static site, no build needed
+# BIW Field Tools - static PWA
+# تعطيل كل معالجات Netlify التلقائية (Pretty URLs / minify / bundling)
+# لأنها تكسر توافق الـ Service Worker مع سفاري (redirected responses)
 [build]
   publish = "."
+
+[build.processing]
+  skip_processing = true
+
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "no-cache"
