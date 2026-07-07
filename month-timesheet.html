@@ -82,8 +82,9 @@ select.inp option{color:#000;background:#fff}
 #sheetStage.on{display:block}
 #uiStage.off{display:none}
 .sheetbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}
-.sheet{background:#fff;color:#000;max-width:880px;margin:14px auto 0;padding:30px 34px 26px;
-  border-radius:4px;font-family:Calibri,Arial,sans-serif;direction:ltr;overflow-x:auto}
+.sheetScroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:14px}
+.sheet{background:#fff;color:#000;width:840px;min-width:840px;margin:0 auto;padding:28px 34px 24px;
+  border-radius:4px;font-family:Calibri,Arial,sans-serif;direction:ltr}
 .sheet img.logo{width:110px;height:auto;display:block}
 .stitle{text-align:center;font-weight:700;font-size:14px;text-decoration:underline;margin-top:4px;letter-spacing:.5px}
 .meta{margin-top:14px;font-size:11.5px}
@@ -92,7 +93,7 @@ select.inp option{color:#000;background:#fff}
 .meta .mv{border-bottom:1px solid #000;min-width:300px;padding:0 4px}
 table.ts{width:100%;border-collapse:collapse;margin-top:14px;font-size:11px}
 .ts th{border:1px solid #000;background:#9DC3E6;font-weight:700;padding:5px 4px;text-align:center;font-size:10.5px}
-.ts td{border:1px solid #000;padding:4px 6px;height:19px}
+.ts td{border:1px solid #000;padding:2px 6px;height:16px;font-size:10.5px}
 .ts td.c{text-align:center}
 .ts td.r{text-align:right;padding-right:8px;font-variant-numeric:tabular-nums}
 tr.work td{background:#ED7D31;color:#000}
@@ -107,8 +108,8 @@ tr.total td{background:#92D050;font-weight:800}
   padding:calc(10px + env(safe-area-inset-top)) 10px calc(10px + env(safe-area-inset-bottom))}
 .pmodal.on{display:flex}
 .pmhead{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding-bottom:10px}
-.pmframe{flex:1;background:#333;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.2)}
-.pmframe iframe{width:100%;height:100%;border:0;background:#555}
+.pmframe{flex:1;background:#3a3a3a;border-radius:12px;overflow:auto;border:1px solid rgba(255,255,255,.2);padding:10px}
+.pmframe img{width:100%;display:block;background:#fff;border-radius:4px}
 @media print{ body{background:#fff!important} .topbar,.no-print,#uiStage,.pmodal{display:none!important}
   #sheetStage{display:block!important}
   .sheet{margin:0!important;padding:0!important;max-width:100%!important;border-radius:0}
@@ -195,7 +196,7 @@ tr.total td{background:#92D050;font-weight:800}
     <button class="btn gold" type="button" onclick="previewPdf()">👁 معاينة ومشاركة PDF</button>
   </div>
   <div class="tapnote no-print">💡 اضغط No of Days: 1 → 2 → 0.5 → أزرق بدون مبلغ → انتظار • واضغط نص الخطة لتعديله (مثلاً: Work in Nizwa)</div>
-  <div class="sheet" id="sheet"></div>
+  <div class="sheetScroll"><div class="sheet" id="sheet"></div></div>
 </div>
 
 <div class="flash" id="flash"></div>
@@ -208,7 +209,7 @@ tr.total td{background:#92D050;font-weight:800}
     <a class="tbtn" id="dlBtn" download>⬇️ تنزيل</a>
     <span class="ttitle" id="pmName"></span>
   </div>
-  <div class="pmframe"><iframe id="pframe" title="PDF preview"></iframe></div>
+  <div class="pmframe"><img id="pimg" alt="PDF preview"></div>
 </div>
 
 <script>
@@ -561,18 +562,18 @@ function makePdf(el,done,fail){
     var w=canvas.width*r, hh=canvas.height*r;
     var x=(pw-w)/2, y=margin;
     pdf.addImage(canvas.toDataURL('image/jpeg',0.92),'JPEG',x,y,w,hh);
-    done(pdf.output('blob'));
+    done(pdf.output('blob'), canvas);
   }).catch(function(e){fail(e);});
 }
 function previewPdf(){
   var el=document.getElementById('sheet');
   flash("⏳ جاري توليد الـ PDF…");
-  makePdf(el,function(blob){
+  makePdf(el,function(blob,canvas){
     pdfBlob=blob;
     if(pdfBlobUrl)URL.revokeObjectURL(pdfBlobUrl);
     pdfBlobUrl=URL.createObjectURL(blob);
     var nm=pdfName();
-    document.getElementById('pframe').src=pdfBlobUrl;
+    document.getElementById('pimg').src=canvas.toDataURL('image/jpeg',0.85);
     document.getElementById('pmName').textContent=nm+".pdf";
     var dl=document.getElementById('dlBtn');dl.href=pdfBlobUrl;dl.download=nm+".pdf";
     document.getElementById('pmodal').classList.add('on');
