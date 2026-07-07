@@ -6,7 +6,7 @@
 <title>BIW Field Tools</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1a0f14">
-<meta name="description" content="BIW Field Tools — Time Sheet, Checklist, Installation Report, Empty Timesheet">
+<meta name="description" content="BIW Field Tools — Time Sheet, Checklist, Installation Report, Empty Timesheet, Expenses">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="BIW Tools">
@@ -99,6 +99,16 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
 .glass-en{display:block;margin-top:9px;font-size:10.5px;font-weight:800;letter-spacing:.6px;direction:ltr;
   text-shadow:0 1px 10px rgba(0,0,0,.9)}
 .glass-ar{display:block;margin-top:2px;font-size:10px;color:rgba(255,232,205,.95);text-shadow:0 1px 8px rgba(0,0,0,.9)}
+
+
+/* ============ أيقونة المصاريف — يسار لحالها ============ */
+.nav-left{position:fixed;left:10px;top:50%;z-index:6;
+  -webkit-transform:translateY(-46%);transform:translateY(-46%);
+  text-align:center;font-size:0}
+@media (min-width:760px){
+  .nav-left{left:14px;top:auto;bottom:calc(84px + env(safe-area-inset-bottom));
+    -webkit-transform:none;transform:none}
+}
 
 /* ============ الشريط السفلي ============ */
 .dock{position:fixed;left:0;right:0;bottom:0;z-index:6;text-align:center;
@@ -199,11 +209,19 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
   </a>
 </nav>
 
+<nav class="nav-left" id="navLeft">
+  <a class="glass" href="expenses.html">
+    <span class="glass-orb"><svg class="glass-ico" viewBox="0 0 34 34"><path d="M10 5 h14 v24 l-2.4 -1.8 l-2.3 1.8 l-2.3 -1.8 l-2.3 1.8 l-2.3 -1.8 l-2.4 1.8 z"/><line x1="14" y1="11" x2="20" y2="11"/><line x1="14" y1="16" x2="20" y2="16"/><line x1="14" y1="21" x2="17" y2="21"/></svg></span>
+    <span class="glass-en">EXPENSES</span>
+    <span class="glass-ar">المصاريف</span>
+  </a>
+</nav>
+
 <div class="dock">
   <div class="dock-inner">
     <span class="net" id="net"><span class="dot"></span><span id="netTx">ONLINE</span></span>
     <span class="sep"></span>
-    <span class="ver">v3.5.2</span>
+    <span class="ver">v3.7.0</span>
     <span class="sep"></span>
     <span class="ver" id="cacheState">...</span>
   </div>
@@ -265,7 +283,7 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
   function verify(){
     /* نتأكد فعليًا إن كل الصفحات والمكتبات بالكاش */
     if(!window.caches){setState('READY',true);return;}
-    var must=['timesheet.html','checklist.html','report.html','empty-timesheet.html','libs/jspdf.umd.min.js','libs/html2canvas.min.js','bg.jpg'];
+    var must=['timesheet.html','checklist.html','report.html','empty-timesheet.html','expenses.html','libs/jspdf.umd.min.js','libs/html2canvas.min.js','bg.jpg'];
     caches.keys().then(function(ks){
       var name=null;
       for(var i=0;i<ks.length;i++){if(ks[i].indexOf('biw-field-tools')===0){name=ks[i];}}
