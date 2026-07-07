@@ -6,6 +6,8 @@
 <title>Expenses — BIW Field Tools</title>
 <meta name="theme-color" content="#1a0f14">
 <link rel="icon" type="image/png" href="icon-192.png">
+<script src="libs/html2canvas.min.js"></script>
+<script src="libs/jspdf.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{background:#1a0f14;color:#fff;font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;min-height:100vh}
@@ -125,7 +127,13 @@ table.ft{width:100%;border-collapse:collapse;margin-top:13px;font-size:10.5px}
 .appr{display:flex;align-items:flex-end;gap:8px;margin-top:36px;font-size:11px}
 .pg{text-align:center;font-size:10px;margin-top:52px;color:#333}
 
-@media print{
+.pmodal{position:fixed;inset:0;z-index:100;background:rgba(8,4,7,.9);display:none;flex-direction:column;
+  padding:calc(10px + env(safe-area-inset-top)) 10px calc(10px + env(safe-area-inset-bottom))}
+.pmodal.on{display:flex}
+.pmhead{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding-bottom:10px}
+.pmframe{flex:1;background:#333;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.2)}
+.pmframe iframe{width:100%;height:100%;border:0;background:#555}
+@media print{ .pmodal{display:none!important}
   body{background:#fff!important}
   .topbar,.no-print,#uiStage{display:none!important}
   #formStage{display:block!important}
@@ -181,6 +189,17 @@ table.ft{width:100%;border-collapse:collapse;margin-top:13px;font-size:10.5px}
       <input type="file" id="file" accept="application/pdf,image/*" multiple style="display:none">
     </div>
     <div class="flash" id="flash"></div>
+
+<!-- ===== معاينة PDF ===== -->
+<div class="pmodal no-print" id="pmodal">
+  <div class="pmhead">
+    <button class="tbtn" type="button" onclick="closePreview()">✕ إغلاق</button>
+    <button class="tbtn" type="button" id="shareBtn">📤 مشاركة</button>
+    <a class="tbtn" id="dlBtn" download>⬇️ تنزيل</a>
+    <span class="ttitle" id="pmName"></span>
+  </div>
+  <div class="pmframe"><iframe id="pframe" title="PDF preview"></iframe></div>
+</div>
     <div id="queue"></div>
   </div>
 
@@ -214,7 +233,8 @@ table.ft{width:100%;border-collapse:collapse;margin-top:13px;font-size:10.5px}
 <div class="wrap" id="formStage">
   <div class="sheetbar no-print">
     <button class="btn" type="button" onclick="backToEdit()">→ رجوع للتعديل</button>
-    <button class="btn gold" type="button" onclick="savePdf()">🖨 Save as PDF</button>
+    <button class="btn gold" type="button" onclick="previewPdf()">👁 معاينة ومشاركة PDF</button>
+    <button class="btn" type="button" onclick="savePdf()">🖨 طباعة</button>
     <span style="font-size:11.5px;color:rgba(255,255,255,.55)">من نافذة الطباعة اختر «حفظ كـ PDF»</span>
   </div>
   <div class="sheet" id="sheet"></div>
@@ -553,6 +573,53 @@ function savePdf(){
   window.print();
   setTimeout(function(){document.title=old;},1500);
 }
+
+/* ---------- PDF: معاينة + مشاركة ---------- */
+var pdfBlobUrl=null,pdfBlob=null;
+function makePdf(el,done,fail){
+  html2canvas(el,{scale:2,backgroundColor:'#ffffff',useCORS:true}).then(function(canvas){
+    var jsPDFC=(window.jspdf&&window.jspdf.jsPDF)?window.jspdf.jsPDF:window.jsPDF;
+    var pdf=new jsPDFC('p','mm','a4');
+    var pw=210,ph=297,margin=8,iw=pw-2*margin;
+    var ratio=iw/canvas.width;
+    var pageH=Math.floor((ph-2*margin)/ratio);
+    var y=0,first=true;
+    while(y<canvas.height){
+      var slice=document.createElement('canvas');
+      slice.width=canvas.width;
+      slice.height=Math.min(pageH,canvas.height-y);
+      slice.getContext('2d').drawImage(canvas,0,y,canvas.width,slice.height,0,0,canvas.width,slice.height);
+      if(!first)pdf.addPage();
+      pdf.addImage(slice.toDataURL('image/jpeg',0.92),'JPEG',margin,margin,iw,slice.height*ratio);
+      first=false;y+=pageH;
+    }
+    done(pdf.output('blob'));
+  }).catch(function(e){fail(e);});
+}
+function previewPdf(){
+  var el=document.getElementById('sheet');
+  flash("⏳ جاري توليد الـ PDF…");
+  makePdf(el,function(blob){
+    pdfBlob=blob;
+    if(pdfBlobUrl)URL.revokeObjectURL(pdfBlobUrl);
+    pdfBlobUrl=URL.createObjectURL(blob);
+    var nm=pdfName();
+    document.getElementById('pframe').src=pdfBlobUrl;
+    document.getElementById('pmName').textContent=nm+".pdf";
+    var dl=document.getElementById('dlBtn');dl.href=pdfBlobUrl;dl.download=nm+".pdf";
+    document.getElementById('pmodal').classList.add('on');
+  },function(e){flash("فشل توليد PDF: "+(e.message||e));});
+}
+function closePreview(){document.getElementById('pmodal').classList.remove('on');}
+document.getElementById('shareBtn').addEventListener('click',function(){
+  if(!pdfBlob){flash("ولّد المعاينة أول");return;}
+  var file=new File([pdfBlob],pdfName()+".pdf",{type:"application/pdf"});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){
+    navigator.share({files:[file],title:pdfName()}).catch(function(){});
+  }else{
+    flash("المشاركة غير مدعومة بهذا المتصفح — استخدم ⬇️ تنزيل");
+  }
+});
 </script>
 </body>
 </html>
