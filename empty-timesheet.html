@@ -437,7 +437,18 @@ body.generating-pdf .biw-wizard-top,body.generating-pdf .biw-wizard-nav{display:
 @media print{.app-back-bar{display:none !important}}
 body.generating-pdf .app-back-bar{display:none !important}
 </style>
-</head><body>
+</head><body><script>
+/* عين تشخيصية: أي خطأ JS يظهر بشريط واضح بدل الفشل الصامت */
+window.addEventListener('error',function(ev){
+  try{
+    var b=document.getElementById('biwErrBar');
+    if(!b){b=document.createElement('div');b.id='biwErrBar';
+      b.style.cssText='position:fixed;bottom:0;left:0;right:0;z-index:999999;background:#b91c1c;color:#fff;font:12px/1.5 monospace;padding:8px 12px;word-break:break-all;direction:ltr;text-align:left';
+      document.body.appendChild(b);}
+    b.textContent='⚠ '+(ev.message||'error')+' @ '+(ev.filename||'').split('/').pop()+':'+(ev.lineno||'');
+  }catch(e){}
+});
+</script>
 <!-- ===== شريط الرئيسية والتجديد ===== -->
 <style>
 .biw-topbar{position:fixed;top:8px;left:8px;z-index:99990;font-family:Arial,sans-serif}
