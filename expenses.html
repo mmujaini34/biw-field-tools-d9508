@@ -68,7 +68,15 @@ select.inp option{color:#000;background:#fff}
 .lhead,.lrow{display:flex;align-items:center;gap:6px}
 .lhead{font-size:11px;font-weight:800;color:#ffdcae;padding:4px 2px;letter-spacing:.4px}
 .lrow{padding:3px 0;border-top:1px solid rgba(255,255,255,.08)}
-.lrow.low{background:rgba(255,196,106,.13);border-radius:8px}
+.lrow.low{background:rgba(255,196,106,.20);border:1.5px solid rgba(255,196,106,.75);
+  border-radius:10px;margin:4px 0;padding:5px 6px}
+.lowbar{display:flex;align-items:center;gap:10px;background:rgba(255,196,106,.14);
+  border:1px dashed rgba(255,196,106,.55);border-radius:9px;margin:2px 0 8px;
+  padding:7px 10px;font-size:12px;color:#ffdcae}
+.lowbar .confirm{margin-inline-start:auto;border:1.5px solid #7fd1a0;background:rgba(90,200,140,.15);
+  color:#a8f0c8;border-radius:9px;padding:7px 14px;font-size:12.5px;font-weight:800;
+  font-family:inherit;cursor:pointer;white-space:nowrap}
+.lowbar .confirm:active{background:rgba(90,200,140,.35)}
 .cell{font-family:inherit;font-size:12.5px;color:#fff;background:transparent;border:1px solid transparent;
   border-radius:7px;padding:7px 6px;width:100%;direction:ltr}
 .cell:focus{outline:none;border-color:#ffc46a;background:rgba(0,0,0,.4)}
@@ -432,6 +440,14 @@ function render(){
     del.addEventListener('click',function(){rows=rows.filter(function(x){return x!==r;});render();});
     div.appendChild(d);div.appendChild(de);div.appendChild(rc);div.appendChild(am);div.appendChild(del);
     box.appendChild(div);
+    if(r.low){
+      var bar=document.createElement('div');bar.className='lowbar';
+      var t=document.createElement('span');t.textContent='⚠️ غير مؤكد — عدّل أو أكد';
+      var ok=document.createElement('button');ok.type='button';ok.className='confirm';ok.textContent='✓ تأكيد';
+      ok.addEventListener('click',function(){r.low=false;render();});
+      bar.appendChild(t);bar.appendChild(ok);
+      box.appendChild(bar);
+    }
   });
   refresh();
 }
@@ -461,7 +477,7 @@ function approve(){
   try{
     if(!rows.length){flash("ما في فواتير — ارفع ملف أول");return;}
     if(hasLow()){
-      flash("⚠️ في صفوف صفراء لازم تراجعها قبل الاعتماد — عدّل أي خانة فيها ويروح التظليل");
+      flash("⚠️ في صفوف صفراء — اضغط ✓ تأكيد عليها أو عدّل بياناتها ثم اعتمد");
       var firstLow=document.querySelector('#rowsBox .lrow.low');
       if(firstLow&&firstLow.scrollIntoView){firstLow.scrollIntoView({behavior:'smooth',block:'center'});}
       return;
