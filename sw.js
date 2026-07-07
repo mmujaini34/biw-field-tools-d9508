@@ -1,5 +1,5 @@
-/* BIW Field Tools — Service Worker v3.5.2 (offline-first, bulletproof) */
-const CACHE_NAME = 'biw-field-tools-v3.5.2';
+/* BIW Field Tools — Service Worker v3.7.0 (Safari-proof, redirect-proof, offline-first) */
+const CACHE_NAME = 'biw-field-tools-v3.7.0';
 const ASSETS = [
   './',
   './index.html',
@@ -7,6 +7,7 @@ const ASSETS = [
   './checklist.html',
   './report.html',
   './empty-timesheet.html',
+  './expenses.html',
   './bg.jpg',
   './libs/html2canvas.min.js',
   './libs/jspdf.umd.min.js',
@@ -24,11 +25,30 @@ const ASSETS = [
   './manifest.json'
 ];
 
+/* يعيد بناء الرد نظيفًا: يشيل علامة redirected اللي يرفضها سفاري بالتنقل */
+async function cleanResponse(res) {
+  if (!res) return res;
+  if (!res.redirected) return res;
+  const body = await res.blob();
+  return new Response(body, { status: res.status, statusText: res.statusText, headers: res.headers });
+}
+
+async function precacheOne(cache, url) {
+  try {
+    const res = await fetch(url, { cache: 'no-cache', redirect: 'follow' });
+    if (res && (res.ok || res.status === 0)) {
+      cache.put(url, await cleanResponse(res));
+      return true;
+    }
+  } catch (e) {}
+  return false;
+}
+
 self.addEventListener('install', (e) => {
   e.waitUntil(
-    caches.open(CACHE_NAME).then((cache) =>
-      Promise.allSettled(ASSETS.map((u) => cache.add(u)))
-    ).then(() => self.skipWaiting())
+    caches.open(CACHE_NAME)
+      .then((cache) => Promise.allSettled(ASSETS.map((u) => precacheOne(cache, u))))
+      .then(() => self.skipWaiting())
   );
 });
 
@@ -42,52 +62,76 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
-  e.respondWith(handle(e.request));
+  const url = new URL(e.request.url);
+  if (url.origin !== self.location.origin) return; /* خارجي: خله للمتصفح */
+  e.respondWith(handle(e.request, url));
 });
 
-async function handle(request) {
-  /* 1) الكاش أولاً — أوفلاين فوري */
-  try {
-    const cached = await caches.match(request, { ignoreSearch: true });
-    if (cached) {
-      refreshInBackground(request);
-      return cached;
+/* مطابقة ذكية: /timesheet == /timesheet.html == ./timesheet.html */
+async function smartMatch(url) {
+  const c = await caches.open(CACHE_NAME);
+  let path = url.pathname;
+  const tries = [path];
+  if (path.endsWith('/')) tries.push(path + 'index.html');
+  if (!path.endsWith('/') && !/\.[a-z0-9]+$/i.test(path)) tries.push(path + '.html');
+  if (path.endsWith('.html')) tries.push(path.replace(/\.html$/, ''));
+  for (const p of tries) {
+    const hit = await c.match(new Request(new URL(p, url.origin).href), { ignoreSearch: true });
+    if (hit) return hit;
+  }
+  /* مطابقة بالمفاتيح النسبية المخزنة وقت التثبيت */
+  const keys = await c.keys();
+  const base = path.split('/').pop() || 'index.html';
+  for (const k of keys) {
+    const kp = new URL(k.url).pathname;
+    if (kp.endsWith('/' + base) || kp.endsWith('/' + base + '.html')) {
+      return c.match(k, { ignoreSearch: true });
     }
-  } catch (err) {}
+  }
+  return undefined;
+}
 
-  /* 2) مو بالكاش → الشبكة، ونخزنه للمرات الجاية */
+async function handle(request, url) {
+  /* 1) الكاش أولًا */
+  try {
+    const cached = await smartMatch(url);
+    if (cached) {
+      refreshInBackground(request, url);
+      return await cleanResponse(cached);
+    }
+  } catch (e) {}
+
+  /* 2) الشبكة، وخزّنه نظيفًا */
   try {
     const res = await fetch(request);
-    if (res && res.status === 200 && (res.type === 'basic' || res.type === 'default')) {
-      const copy = res.clone();
-      caches.open(CACHE_NAME).then((c) => c.put(request, copy)).catch(() => {});
+    if (res && res.status === 200) {
+      const clean = await cleanResponse(res.clone());
+      caches.open(CACHE_NAME).then((c) => c.put(url.pathname, clean)).catch(() => {});
+      return res.redirected ? await cleanResponse(res) : res;
     }
     return res;
-  } catch (err) {}
+  } catch (e) {}
 
-  /* 3) أوفلاين وبدون كاش → أبدًا ما نرجع فاضي */
+  /* 3) أوفلاين وبدون كاش → أبدًا لا نرجع فاضي */
   try {
     if (request.mode === 'navigate' || (request.headers.get('accept') || '').indexOf('text/html') !== -1) {
-      const home = await caches.match('./index.html', { ignoreSearch: true });
-      if (home) return home;
-      const root = await caches.match('./', { ignoreSearch: true });
-      if (root) return root;
+      const home = await smartMatch(new URL('./index.html', url.origin));
+      if (home) return await cleanResponse(home);
     }
-  } catch (err) {}
+  } catch (e) {}
   return new Response('Offline - not cached', {
-    status: 503,
-    statusText: 'Offline',
+    status: 503, statusText: 'Offline',
     headers: { 'Content-Type': 'text/plain; charset=utf-8' }
   });
 }
 
-function refreshInBackground(request) {
+function refreshInBackground(request, url) {
   try {
-    fetch(request).then((res) => {
-      if (res && res.status === 200 && (res.type === 'basic' || res.type === 'default')) {
-        const copy = res.clone();
-        caches.open(CACHE_NAME).then((c) => c.put(request, copy)).catch(() => {});
+    fetch(request).then(async (res) => {
+      if (res && res.status === 200) {
+        const clean = await cleanResponse(res);
+        caches.open(CACHE_NAME).then((c) => c.put(url.pathname, clean)).catch(() => {});
       }
     }).catch(() => {});
-  } catch (err) {}
+  } catch (e) {}
 }
