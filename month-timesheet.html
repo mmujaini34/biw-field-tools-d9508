@@ -580,7 +580,7 @@ function previewPdf(){
   },function(e){flash("فشل توليد PDF: "+(e.message||e));});
 }
 function closePreview(){document.getElementById('pmodal').classList.remove('on');}
-document.getElementById('shareBtn').addEventListener('click',function(){
+function doShare(){
   if(!pdfBlob){flash("ولّد المعاينة أول");return;}
   var file=new File([pdfBlob],pdfName()+".pdf",{type:"application/pdf"});
   if(navigator.canShare&&navigator.canShare({files:[file]})){
@@ -588,6 +588,10 @@ document.getElementById('shareBtn').addEventListener('click',function(){
   }else{
     flash("المشاركة غير مدعومة بهذا المتصفح — استخدم ⬇️ تنزيل");
   }
+}
+document.addEventListener('click',function(e){
+  var t=e.target;
+  while(t&&t!==document){if(t.id==='shareBtn'){doShare();return;}t=t.parentNode;}
 });
 </script>
 </body>
