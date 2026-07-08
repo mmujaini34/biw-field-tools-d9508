@@ -189,18 +189,7 @@ table.ft{width:100%;border-collapse:collapse;margin-top:13px;font-size:10.5px}
       <button class="btn gold" type="button" onclick="document.getElementById('file').click()" id="pickBtn">اختيار ملفات</button>
       <input type="file" id="file" accept="application/pdf,image/*" multiple style="display:none">
     </div>
-    <div class="flash" id="flash"></div>
-
-<!-- ===== معاينة PDF ===== -->
-<div class="pmodal no-print" id="pmodal">
-  <div class="pmhead">
-    <button class="tbtn" type="button" onclick="closePreview()">✕ إغلاق</button>
-    <button class="tbtn" type="button" id="shareBtn">📤 مشاركة</button>
-    <a class="tbtn" id="dlBtn" download>⬇️ تنزيل</a>
-    <span class="ttitle" id="pmName"></span>
-  </div>
-  <div class="pmframe"><img id="pimg" alt="PDF preview"></div>
-</div>
+    
     <div id="queue"></div>
   </div>
 
@@ -239,6 +228,19 @@ table.ft{width:100%;border-collapse:collapse;margin-top:13px;font-size:10.5px}
     <span style="font-size:11.5px;color:rgba(255,255,255,.55)">من نافذة الطباعة اختر «حفظ كـ PDF»</span>
   </div>
   <div class="sheetScroll"><div class="sheet" id="sheet"></div></div>
+</div>
+
+<div class="flash" id="flash"></div>
+
+<!-- ===== معاينة PDF ===== -->
+<div class="pmodal no-print" id="pmodal">
+  <div class="pmhead">
+    <button class="tbtn" type="button" onclick="closePreview()">✕ إغلاق</button>
+    <button class="tbtn" type="button" id="shareBtn">📤 مشاركة</button>
+    <a class="tbtn" id="dlBtn" download>⬇️ تنزيل</a>
+    <span class="ttitle" id="pmName"></span>
+  </div>
+  <div class="pmframe"><img id="pimg" alt="PDF preview"></div>
 </div>
 
 <script>
@@ -606,7 +608,7 @@ function previewPdf(){
   },function(e){flash("فشل توليد PDF: "+(e.message||e));});
 }
 function closePreview(){document.getElementById('pmodal').classList.remove('on');}
-document.getElementById('shareBtn').addEventListener('click',function(){
+function doShare(){
   if(!pdfBlob){flash("ولّد المعاينة أول");return;}
   var file=new File([pdfBlob],pdfName()+".pdf",{type:"application/pdf"});
   if(navigator.canShare&&navigator.canShare({files:[file]})){
@@ -614,7 +616,12 @@ document.getElementById('shareBtn').addEventListener('click',function(){
   }else{
     flash("المشاركة غير مدعومة بهذا المتصفح — استخدم ⬇️ تنزيل");
   }
+}
+document.addEventListener('click',function(e){
+  var t=e.target;
+  while(t&&t!==document){if(t.id==='shareBtn'){doShare();return;}t=t.parentNode;}
 });
 </script>
+
 </body>
 </html>
