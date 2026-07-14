@@ -167,8 +167,8 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
 
 /* ============ توقيع المطور ============ */
 .devsig{position:fixed;left:14px;top:calc(104px + env(safe-area-inset-top));z-index:5;direction:ltr;
-  font-family:"Courier New",monospace;font-size:11px;letter-spacing:1px;color:rgba(255,232,205,.6);
-  text-shadow:0 1px 8px rgba(0,0,0,.85);pointer-events:none;white-space:nowrap}
+  font-family:"Courier New",monospace;font-size:11px;letter-spacing:1px;color:#000;font-weight:700;
+  text-shadow:0 0 6px rgba(255,255,255,.45);pointer-events:none;white-space:nowrap}
 
 /* ============ الشريط السفلي ============ */
 .dock{position:fixed;left:0;right:0;bottom:0;z-index:6;text-align:center;
@@ -373,7 +373,7 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
   <div class="dock-inner">
     <span class="net" id="net"><span class="dot"></span><span id="netTx">ONLINE</span></span>
     <span class="sep"></span>
-    <span class="ver" id="verTx">v3.10.2</span>
+    <span class="ver" id="verTx">v3.10.3</span>
     <span class="sep"></span>
     <span class="ver" id="cacheState">...</span>
   </div>
@@ -405,7 +405,7 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
 })();
 /* فحص التحديث الإجباري: فقط مع وجود نت + نسخة أحدث */
 (function(){
-  var CUR='3.10.2';                       /* نسخة هذا الملف */
+  var CUR='3.10.3';                       /* نسخة هذا الملف */
   function toNum(v){var p=String(v).replace(/^v/,'').split('.');return (+p[0]||0)*10000+(+p[1]||0)*100+(+p[2]||0);}
   function doUpdate(btn){
     btn.disabled=true;btn.textContent='... يحدّث';
