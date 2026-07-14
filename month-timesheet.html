@@ -423,7 +423,7 @@ function buildDays(){
     var cov=ts.filter(function(t){return ds>=t.from&&ds<=t.to;});
     var row={date:ds};
     if(!cov.length){
-      row.type='wait';row.text='In Suwaiq waiting for callout';row.days=0;
+      row.type='wait';row.text='In Home waiting for callout';row.days=0;
     }else{
       var text,base=1;
       if(cov.length>=2){
@@ -435,9 +435,9 @@ function buildDays(){
         else{text=cov.map(function(t){return 'In '+fieldOf(t)+wellSuffix(t);}).join(' and ');}
       }else{
         var t=cov[0];
-        if(ds===t.from&&ds===t.to){text='In Suwaiq drive to '+fieldOf(t)+wellSuffix(t)+' and back to Suwaiq';}
-        else if(ds===t.from){text='In Suwaiq and drive to '+fieldOf(t)+wellSuffix(t);}
-        else if(ds===t.to){text='In '+fieldOf(t)+wellSuffix(t)+' drive back to Suwaiq';}
+        if(ds===t.from&&ds===t.to){text='In Home drive to '+fieldOf(t)+wellSuffix(t)+' and back to Home';}
+        else if(ds===t.from){text='In Home and drive to '+fieldOf(t)+wellSuffix(t);}
+        else if(ds===t.to){text='In '+fieldOf(t)+wellSuffix(t)+' drive back to Home';}
         else{text='In '+fieldOf(t)+wellSuffix(t);}
       }
       if(of&&inRange(ds,of,ot)){base=2;text+=' (EID)';}
@@ -519,10 +519,10 @@ function renderSheet(){
         if(r.type==='work'&&r.days===1){r.days=2;r.type='dbl';}
         else if(r.type==='dbl'){r.days=0.5;r.type='work';}
         else if(r.type==='work'&&r.days===0.5){r.days=0;r.type='trip';
-          if(!r.text||r.text==='In Suwaiq waiting for callout')r.text='Work in Nizwa base';}
-        else if(r.type==='trip'){r.days=0;r.type='wait';r.text='In Suwaiq waiting for callout';}
+          if(!r.text||r.text==='In Home waiting for callout')r.text='Work in Nizwa base';}
+        else if(r.type==='trip'){r.days=0;r.type='wait';r.text='In Home waiting for callout';}
         else{r.days=1;r.type='work';
-          if(r.text==='In Suwaiq waiting for callout')r.text='Work day';}
+          if(r.text==='In Home waiting for callout')r.text='Work day';}
         renderSheet();
       });
     })(taps[i]);
