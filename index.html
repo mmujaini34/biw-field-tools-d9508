@@ -238,6 +238,18 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
   box-shadow:0 6px 20px rgba(255,150,60,.35)}
 .updGo:active{-webkit-transform:scale(.98);transform:scale(.98)}
 .updGo[disabled]{opacity:.6}
+#okModal{position:fixed;inset:0;z-index:99;display:none;background:rgba(10,5,9,.82);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+#okModal.on{display:block}
+.okBox{position:absolute;left:50%;top:50%;-webkit-transform:translate(-50%,-50%);transform:translate(-50%,-50%);
+  width:min(82vw,340px);padding:24px 20px;border-radius:20px;text-align:center;direction:rtl;
+  background:rgba(24,14,18,.94);border:1.5px solid rgba(127,209,160,.6);
+  box-shadow:0 18px 60px rgba(0,0,0,.6),0 0 30px rgba(90,200,140,.12)}
+.okBox .okIco{width:46px;height:46px;line-height:46px;margin:0 auto 10px;border-radius:50%;font-size:24px;font-weight:900;
+  background:rgba(90,200,140,.2);border:1.5px solid #7fd1a0;color:#a8f0c8}
+.okBox h2{font-size:16px;color:#d9ffe9;margin-bottom:6px;font-weight:800}
+.okBox .uv{margin-bottom:16px}
+.okBox .updGo{background:linear-gradient(135deg,#7fd1a0,#4db47f);color:#03170c}
 .updNote{margin-top:10px;font-size:11px;color:rgba(255,255,255,.5)}
 </style>
 </head>
@@ -373,7 +385,7 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
   <div class="dock-inner">
     <span class="net" id="net"><span class="dot"></span><span id="netTx">ONLINE</span></span>
     <span class="sep"></span>
-    <span class="ver" id="verTx">v3.10.3</span>
+    <span class="ver" id="verTx">v3.10.4</span>
     <span class="sep"></span>
     <span class="ver" id="cacheState">...</span>
   </div>
@@ -386,6 +398,15 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
     <ul id="updNotes"></ul>
     <button class="updGo" id="updGo" type="button">تحديث الآن</button>
     <div class="updNote">التحديث يستغرق ثوانٍ ويتطلب اتصالًا بالإنترنت</div>
+  </div>
+</div>
+
+<div id="okModal" role="dialog" aria-modal="true">
+  <div class="okBox">
+    <div class="okIco">\u2713</div>
+    <h2>أنت محدث آخر إصدار يا كلب \ud83d\udc36</h2>
+    <div class="uv" id="okVer"></div>
+    <button class="updGo" id="okGo" type="button">موافق</button>
   </div>
 </div>
 
@@ -403,9 +424,9 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
   }
   window.addEventListener('resize',fit);window.addEventListener('orientationchange',fit);fit();
 })();
-/* فحص التحديث الإجباري: فقط مع وجود نت + نسخة أحدث */
+/* فحص التحديث: تلقائي عند الفتح + يدوي بزر ⟳ */
 (function(){
-  var CUR='3.10.3';                       /* نسخة هذا الملف */
+  var CUR='3.10.4';                       /* نسخة هذا الملف */
   function toNum(v){var p=String(v).replace(/^v/,'').split('.');return (+p[0]||0)*10000+(+p[1]||0)*100+(+p[2]||0);}
   function doUpdate(btn){
     btn.disabled=true;btn.textContent='... يحدّث';
@@ -417,57 +438,50 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
       Promise.all(p).then(done,done);setTimeout(done,6000);
     }catch(e){done();}
   }
-  function check(){
-    if(!navigator.onLine)return;                                   /* بدون نت: ولا شي */
-    fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(function(r){
+  function showUpdModal(remote){
+    var m=document.getElementById('updModal');
+    document.getElementById('updVer').textContent='v'+CUR+'  \u2190  v'+String(remote.version).replace(/^v/,'');
+    var ul=document.getElementById('updNotes');ul.innerHTML='';
+    (remote.notes||[]).forEach(function(n){var li=document.createElement('li');li.textContent=n;ul.appendChild(li);});
+    m.classList.add('on');
+    var btn=document.getElementById('updGo');
+    btn.onclick=function(){if(!navigator.onLine){btn.textContent='\u26a0 تحتاج نت';setTimeout(function(){btn.textContent='تحديث الآن';},2200);return;}doUpdate(btn);};
+  }
+  function showOkModal(){
+    document.getElementById('okVer').textContent='v'+CUR;
+    document.getElementById('okModal').classList.add('on');
+  }
+  document.getElementById('okGo').addEventListener('click',function(){
+    document.getElementById('okModal').classList.remove('on');
+  });
+  function fetchRemote(){
+    return fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(function(r){
       if(!r.ok)return null;return r.json();
-    }).then(function(remote){
+    });
+  }
+  /* الفحص التلقائي: بصمت، يطلع المودال فقط لو فيه أجدد */
+  function autoCheck(){
+    if(!navigator.onLine)return;                                   /* بدون نت: ولا شي */
+    fetchRemote().then(function(remote){
       if(!remote||!remote.version)return;
-      /* نقارن مع نسخة الصفحة المعروضة نفسها (CUR) — حتمي، بلا سباق مع تحديث الكاش بالخلفية */
       if(toNum(remote.version)<=toNum(CUR))return;                  /* ما في أجدد: ولا شي */
-      var m=document.getElementById('updModal');
-      document.getElementById('updVer').textContent='v'+CUR+'  \u2190  v'+String(remote.version).replace(/^v/,'');
-      var ul=document.getElementById('updNotes');ul.innerHTML='';
-      (remote.notes||[]).forEach(function(n){var li=document.createElement('li');li.textContent=n;ul.appendChild(li);});
-      m.classList.add('on');
-      var btn=document.getElementById('updGo');
-      btn.onclick=function(){if(!navigator.onLine){btn.textContent='\u26a0 تحتاج نت';setTimeout(function(){btn.textContent='تحديث الآن';},2200);return;}doUpdate(btn);};
+      showUpdModal(remote);
     }).catch(function(){});
   }
-  window.addEventListener('load',function(){setTimeout(check,1200);});
-  window.addEventListener('online',function(){setTimeout(check,800);});
-})();
-/* مؤشر الاتصال */
-(function(){
-  var chip=document.getElementById('net'), tx=document.getElementById('netTx');
-  function set(){var on=navigator.onLine;chip.classList.toggle('off',!on);tx.textContent=on?'ONLINE':'OFFLINE';}
-  window.addEventListener('online',set);window.addEventListener('offline',set);set();
-})();
-/* ظهور الأيقونات متدرج + موجة عند الضغط */
-(function(){
-  var orbs=document.querySelectorAll('.glass-orb');
-  for(var i=0;i<orbs.length;i++){
-    (function(el,d){
-      setTimeout(function(){el.classList.add('show');},350+d*110);
-      el.parentElement.addEventListener('touchstart',function(){el.classList.remove('tapped');void el.offsetWidth;el.classList.add('tapped');},{passive:true});
-      el.parentElement.addEventListener('mousedown',function(){el.classList.remove('tapped');void el.offsetWidth;el.classList.add('tapped');});
-    })(orbs[i],i);
-  }
-})();
-/* زر التحديث: يمسح الكاش ويسحب أحدث نسخة */
-(function(){
-  var btn=document.getElementById('updBtn');
-  btn.addEventListener('click',function(){
-    if(!navigator.onLine){btn.textContent='⚠ تحتاج نت';setTimeout(function(){btn.textContent='⟳ UPDATE';},2200);return;}
-    btn.disabled=true;btn.textContent='... يحدّث';
-    var done=function(){location.reload();};
-    try{
-      var p=[];
-      if(window.caches&&caches.keys){p.push(caches.keys().then(function(ks){return Promise.all(ks.map(function(k){return caches.delete(k);}));}));}
-      if(navigator.serviceWorker&&navigator.serviceWorker.getRegistrations){p.push(navigator.serviceWorker.getRegistrations().then(function(rs){return Promise.all(rs.map(function(r){return r.unregister();}));}));}
-      Promise.all(p).then(done,done);
-      setTimeout(done,6000);
-    }catch(e){done();}
+  window.addEventListener('load',function(){setTimeout(autoCheck,1200);});
+  window.addEventListener('online',function(){setTimeout(autoCheck,800);});
+  /* الفحص اليدوي بزر ⟳: محدث → رسالة "أنت محدث"، فيه جديد → مودال التحديث */
+  var ub=document.getElementById('updBtn');
+  function ubReset(){ub.disabled=false;ub.textContent='\u27f3 UPDATE';}
+  ub.addEventListener('click',function(){
+    if(!navigator.onLine){ub.textContent='\u26a0 تحتاج نت';setTimeout(ubReset,2200);return;}
+    ub.disabled=true;ub.textContent='... يفحص';
+    fetchRemote().then(function(remote){
+      ubReset();
+      if(!remote||!remote.version){ub.textContent='\u26a0 تعذر الفحص';setTimeout(ubReset,2200);return;}
+      if(toNum(remote.version)>toNum(CUR)){showUpdModal(remote);}
+      else{showOkModal();}
+    }).catch(function(){ub.textContent='\u26a0 تعذر الفحص';setTimeout(ubReset,2200);});
   });
 })();
 /* النسخة تنقرا من كاش الـ SW الفعّال */
