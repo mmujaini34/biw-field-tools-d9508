@@ -373,7 +373,7 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
   <div class="dock-inner">
     <span class="net" id="net"><span class="dot"></span><span id="netTx">ONLINE</span></span>
     <span class="sep"></span>
-    <span class="ver" id="verTx">v3.10.0</span>
+    <span class="ver" id="verTx">v3.10.1</span>
     <span class="sep"></span>
     <span class="ver" id="cacheState">...</span>
   </div>
@@ -405,16 +405,8 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
 })();
 /* فحص التحديث الإجباري: فقط مع وجود نت + نسخة أحدث */
 (function(){
-  var CUR='3.10.0';                       /* نسخة هذا الملف */
+  var CUR='3.10.1';                       /* نسخة هذا الملف */
   function toNum(v){var p=String(v).replace(/^v/,'').split('.');return (+p[0]||0)*10000+(+p[1]||0)*100+(+p[2]||0);}
-  function activeVer(cb){
-    if(!window.caches||!caches.keys){cb(CUR);return;}
-    caches.keys().then(function(ks){
-      var v=CUR;
-      for(var i=0;i<ks.length;i++){var m=ks[i].match(/^biw-field-tools-v([\d.]+)$/);if(m)v=m[1];}
-      cb(v);
-    },function(){cb(CUR);});
-  }
   function doUpdate(btn){
     btn.disabled=true;btn.textContent='... يحدّث';
     var done=function(){location.reload();};
@@ -431,16 +423,15 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
       if(!r.ok)return null;return r.json();
     }).then(function(remote){
       if(!remote||!remote.version)return;
-      activeVer(function(cur){
-        if(toNum(remote.version)<=toNum(cur))return;                /* ما في أجدد: ولا شي */
-        var m=document.getElementById('updModal');
-        document.getElementById('updVer').textContent='v'+String(cur).replace(/^v/,'')+'  \u2190  v'+String(remote.version).replace(/^v/,'');
-        var ul=document.getElementById('updNotes');ul.innerHTML='';
-        (remote.notes||[]).forEach(function(n){var li=document.createElement('li');li.textContent=n;ul.appendChild(li);});
-        m.classList.add('on');
-        var btn=document.getElementById('updGo');
-        btn.onclick=function(){if(!navigator.onLine){btn.textContent='\u26a0 تحتاج نت';setTimeout(function(){btn.textContent='تحديث الآن';},2200);return;}doUpdate(btn);};
-      });
+      /* نقارن مع نسخة الصفحة المعروضة نفسها (CUR) — حتمي، بلا سباق مع تحديث الكاش بالخلفية */
+      if(toNum(remote.version)<=toNum(CUR))return;                  /* ما في أجدد: ولا شي */
+      var m=document.getElementById('updModal');
+      document.getElementById('updVer').textContent='v'+CUR+'  \u2190  v'+String(remote.version).replace(/^v/,'');
+      var ul=document.getElementById('updNotes');ul.innerHTML='';
+      (remote.notes||[]).forEach(function(n){var li=document.createElement('li');li.textContent=n;ul.appendChild(li);});
+      m.classList.add('on');
+      var btn=document.getElementById('updGo');
+      btn.onclick=function(){if(!navigator.onLine){btn.textContent='\u26a0 تحتاج نت';setTimeout(function(){btn.textContent='تحديث الآن';},2200);return;}doUpdate(btn);};
     }).catch(function(){});
   }
   window.addEventListener('load',function(){setTimeout(check,1200);});
