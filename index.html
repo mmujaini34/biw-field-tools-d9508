@@ -36,28 +36,6 @@ body{background:#1a0f14;color:#fff;font-family:-apple-system,"Segoe UI",Roboto,A
 @-webkit-keyframes pjspin{from{-webkit-transform:rotate(0)}to{-webkit-transform:rotate(360deg)}}
 @keyframes pjspin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 
-/* ---- عمال بعيدين: مشي (أرجل مقص) + عامل يطرق ---- */
-.walker{position:absolute;will-change:transform}
-.walker .legA{transform-origin:8px 20px;-webkit-animation:stepA .72s ease-in-out infinite;animation:stepA .72s ease-in-out infinite}
-.walker .legB{transform-origin:8px 20px;-webkit-animation:stepB .72s ease-in-out infinite;animation:stepB .72s ease-in-out infinite}
-.walker .armA{transform-origin:8px 12px;-webkit-animation:stepB .72s ease-in-out infinite;animation:stepB .72s ease-in-out infinite}
-.walker .body{-webkit-animation:bob .36s ease-in-out infinite;animation:bob .36s ease-in-out infinite}
-@-webkit-keyframes stepA{0%,100%{-webkit-transform:rotate(24deg)}50%{-webkit-transform:rotate(-24deg)}}
-@keyframes stepA{0%,100%{transform:rotate(24deg)}50%{transform:rotate(-24deg)}}
-@-webkit-keyframes stepB{0%,100%{-webkit-transform:rotate(-24deg)}50%{-webkit-transform:rotate(24deg)}}
-@keyframes stepB{0%,100%{transform:rotate(-24deg)}50%{transform:rotate(24deg)}}
-@-webkit-keyframes bob{0%,100%{-webkit-transform:translateY(0)}50%{-webkit-transform:translateY(-.7px)}}
-@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-.7px)}}
-#walk1{-webkit-animation:cross1 46s linear infinite;animation:cross1 46s linear infinite}
-#walk2{-webkit-animation:cross2 58s linear -21s infinite;animation:cross2 58s linear -21s infinite}
-@-webkit-keyframes cross1{0%{-webkit-transform:translate(748px,512px) scale(1)}49%{-webkit-transform:translate(986px,516px) scale(1)}50%{-webkit-transform:translate(986px,516px) scale(-1,1)}99%{-webkit-transform:translate(748px,512px) scale(-1,1)}100%{-webkit-transform:translate(748px,512px) scale(1)}}
-@keyframes cross1{0%{transform:translate(748px,512px) scale(1)}49%{transform:translate(986px,516px) scale(1)}50%{transform:translate(986px,516px) scale(-1,1)}99%{transform:translate(748px,512px) scale(-1,1)}100%{transform:translate(748px,512px) scale(1)}}
-@-webkit-keyframes cross2{0%{-webkit-transform:translate(285px,572px) scale(1.5)}49%{-webkit-transform:translate(150px,580px) scale(1.5)}50%{-webkit-transform:translate(150px,580px) scale(-1.5,1.5)}99%{-webkit-transform:translate(285px,572px) scale(-1.5,1.5)}100%{-webkit-transform:translate(285px,572px) scale(1.5)}}
-@keyframes cross2{0%{transform:translate(285px,572px) scale(1.5)}49%{transform:translate(150px,580px) scale(1.5)}50%{transform:translate(150px,580px) scale(-1.5,1.5)}99%{transform:translate(285px,572px) scale(-1.5,1.5)}100%{transform:translate(285px,572px) scale(1.5)}}
-.hammerman .arm{transform-origin:9px 11px;-webkit-animation:hammer 1.9s ease-in-out infinite;animation:hammer 1.9s ease-in-out infinite}
-@-webkit-keyframes hammer{0%,55%,100%{-webkit-transform:rotate(0)}65%{-webkit-transform:rotate(-52deg)}78%{-webkit-transform:rotate(8deg)}}
-@keyframes hammer{0%,55%,100%{transform:rotate(0)}65%{transform:rotate(-52deg)}78%{transform:rotate(8deg)}}
-
 /* ---- طيور تعبر السما ---- */
 .flock{position:absolute;will-change:transform}
 .flock .wing{transform-origin:center;-webkit-animation:flap .5s ease-in-out infinite;animation:flap .5s ease-in-out infinite}
@@ -237,7 +215,7 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
   .glass-ico{width:28px;height:28px;margin:-14px 0 0 -14px}
 }
 @media (prefers-reduced-motion:reduce){
-  #kb,.sunGlow,.waterShine,.ember,.net .dot,.pj .beam,.pj .crank,.walker,.walker *,.hammerman .arm,.flock,.flock *,.smoke,.dust,.haze,.glint,.beacon{-webkit-animation:none!important;animation:none!important}
+  #kb,.sunGlow,.waterShine,.ember,.net .dot,.pj .beam,.pj .crank,.flock,.flock *,.smoke,.dust,.haze,.glint,.beacon{-webkit-animation:none!important;animation:none!important}
   .glass-orb{opacity:1;-webkit-transform:none;transform:none;-webkit-animation:none!important;animation:none!important}
 }
 </style>
@@ -271,37 +249,11 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
         </g>
       </svg>
 
-      <!-- عامل يمشي بعيد (بين البرج والشاحنة) -->
-      <svg id="walk1" class="walker" style="left:0;top:0" width="16" height="24" viewBox="0 0 16 24">
-        <g fill="#241008">
-          <g class="body"><circle cx="8" cy="4" r="2.6"/><rect x="6.1" y="6.4" width="3.8" height="9" rx="1.6"/></g>
-          <rect class="armA" x="7.3" y="11" width="1.6" height="7" rx=".8"/>
-          <rect class="legA" x="6.4" y="14" width="1.9" height="9" rx=".9"/>
-          <rect class="legB" x="7.9" y="14" width="1.9" height="9" rx=".9"/>
-        </g>
-      </svg>
+      
 
-      <!-- عامل أقرب يمشي يسار المشهد -->
-      <svg id="walk2" class="walker" style="left:0;top:0" width="16" height="24" viewBox="0 0 16 24">
-        <g fill="#1c0b06">
-          <g class="body"><circle cx="8" cy="4" r="2.6"/><rect x="6.1" y="6.4" width="3.8" height="9" rx="1.6"/></g>
-          <rect class="armA" x="7.3" y="11" width="1.6" height="7" rx=".8"/>
-          <rect class="legA" x="6.4" y="14" width="1.9" height="9" rx=".9"/>
-          <rect class="legB" x="7.9" y="14" width="1.9" height="9" rx=".9"/>
-        </g>
-      </svg>
+      
 
-      <!-- عامل واقف يطرق على معدة (يمين النواسات البعيدة) -->
-      <svg class="hammerman" style="position:absolute;left:1052px;top:503px" width="19" height="23" viewBox="0 0 22 26">
-        <g fill="#2a1006">
-          <rect x="15" y="14" width="6" height="9" rx="1"/>
-          <circle cx="8" cy="5" r="2.7"/>
-          <rect x="6" y="7.6" width="4" height="10" rx="1.7"/>
-          <rect x="5.6" y="17" width="2" height="8" rx="1"/>
-          <rect x="8.4" y="17" width="2" height="8" rx="1"/>
-          <g class="arm"><rect x="8.6" y="10.4" width="8.5" height="1.9" rx=".9"/><rect x="15.6" y="7.6" width="2.4" height="4.6" rx="1"/></g>
-        </g>
-      </svg>
+      
 
       <!-- أسراب طيور -->
       <svg id="flock1" class="flock" width="90" height="34" viewBox="0 0 90 34">
@@ -400,7 +352,7 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
   <div class="dock-inner">
     <span class="net" id="net"><span class="dot"></span><span id="netTx">ONLINE</span></span>
     <span class="sep"></span>
-    <span class="ver" id="verTx">v3.9.0</span>
+    <span class="ver" id="verTx">v3.9.1</span>
     <span class="sep"></span>
     <span class="ver" id="cacheState">...</span>
   </div>
