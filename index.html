@@ -218,6 +218,27 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
   #kb,.sunGlow,.waterShine,.ember,.net .dot,.pj .beam,.pj .crank,.flock,.flock *,.smoke,.dust,.haze,.glint,.beacon{-webkit-animation:none!important;animation:none!important}
   .glass-orb{opacity:1;-webkit-transform:none;transform:none;-webkit-animation:none!important;animation:none!important}
 }
+
+/* ============ رسالة التحديث الإجباري ============ */
+#updModal{position:fixed;inset:0;z-index:99;display:none;background:rgba(10,5,9,.82);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+#updModal.on{display:block}
+.updBox{position:absolute;left:50%;top:50%;-webkit-transform:translate(-50%,-50%);transform:translate(-50%,-50%);
+  width:min(88vw,420px);padding:26px 22px;border-radius:20px;text-align:center;direction:rtl;
+  background:rgba(24,14,18,.92);border:1.5px solid rgba(255,196,106,.55);
+  box-shadow:0 18px 60px rgba(0,0,0,.6),0 0 30px rgba(255,170,80,.12)}
+.updBox h2{font-size:19px;color:#ffdcae;margin-bottom:4px}
+.updBox .uv{font-family:"Courier New",monospace;direction:ltr;font-size:13px;color:#ffc46a;letter-spacing:1px}
+.updBox ul{list-style:none;margin:16px 0 20px;text-align:right}
+.updBox li{font-size:13.5px;line-height:1.5;color:rgba(255,255,255,.9);margin:8px 0;padding-right:18px;position:relative}
+.updBox li:before{content:"";position:absolute;right:0;top:8px;width:7px;height:7px;border-radius:50%;
+  background:#ffc46a;box-shadow:0 0 8px rgba(255,196,106,.8)}
+.updGo{display:block;width:100%;padding:13px;border-radius:12px;border:none;cursor:pointer;
+  background:linear-gradient(135deg,#ffb340,#ff8a3c);color:#2a1006;font-size:15px;font-weight:800;
+  box-shadow:0 6px 20px rgba(255,150,60,.35)}
+.updGo:active{-webkit-transform:scale(.98);transform:scale(.98)}
+.updGo[disabled]{opacity:.6}
+.updNote{margin-top:10px;font-size:11px;color:rgba(255,255,255,.5)}
 </style>
 </head>
 <body>
@@ -352,9 +373,19 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
   <div class="dock-inner">
     <span class="net" id="net"><span class="dot"></span><span id="netTx">ONLINE</span></span>
     <span class="sep"></span>
-    <span class="ver" id="verTx">v3.9.1</span>
+    <span class="ver" id="verTx">v3.9.2</span>
     <span class="sep"></span>
     <span class="ver" id="cacheState">...</span>
+  </div>
+</div>
+
+<div id="updModal" role="dialog" aria-modal="true">
+  <div class="updBox">
+    <h2>تحديث إجباري</h2>
+    <div class="uv" id="updVer"></div>
+    <ul id="updNotes"></ul>
+    <button class="updGo" id="updGo" type="button">تحديث الآن</button>
+    <div class="updNote">التحديث يستغرق ثوانٍ ويتطلب اتصالًا بالإنترنت</div>
   </div>
 </div>
 
@@ -371,6 +402,49 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
     sc.style.webkitTransform='translate('+x+'px,'+y+'px) scale('+s+')';
   }
   window.addEventListener('resize',fit);window.addEventListener('orientationchange',fit);fit();
+})();
+/* فحص التحديث الإجباري: فقط مع وجود نت + نسخة أحدث */
+(function(){
+  var CUR='3.9.2';                       /* نسخة هذا الملف */
+  function toNum(v){var p=String(v).replace(/^v/,'').split('.');return (+p[0]||0)*10000+(+p[1]||0)*100+(+p[2]||0);}
+  function activeVer(cb){
+    if(!window.caches||!caches.keys){cb(CUR);return;}
+    caches.keys().then(function(ks){
+      var v=CUR;
+      for(var i=0;i<ks.length;i++){var m=ks[i].match(/^biw-field-tools-v([\d.]+)$/);if(m)v=m[1];}
+      cb(v);
+    },function(){cb(CUR);});
+  }
+  function doUpdate(btn){
+    btn.disabled=true;btn.textContent='... يحدّث';
+    var done=function(){location.reload();};
+    try{
+      var p=[];
+      if(window.caches&&caches.keys){p.push(caches.keys().then(function(ks){return Promise.all(ks.map(function(k){return caches.delete(k);}));}));}
+      if(navigator.serviceWorker&&navigator.serviceWorker.getRegistrations){p.push(navigator.serviceWorker.getRegistrations().then(function(rs){return Promise.all(rs.map(function(r){return r.unregister();}));}));}
+      Promise.all(p).then(done,done);setTimeout(done,6000);
+    }catch(e){done();}
+  }
+  function check(){
+    if(!navigator.onLine)return;                                   /* بدون نت: ولا شي */
+    fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(function(r){
+      if(!r.ok)return null;return r.json();
+    }).then(function(remote){
+      if(!remote||!remote.version)return;
+      activeVer(function(cur){
+        if(toNum(remote.version)<=toNum(cur))return;                /* ما في أجدد: ولا شي */
+        var m=document.getElementById('updModal');
+        document.getElementById('updVer').textContent='v'+String(cur).replace(/^v/,'')+'  \u2190  v'+String(remote.version).replace(/^v/,'');
+        var ul=document.getElementById('updNotes');ul.innerHTML='';
+        (remote.notes||[]).forEach(function(n){var li=document.createElement('li');li.textContent=n;ul.appendChild(li);});
+        m.classList.add('on');
+        var btn=document.getElementById('updGo');
+        btn.onclick=function(){if(!navigator.onLine){btn.textContent='\u26a0 تحتاج نت';setTimeout(function(){btn.textContent='تحديث الآن';},2200);return;}doUpdate(btn);};
+      });
+    }).catch(function(){});
+  }
+  window.addEventListener('load',function(){setTimeout(check,1200);});
+  window.addEventListener('online',function(){setTimeout(check,800);});
 })();
 /* مؤشر الاتصال */
 (function(){
@@ -405,13 +479,8 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
     }catch(e){done();}
   });
 })();
-/* النسخة تنقرا من كاش الـ SW الفعّال + تحديث تلقائي بدون زر */
+/* النسخة تنقرا من كاش الـ SW الفعّال */
 (function(){
-  if(!('serviceWorker' in navigator))return;
-  var reloaded=false;
-  navigator.serviceWorker.addEventListener('controllerchange',function(){
-    if(reloaded)return;reloaded=true;location.reload();   /* أول ما نسخة جديدة تستلم: إعادة تحميل مرة وحدة */
-  });
   function showVer(){
     if(!window.caches||!caches.keys)return;
     caches.keys().then(function(ks){
@@ -422,11 +491,6 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
     });
   }
   showVer();setTimeout(showVer,4000);setTimeout(showVer,12000);
-  window.addEventListener('load',function(){
-    setTimeout(function(){
-      navigator.serviceWorker.getRegistration().then(function(r){if(r&&r.update)r.update();});
-    },3500);
-  });
 })();
 /* تسجيل الأوفلاين + مؤشر "كل شي محمّل" */
 (function(){
