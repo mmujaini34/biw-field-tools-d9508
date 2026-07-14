@@ -80,6 +80,10 @@ select.inp option{color:#000;background:#fff}
   border:1px solid rgba(255,196,106,.5);border-radius:8px;padding:6px;direction:ltr;flex:1}
 .wbar .wsum{color:#8fe3cf;font-weight:800}
 .wbar .wsum.bad{color:#ffb3a1}
+.ovlNote{margin:10px 0 6px;padding:8px 10px;border-radius:8px;font-size:11px;font-weight:800;direction:rtl;text-align:right;
+  background:#fff3d6;border:1.5px solid #e8a33d;color:#7a4a00;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.ts tr.ovl td{background:#fff6e0!important}
+@media print{.ovlNote{display:none}}
 .lowbar{display:flex;align-items:center;gap:10px;background:rgba(255,196,106,.14);border:1px dashed rgba(255,196,106,.55);
   border-radius:9px;margin:2px 0 8px;padding:7px 10px;font-size:12px;color:#ffdcae}
 .lowbar .confirm{margin-inline-start:auto;border:1.5px solid #7fd1a0;background:rgba(90,200,140,.15);color:#a8f0c8;
@@ -506,20 +510,22 @@ function buildDays(){
             if(fieldOf(ending[ei])!==fieldOf(starting[si]))trans={e:ending[ei],s:starting[si]};
           }
         }
-        if(trans){
+        /* يوم حدودي = كل التكتات تبدأ أو تنتهي فيه. غير كذا = تداخل حقيقي (جوبين بنفس الوقت) */
+        var boundaryOnly=cov.every(function(t){return t.from===ds||t.to===ds;});
+        if(trans&&boundaryOnly){
           base=2;
           text='In '+fieldOf(trans.e)+' to '+fieldOf(trans.s)+wellSuffix(trans.s);
-        }else{
-          /* تداخل أو استمرار بنفس الحقل: يوم واحد فقط، بدون دفع مزدوج */
+        }else if(boundaryOnly&&!trans){
+          /* استمرار بنفس الحقل (ينتهي تكت ويبدأ آخر بنفس الموقع): يوم واحد */
           base=1;
-          var sameField=cov.every(function(t){return fieldOf(t)===fieldOf(cov[0]);});
-          if(sameField){
-            var wells=[];
-            cov.forEach(function(t){if(t.well&&wells.indexOf(t.well)<0)wells.push(t.well);});
-            text='In '+fieldOf(cov[0])+(wells.length?(' for '+wells.join(' / ')):'');
-          }else{
-            text=cov.map(function(t){return 'In '+fieldOf(t)+wellSuffix(t);}).join(' and ');
-          }
+          var wells=[];
+          cov.forEach(function(t){if(t.well&&wells.indexOf(t.well)<0)wells.push(t.well);});
+          text='In '+fieldOf(cov[0])+(wells.length?(' for '+wells.join(' / ')):'');
+        }else{
+          /* تداخل حقيقي: جوبين (أو أكثر) بنفس اليوم → Double + علامة للمراجعة */
+          base=2;
+          row.overlap=true;
+          text=cov.map(function(t){return 'In '+fieldOf(t)+wellSuffix(t);}).join(' and ');
         }
       }else{
         var t=cov[0];
@@ -583,11 +589,15 @@ function renderSheet(){
   h+='<div class="mrow"><span class="ml">Site Bonus (Days)</span><span class="mv">'+fmtDays(tt.days)+'</span></div>';
   h+='<div class="mrow"><span class="ml">Site Bonus (Amount)</span><span class="mv">OMR&nbsp;&nbsp;&nbsp;'+fmt2(tt.amount)+'</span></div>';
   h+='</div>';
+  var ovlCount=0;dayRows.forEach(function(r){if(r.overlap)ovlCount++;});
+  if(ovlCount){
+    h+='<div class="ovlNote">\u26a0\ufe0f '+ovlCount+' يوم متداخل (جوبين بنفس الوقت) محسوب Double — راجعها، واضغط خانة الأيام لأي يوم تبي تغيّره</div>';
+  }
   h+='<table class="ts"><thead><tr>'+
      '<th style="width:44px">S.No</th><th style="width:80px">Date</th><th>Work Plan</th>'+
      '<th style="width:70px">No of Days</th><th style="width:120px">Amount to be paid in OMR</th></tr></thead><tbody>';
   dayRows.forEach(function(r,i){
-    var cls=r.type;
+    var cls=r.type+(r.overlap?' ovl':'');
     h+='<tr class="'+cls+'" data-i="'+i+'">'+
        '<td class="c">'+(i+1)+'</td>'+
        '<td class="c" style="white-space:nowrap">'+fmtSheetDate(r.date)+'</td>'+
