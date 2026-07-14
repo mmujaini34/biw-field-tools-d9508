@@ -1,5 +1,5 @@
-/* BIW Field Tools — Service Worker v3.9.1 (Safari-proof, redirect-proof, offline-first) */
-const CACHE_NAME = 'biw-field-tools-v3.9.1';
+/* BIW Field Tools — Service Worker v3.9.2 (Safari-proof, redirect-proof, offline-first) */
+const CACHE_NAME = 'biw-field-tools-v3.9.2';
 const ASSETS = [
   './',
   './index.html',
@@ -65,6 +65,10 @@ self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
   const url = new URL(e.request.url);
   if (url.origin !== self.location.origin) return; /* خارجي: خله للمتصفح */
+  if (url.pathname.endsWith('/version.json')) {   /* فحص التحديث: شبكة فقط، بلا كاش أبدًا */
+    e.respondWith(fetch(e.request, { cache: 'no-store' }));
+    return;
+  }
   e.respondWith(handle(e.request, url));
 });
 
