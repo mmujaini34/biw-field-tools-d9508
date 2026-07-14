@@ -496,12 +496,31 @@ function buildDays(){
     }else{
       var text,base=1;
       if(cov.length>=2){
-        base=2;
-        var ending=null,starting=null;
-        cov.forEach(function(t){if(t.to===ds)ending=t;});
-        cov.forEach(function(t){if(t.from===ds&&t!==ending)starting=t;});
-        if(ending&&starting){text='In '+fieldOf(ending)+' to '+fieldOf(starting)+wellSuffix(starting);}
-        else{text=cov.map(function(t){return 'In '+fieldOf(t)+wellSuffix(t);}).join(' and ');}
+        /* يومين فقط عند تنقّل حقيقي: تكت ينتهي اليوم + تكت آخر يبدأ نفس اليوم + الحقلان مختلفان */
+        var ending=[],starting=[];
+        cov.forEach(function(t){if(t.to===ds)ending.push(t);});
+        cov.forEach(function(t){if(t.from===ds&&ending.indexOf(t)<0)starting.push(t);});
+        var trans=null;
+        for(var ei=0;ei<ending.length&&!trans;ei++){
+          for(var si=0;si<starting.length&&!trans;si++){
+            if(fieldOf(ending[ei])!==fieldOf(starting[si]))trans={e:ending[ei],s:starting[si]};
+          }
+        }
+        if(trans){
+          base=2;
+          text='In '+fieldOf(trans.e)+' to '+fieldOf(trans.s)+wellSuffix(trans.s);
+        }else{
+          /* تداخل أو استمرار بنفس الحقل: يوم واحد فقط، بدون دفع مزدوج */
+          base=1;
+          var sameField=cov.every(function(t){return fieldOf(t)===fieldOf(cov[0]);});
+          if(sameField){
+            var wells=[];
+            cov.forEach(function(t){if(t.well&&wells.indexOf(t.well)<0)wells.push(t.well);});
+            text='In '+fieldOf(cov[0])+(wells.length?(' for '+wells.join(' / ')):'');
+          }else{
+            text=cov.map(function(t){return 'In '+fieldOf(t)+wellSuffix(t);}).join(' and ');
+          }
+        }
       }else{
         var t=cov[0];
         if(ds===t.from&&ds===t.to){text='In Home drive to '+fieldOf(t)+wellSuffix(t)+' and back to Home';}
