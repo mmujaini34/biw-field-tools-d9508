@@ -1,5 +1,5 @@
-/* BIW Field Tools — Service Worker v3.10.5 (Safari-proof, redirect-proof, offline-first) */
-const CACHE_NAME = 'biw-field-tools-v3.10.5';
+/* BIW Field Tools — Service Worker v3.10.6 (Safari-proof, redirect-proof, offline-first) */
+const CACHE_NAME = 'biw-field-tools-v3.10.6';
 const ASSETS = [
   './',
   './index.html',
