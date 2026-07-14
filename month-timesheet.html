@@ -64,6 +64,22 @@ select.inp option{color:#000;background:#fff}
 .c-d{flex:0 0 118px}
 .del{flex:0 0 26px;height:26px;border:none;background:transparent;color:rgba(255,255,255,.4);font-size:18px;cursor:pointer;border-radius:7px;line-height:1}
 .del:active{color:#ff9d94}
+
+/* شريط تأكيد/تعديل أيام العمل لكل تكت */
+.wbar{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:4px 0 10px;padding:8px 10px;border-radius:10px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);font-size:12px}
+.wbar.pending{border-color:rgba(255,196,106,.65);background:rgba(255,196,106,.10)}
+.wbar .wq{color:rgba(255,255,255,.85);font-weight:700}
+.wbar button{border-radius:9px;padding:7px 12px;font-size:12px;cursor:pointer;font-family:inherit}
+.wbar .wAll{border:1.5px solid #7fd1a0;background:rgba(90,200,140,.15);color:#a8f0c8}
+.wbar .wAll.on{background:rgba(90,200,140,.5);color:#03170c}
+.wbar .wEdit{border:1.5px solid #ffc46a;background:rgba(255,196,106,.14);color:#ffdcae}
+.wbar .wEdit.on{background:rgba(255,196,106,.55);color:#2a1006}
+.wbar .wrange{display:flex;align-items:center;gap:6px;width:100%}
+.wbar .wrange input{font-family:inherit;font-size:12px;color:#fff;background:rgba(0,0,0,.35);
+  border:1px solid rgba(255,196,106,.5);border-radius:8px;padding:6px;direction:ltr;flex:1}
+.wbar .wsum{color:#8fe3cf;font-weight:800}
+.wbar .wsum.bad{color:#ffb3a1}
 .lowbar{display:flex;align-items:center;gap:10px;background:rgba(255,196,106,.14);border:1px dashed rgba(255,196,106,.55);
   border-radius:9px;margin:2px 0 8px;padding:7px 10px;font-size:12px;color:#ffdcae}
 .lowbar .confirm{margin-inline-start:auto;border:1.5px solid #7fd1a0;background:rgba(90,200,140,.15);color:#a8f0c8;
@@ -338,7 +354,7 @@ function handleFiles(list){
             field:t.field||"",well:t.well||"",hoist:t.hoist||"",
             from:(t.date_from&&/^\d{4}-\d{2}-\d{2}$/.test(t.date_from))?t.date_from:"",
             to:(t.date_to&&/^\d{4}-\d{2}-\d{2}$/.test(t.date_to))?t.date_to:"",
-            low:t.confidence==="low"});
+            low:t.confidence==="low",wmode:"",wf:"",wt:""});
           if(t.date_from&&(!minD||t.date_from<minD))minD=t.date_from;
           if(t.date_to&&(!maxD||t.date_to>maxD))maxD=t.date_to;
         });
@@ -387,6 +403,7 @@ function render(){
     del.addEventListener('click',function(){tickets=tickets.filter(function(x){return x!==t;});render();});
     div.appendChild(f);div.appendChild(w);div.appendChild(d1);div.appendChild(d2);div.appendChild(del);
     box.appendChild(div);
+    box.appendChild(buildWorkBar(t));
     if(t.low){
       var bar=document.createElement('div');bar.className='lowbar';
       var tx=document.createElement('span');tx.textContent='⚠️ غير مؤكد — عدّل أو أكد';
@@ -396,12 +413,59 @@ function render(){
     }
   });
 }
+
+/* ---------- تأكيد/تعديل أيام العمل لكل تكت ---------- */
+function daysBetween(a,b){if(!a||!b||a>b)return 0;return Math.round((fromIso(b)-fromIso(a))/86400000)+1;}
+function buildWorkBar(t){
+  var bar=document.createElement('div');
+  bar.className='wbar'+(t.wmode?'':' pending');
+  var total=daysBetween(t.from,t.to);
+  var q=document.createElement('span');q.className='wq';
+  q.textContent=t.wmode?'أيام العمل:':'⚠️ اشتغلت كل أيام التكت ('+(total||'?')+' يوم)؟';
+  var bAll=document.createElement('button');bAll.type='button';bAll.className='wAll'+(t.wmode==='all'?' on':'');
+  bAll.textContent='✓ تأكيد كل الأيام';
+  bAll.addEventListener('click',function(){t.wmode='all';t.wf='';t.wt='';render();});
+  var bEdit=document.createElement('button');bEdit.type='button';bEdit.className='wEdit'+(t.wmode==='range'?' on':'');
+  bEdit.textContent='✎ تعديل الأيام';
+  bEdit.addEventListener('click',function(){t.wmode='range';if(!t.wf)t.wf=t.from;if(!t.wt)t.wt=t.to;render();});
+  bar.appendChild(q);bar.appendChild(bAll);bar.appendChild(bEdit);
+  if(t.wmode==='all'&&total){
+    var sA=document.createElement('span');sA.className='wsum';sA.textContent=total+' / '+total+' يوم';bar.appendChild(sA);
+  }
+  if(t.wmode==='range'){
+    var wr=document.createElement('div');wr.className='wrange';
+    var l1=document.createElement('span');l1.textContent='اشتغلت من';
+    var i1=document.createElement('input');i1.type='date';i1.value=t.wf;if(t.from)i1.min=t.from;if(t.to)i1.max=t.to;
+    var l2=document.createElement('span');l2.textContent='إلى';
+    var i2=document.createElement('input');i2.type='date';i2.value=t.wt;if(t.from)i2.min=t.from;if(t.to)i2.max=t.to;
+    var sum=document.createElement('span');sum.className='wsum';
+    function upd(){
+      t.wf=i1.value;t.wt=i2.value;
+      var bad=!t.wf||!t.wt||t.wf>t.wt||(t.from&&t.wf<t.from)||(t.to&&t.wt>t.to);
+      sum.className='wsum'+(bad?' bad':'');
+      sum.textContent=bad?'حدد فترة صحيحة داخل التكت':daysBetween(t.wf,t.wt)+' / '+total+' يوم';
+    }
+    i1.addEventListener('change',upd);i2.addEventListener('change',upd);upd();
+    wr.appendChild(l1);wr.appendChild(i1);wr.appendChild(l2);wr.appendChild(i2);wr.appendChild(sum);
+    bar.appendChild(wr);
+  }
+  return bar;
+}
+function workRangeError(t,n){
+  if(!t.wmode)return 'تكت '+n+': أكد كل الأيام أو اضغط تعديل وحدد أيام عملك';
+  if(t.wmode==='range'){
+    if(!t.wf||!t.wt)return 'تكت '+n+': حدد تاريخي (من) و(إلى) لأيام عملك';
+    if(t.wf>t.wt)return 'تكت '+n+': تاريخ (من) بعد (إلى) في أيام العمل';
+    if(t.wf<t.from||t.wt>t.to)return 'تكت '+n+': أيام العمل لازم تكون داخل فترة التكت ('+t.from+' إلى '+t.to+')';
+  }
+  return '';
+}
 function mk(type,val,cls){var i=document.createElement('input');i.type=type;i.className='cell '+cls;i.value=val;return i;}
 function refreshLow(){
   var boxes=document.querySelectorAll('#rowsBox .trowx');
   for(var i=0;i<boxes.length;i++){boxes[i].classList.toggle('low',!!tickets[i].low);}
 }
-function addTicket(){tickets.push({id:"t"+(idc++),field:"",well:"",hoist:"",from:"",to:"",low:false});render();}
+function addTicket(){tickets.push({id:"t"+(idc++),field:"",well:"",hoist:"",from:"",to:"",low:false,wmode:"",wf:"",wt:""});render();}
 function clearAll(){tickets=[];document.getElementById('queue').innerHTML="";render();}
 
 /* ---------- بناء الأيام ---------- */
@@ -415,6 +479,11 @@ function buildDays(){
   var of=document.getElementById('occFrom').value, ot=document.getElementById('occTo').value;
   if(of&&!ot)ot=of;
   var ts=tickets.filter(function(t){return t.from&&t.to;})
+    .map(function(t){ /* أيام العمل الفعلية: التعديل يقصّر الفترة، والباقي يصير In Home تلقائياً */
+      var ef=(t.wmode==='range'&&t.wf)?t.wf:t.from;
+      var et=(t.wmode==='range'&&t.wt)?t.wt:t.to;
+      return {field:t.field,well:t.well,hoist:t.hoist,from:ef,to:et};
+    })
     .sort(function(a,b){return a.from.localeCompare(b.from);});
   dayRows=[];
   var d=fromIso(pf), end=fromIso(pt);
@@ -461,6 +530,10 @@ function approve(){
     }
     var missing=tickets.filter(function(t){return !t.from||!t.to;});
     if(missing.length){flash("في تكت بدون تواريخ — كمّلها أو احذفه");return;}
+    for(var wi=0;wi<tickets.length;wi++){
+      var werr=workRangeError(tickets[wi],wi+1);
+      if(werr){flash("⚠️ "+werr);return;}
+    }
     buildDays();
     renderSheet();
     document.getElementById('uiStage').classList.add('off');
