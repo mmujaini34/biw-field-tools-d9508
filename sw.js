@@ -1,5 +1,5 @@
-/* BIW Field Tools — Service Worker v3.10.4 (Safari-proof, redirect-proof, offline-first) */
-const CACHE_NAME = 'biw-field-tools-v3.10.4';
+/* BIW Field Tools — Service Worker v3.10.5 (Safari-proof, redirect-proof, offline-first) */
+const CACHE_NAME = 'biw-field-tools-v3.10.5';
 const ASSETS = [
   './',
   './index.html',
@@ -49,7 +49,7 @@ self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => Promise.allSettled(ASSETS.map((u) => precacheOne(cache, u))))
-      .then(() => self.skipWaiting())
+      /* لا skipWaiting: النسخة الجديدة تنتظر — التحديث فقط عبر رسالة التحديث (لا تحديث صامت) */
   );
 });
 
