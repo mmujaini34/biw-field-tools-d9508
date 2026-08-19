@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delivery Note</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f5f7;color:#111827;font-family:Arial,sans-serif}.app-shell{max-width:920px;margin:0 auto;padding:18px}.input-panel{background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,.06)}.input-title{margin:0 0 6px;font-size:24px;font-weight:900}.input-note{margin:0 0 16px;color:#6b7280;font-size:13px}.form-section{border:1px solid #e5e7eb;border-radius:16px;padding:14px;margin:14px 0;background:#fbfbfc}.section-head{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}.step-badge{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#111827;color:#fff;font-weight:900}.section-title-wrap h3,.form-section h3{margin:0 0 4px;font-size:17px;font-weight:900}.section-title-wrap p{margin:0;color:#6b7280;font-size:12px}.job-grid,.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.form-field label{display:block;margin-bottom:6px;font-size:12px;font-weight:900;color:#374151;text-transform:uppercase}input,textarea,select{width:100%;border:1px solid #cfd6df;border-radius:10px;min-height:44px;padding:10px 12px;font-size:15px;font-weight:700;outline:none;background:#fff;color:#111827}input:focus,textarea:focus,select:focus{border-color:#111827}.select-card,.auto-value{width:100%;min-height:44px;border:1px solid #cfd6df;border-radius:10px;padding:11px 12px;background:#fff;font-size:15px;font-weight:800;cursor:pointer;white-space:pre-line}.placeholder{color:#9ca3af;font-weight:700}.required-hint{margin-top:6px;font-size:11px;color:#6b7280}.items-display-title{font-weight:900}.items-display-sub{font-size:12px;color:#6b7280;margin-top:3px;font-weight:700}.items-summary{margin-top:10px;font-size:12px;color:#374151;white-space:pre-line;line-height:1.35}.form-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}.btn{border:0;border-radius:11px;padding:12px 16px;min-height:44px;font-weight:900;cursor:pointer}.btn-primary{background:#111827;color:#fff}.btn-secondary{background:#e5e7eb;color:#111827}.status-text{margin-top:10px;font-size:13px;font-weight:800;color:#374151}.validation-hint{display:none;margin-top:10px;padding:10px 12px;border-radius:10px;background:#fff1f2;color:#9f1239;font-weight:800;font-size:13px}.validation-hint.active{display:block}.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:9999;align-items:center;justify-content:center;padding:18px}.modal-overlay.active{display:flex}.modal-box{width:100%;max-width:440px;background:#fff;border-radius:16px;padding:18px;box-shadow:0 14px 40px rgba(0,0,0,.25)}.modal-box h3{margin:0 0 12px;font-size:20px;font-weight:900}.modal-field{margin:12px 0}.modal-field label{display:block;margin-bottom:6px;font-size:12px;font-weight:900;text-transform:uppercase;color:#374151}.modal-preview{margin-top:12px;padding:10px;border-radius:10px;background:#f3f4f6;font-weight:900}.modal-actions{display:flex;gap:10px;margin-top:16px}.modal-actions button{flex:1;border:0;border-radius:10px;min-height:42px;font-weight:900;cursor:pointer}.cancel-btn{background:#e5e7eb;color:#111827}.done-btn{background:#111827;color:#fff}.items-modal-box{max-width:930px;max-height:90vh;overflow:auto}.items-modal-note{margin:0 0 12px;color:#6b7280;font-size:12px;line-height:1.4}.item-editor-row{border:1px solid #e5e7eb;border-radius:14px;padding:12px;margin:12px 0;background:#fafafa}.item-row-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}.item-row-title{font-weight:900}.item-remove-btn{border:0;border-radius:9px;background:#fee2e2;color:#991b1b;padding:8px 10px;font-weight:900}.item-mode-line{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;color:#374151;margin:6px 0 10px}.item-mode-line input,.engineer-option input{width:auto;min-height:auto}.item-row-grid{display:grid;grid-template-columns:.65fr 1.7fr 1fr 1fr 1.1fr;gap:10px}.item-row-grid.manual-mode{grid-template-columns:.65fr 1.6fr 1fr 1fr 1.1fr}.item-mini-field label{display:block;font-size:11px;font-weight:900;color:#4b5563;margin-bottom:5px}.item-mini-field input,.item-mini-field select{min-height:40px;font-size:13px;padding:8px 9px}.serial-status{display:block;margin-top:5px;font-size:11px;font-weight:900}.serial-status.ok{color:#166534}.serial-status.bad{color:#991b1b}.auto-readonly{background:#f3f4f6;color:#374151}.engineer-option{display:block;padding:10px 8px;border:1px solid #e5e7eb;border-radius:10px;margin:8px 0;font-weight:800}.pdf-stage{position:absolute;left:-12000px;top:0;width:794px;height:1123px;overflow:hidden;background:#fff}body.generating-pdf .pdf-stage{left:0;top:0;opacity:0;pointer-events:none}.page{width:794px;height:1123px;margin:0;background:#fff;padding:18px 22px;font-family:"Times New Roman",serif;color:#000;overflow:hidden}table{width:100%;border-collapse:collapse;table-layout:fixed}td,th{border:2px solid #000;vertical-align:top;overflow:hidden;color:#000}.cell{padding:7px 8px;font-size:18px;font-weight:bold;line-height:1.08}.center{text-align:center;vertical-align:middle}.top-title{font-family:Arial,sans-serif;font-size:25px;font-weight:900;line-height:1.35;text-transform:uppercase}.top-table td{height:135px}.top-left{width:28%}.top-center{width:42%}.top-right{width:30%}.logo-cell{background:#fff;vertical-align:middle;text-align:center}.logo-wrap{width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#fff;padding:4px}.logo-img{width:100%;height:100%;object-fit:contain;display:block}.info-table{margin-top:0}.info-table td{height:52px}.info-label{width:20%}.info-value{width:43%}.info-right-label{width:13%}.info-right-value{width:24%}
+.info-value,.info-right-value{vertical-align:middle}
+.engineer-names{vertical-align:middle}.days-label{font-size:17px;line-height:1.15}.report-value{display:block;width:100%;white-space:nowrap;overflow:hidden;text-overflow:clip;font-size:18px;font-weight:bold;line-height:1.05}.items-table{margin-top:0}.items-table th{height:54px;font-weight:bold;text-align:center;vertical-align:middle;padding:5px 6px;line-height:1.05}.items-table td{height:360px}
+.desc-free-td{padding:0;height:360px;vertical-align:top}
+.desc-free-cell{height:360px;box-sizing:border-box;padding:10px 14px;text-align:left;white-space:pre-wrap;font-size:20px;line-height:1.25;overflow:hidden;word-break:break-word}.qty{width:15%;font-size:18px}.desc{width:33%;font-size:20px}.part{width:19%;font-size:19px}.manual{width:17%;font-size:16px}.serial{width:16%;font-size:18px}.report-items-cell{padding:7px 8px;font-size:14px;font-weight:bold;line-height:1.12;white-space:pre-line;word-break:break-word}.transport td{height:46px;border-top:none}.transport .cell{font-size:18px;padding:7px 9px;line-height:1.1}.sign-table{margin-top:0}.sign-table td{height:62px}.sign-table .header-row td{height:54px}.sign-left{width:14%}.engineer{width:23%}.representative{width:43%}.supervisor{width:20%}.small-header{font-size:16px;font-weight:bold;line-height:1.05;padding:7px 8px}.company-header{font-size:20px;font-weight:bold;line-height:1.08;padding:7px 8px}.name-label,.sign-label-text,.comment-label{font-size:18px;font-weight:bold;padding:7px 8px;line-height:1.05}.comment-label{white-space:nowrap}.engineer-names{font-size:14px;font-weight:bold;line-height:1.12;white-space:pre-line;padding:5px 7px}.signature-box{width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:4px}.signature-img{max-width:95%;max-height:46px;object-fit:contain;display:none}@media(max-width:760px){.job-grid,.form-grid{grid-template-columns:1fr}.input-panel{padding:14px}.app-shell{padding:12px}.item-row-grid,.item-row-grid.manual-mode{grid-template-columns:1fr}}
+
+/* UI polish only - PDF page remains unchanged */
+:root{--ui-primary:#0f172a;--ui-primary2:#1e3a8a;--ui-accent:#0d9488;--ui-bg1:#eef6ff;--ui-bg2:#f6f7fb;--ui-card:#ffffff;--ui-border:#d9e2ec;--ui-text:#111827;--ui-muted:#64748b;--ui-warn:#b45309;--ui-danger:#b91c1c;--ui-ok:#15803d}.ui-toolbar{display:grid;grid-template-columns:1fr;gap:10px;margin:12px 0 16px;padding:12px;border:1px solid var(--ui-border);border-radius:18px;background:linear-gradient(135deg,#f8fbff,#eef7f4);box-shadow:0 8px 22px rgba(15,23,42,.07)}.ui-toolbar-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}.mode-buttons,.quick-buttons{display:flex;flex-wrap:wrap;gap:8px}.ui-pill{border:0;border-radius:999px;padding:10px 13px;min-height:40px;font-weight:900;cursor:pointer;background:#e9eef7;color:#111827;box-shadow:0 3px 10px rgba(0,0,0,.05)}.ui-pill.primary{background:linear-gradient(135deg,var(--ui-primary),var(--ui-primary2));color:#fff}.ui-pill.danger{background:#fee2e2;color:#991b1b}.ui-pill.teal{background:#ccfbf1;color:#115e59}.autosave-badge{font-size:12px;font-weight:900;color:var(--ui-muted);padding:8px 10px;border-radius:999px;background:rgba(255,255,255,.75)}.input-panel{background:linear-gradient(180deg,#ffffff,#fbfdff)!important;border-color:var(--ui-border)!important}.form-section{background:linear-gradient(180deg,#ffffff,#f8fafc)!important;border-color:var(--ui-border)!important}.step-badge{background:linear-gradient(135deg,#0f172a,#2563eb)!important}.btn-primary{background:linear-gradient(135deg,#0f172a,#1d4ed8)!important}.btn-secondary{background:#dbeafe!important;color:#0f172a!important}.select-card,.auto-value,input,textarea,select{border-color:#cbd5e1!important}.item-pn-wrap{grid-column:span 3}.pn-description-preview{margin-top:7px;padding:8px 10px;border-radius:10px;background:#ecfeff;color:#155e75;font-size:12px;font-weight:900;line-height:1.25;border:1px solid #bae6fd}.item-counter-badge{display:inline-flex;margin-inline-start:8px;align-items:center;justify-content:center;min-width:32px;height:24px;border-radius:999px;background:#0f766e;color:#fff;font-size:12px;font-weight:900;padding:0 9px}.items-action-line{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.inline-error-box{margin-top:10px;padding:10px 12px;border-radius:12px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-weight:900;font-size:13px;white-space:pre-line}body.ui-night{background:#111827;color:#e5e7eb}body.ui-night .input-panel{background:linear-gradient(180deg,#182235,#111827)!important;border-color:#334155!important;color:#e5e7eb}body.ui-night .form-section{background:linear-gradient(180deg,#1f2937,#172033)!important;border-color:#334155!important;color:#e5e7eb}body.ui-night .input-note,body.ui-night .section-title-wrap p,body.ui-night .items-display-sub,body.ui-night .required-hint,body.ui-night .items-summary,body.ui-night .modal-field label{color:#cbd5e1!important}body.ui-night input,body.ui-night select,body.ui-night textarea,body.ui-night .select-card,body.ui-night .auto-value{background:#0f172a!important;color:#f8fafc!important;border-color:#475569!important}body.ui-night .modal-box{background:#172033;color:#e5e7eb}body.ui-night .ui-toolbar{background:linear-gradient(135deg,#0f172a,#1e293b);border-color:#334155}body.ui-night .autosave-badge{background:#0f172a;color:#cbd5e1}body.ui-night{background:#050816;color:#dbeafe}body.ui-night .input-panel{background:linear-gradient(180deg,#0b1220,#050816)!important;border-color:#1e40af!important;color:#dbeafe;box-shadow:0 12px 30px rgba(0,0,0,.4)}body.ui-night .form-section{background:linear-gradient(180deg,#0f172a,#08111f)!important;border-color:#1e3a8a!important;color:#dbeafe}body.ui-night input,body.ui-night select,body.ui-night textarea,body.ui-night .select-card,body.ui-night .auto-value{background:#020617!important;color:#eff6ff!important;border-color:#2563eb!important}body.ui-night .modal-box{background:#08111f;color:#eff6ff}body.ui-night .input-note,body.ui-night .section-title-wrap p,body.ui-night .items-display-sub,body.ui-night .required-hint,body.ui-night .items-summary{color:#bfdbfe!important}body.ui-night .ui-toolbar{background:linear-gradient(135deg,#020617,#0f172a 50%,#172554);border-color:#1d4ed8}body.ui-night .autosave-badge{background:#020617;color:#bfdbfe}.page,.page *{color:#000!important}.page{background:#fff!important}
+
+
+.pn-options{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.pn-option{border:1px solid #cfd6df;background:#fff;color:#111827;border-radius:9px;padding:8px 10px;font-size:12px;font-weight:900;cursor:pointer}.pn-option.active{background:#111827;color:#fff;border-color:#111827}.pn-no-result{font-size:12px;font-weight:900;color:#991b1b;margin-top:8px}.pn-description-preview{margin-top:7px;padding:8px;border-radius:9px;background:#eef2ff;color:#374151;font-size:11px;font-weight:900;line-height:1.25}.theme-night .pn-option,.theme-night .pn-option{background:#111827;color:#f9fafb;border-color:#4b5563}.theme-night .pn-option.active,.theme-night .pn-option.active{background:#38bdf8;color:#082f49;border-color:#38bdf8}.theme-night .pn-description-preview,.theme-night .pn-description-preview{background:#1f2937;color:#e5e7eb}
+
+/* ===== v6 PDF TEXT BREATHING SPACE ONLY - STRUCTURE UNCHANGED ===== */
+#reportPage .cell{
+  padding:8px 11px !important;
+}
+#reportPage .report-value{
+  padding-left:3px !important;
+  padding-right:3px !important;
+  box-sizing:border-box !important;
+}
+#reportPage .report-items-cell{
+  padding:9px 11px !important;
+}
+#reportPage .small-header,
+#reportPage .company-header,
+#reportPage .name-label,
+#reportPage .sign-label-text,
+#reportPage .comment-label{
+  padding:8px 11px !important;
+}
+#reportPage .engineer-names{
+  padding:6px 10px !important;
+}
+#reportPage .items-table th{
+  padding:6px 8px !important;
+}
+/* ===== end v6 pdf text breathing space ===== */
+
+
+/* ===== v7 INPUT UI + DARK/NIGHT FIX ONLY - PDF STRUCTURE UNCHANGED ===== */
+.item-editor-row{
+  background:linear-gradient(180deg,#ffffff,#f8fafc);
+  border:1px solid rgba(15,23,42,.12);
+  border-radius:18px;
+  padding:14px;
+  margin:14px 0;
+  box-shadow:0 8px 20px rgba(15,23,42,.06);
+}
+.item-row-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom:12px;
+  padding-bottom:10px;
+  border-bottom:1px solid rgba(148,163,184,.35);
+}
+.item-row-title{font-weight:900;font-size:15px;color:#0f172a}
+.item-row-grid,.item-row-grid.manual-mode{
+  display:grid;
+  grid-template-columns:90px minmax(260px,2fr) minmax(150px,1fr) minmax(180px,1.2fr);
+  gap:14px;
+  align-items:start;
+}
+.item-mini-field{min-width:0}
+.item-mini-field label{
+  display:block;
+  font-size:11px;
+  font-weight:900;
+  color:#475569;
+  margin-bottom:6px;
+  letter-spacing:.02em;
+}
+.item-mini-field input,.item-mini-field select{
+  min-height:44px;
+  font-size:14px;
+  padding:9px 10px;
+  border-radius:12px;
+}
+.item-part-card{
+  margin-top:7px;
+  min-height:34px;
+  border-radius:10px;
+  background:#eef2ff;
+  color:#1e1b4b;
+  padding:8px 10px;
+  font-size:13px;
+  font-weight:900;
+}
+.item-results-box{
+  display:none;
+  position:relative;
+  margin-top:7px;
+  border:1px solid #d1d5db;
+  border-radius:12px;
+  background:#fff;
+  overflow:hidden;
+  max-height:220px;
+  overflow-y:auto;
+  box-shadow:0 10px 24px rgba(15,23,42,.10);
+  z-index:5;
+}
+.item-results-box.active{display:block}
+.item-result-btn{
+  display:block;
+  width:100%;
+  border:0;
+  border-bottom:1px solid #eef2f7;
+  background:#fff;
+  text-align:left;
+  padding:10px 11px;
+  cursor:pointer;
+}
+.item-result-btn:hover{background:#f1f5f9}
+.item-result-desc{
+  display:block;
+  font-size:13px;
+  font-weight:900;
+  color:#111827;
+  line-height:1.25;
+}
+.item-result-pn{
+  display:block;
+  margin-top:4px;
+  font-size:12px;
+  font-weight:900;
+  color:#2563eb;
+}
+.serial-status-ok{margin-top:6px;color:#15803d;font-size:12px;font-weight:900}
+.serial-status-warn{margin-top:6px;color:#b45309;font-size:12px;font-weight:900}
+.serial-status-error{margin-top:6px;color:#b91c1c;font-size:12px;font-weight:900}
+
+/* Night/Night: make every input card readable. This is input UI only. */
+body.ui-night,
+body.ui-night{color:#e5e7eb}
+body.ui-night .input-panel,
+body.ui-night .form-section,
+body.ui-night .modal-box,
+body.ui-night .item-editor-row,
+body.ui-night .input-panel,
+body.ui-night .form-section,
+body.ui-night .modal-box,
+body.ui-night .item-editor-row{
+  background:#0f172a !important;
+  color:#e5e7eb !important;
+  border-color:#334155 !important;
+}
+body.ui-night .input-panel,
+body.ui-night .form-section,
+body.ui-night .modal-box,
+body.ui-night .item-editor-row{
+  background:#020617 !important;
+}
+body.ui-night input,
+body.ui-night textarea,
+body.ui-night select,
+body.ui-night .select-card,
+body.ui-night .auto-value,
+body.ui-night .auto-readonly,
+body.ui-night .item-results-box,
+body.ui-night .item-result-btn,
+body.ui-night input,
+body.ui-night textarea,
+body.ui-night select,
+body.ui-night .select-card,
+body.ui-night .auto-value,
+body.ui-night .auto-readonly,
+body.ui-night .item-results-box,
+body.ui-night .item-result-btn{
+  background:#111827 !important;
+  color:#f8fafc !important;
+  border-color:#475569 !important;
+}
+body.ui-night input,
+body.ui-night textarea,
+body.ui-night select,
+body.ui-night .select-card,
+body.ui-night .auto-value,
+body.ui-night .auto-readonly,
+body.ui-night .item-results-box,
+body.ui-night .item-result-btn{
+  background:#020617 !important;
+}
+body.ui-night input::placeholder,
+body.ui-night textarea::placeholder,
+body.ui-night input::placeholder,
+body.ui-night textarea::placeholder{color:#94a3b8 !important}
+body.ui-night label,
+body.ui-night .section-title-wrap p,
+body.ui-night .input-note,
+body.ui-night .items-display-sub,
+body.ui-night .required-hint,
+body.ui-night .modal-field label,
+body.ui-night .item-mini-field label,
+body.ui-night label,
+body.ui-night .section-title-wrap p,
+body.ui-night .input-note,
+body.ui-night .items-display-sub,
+body.ui-night .required-hint,
+body.ui-night .modal-field label,
+body.ui-night .item-mini-field label{color:#cbd5e1 !important}
+body.ui-night .item-row-title,
+body.ui-night .input-title,
+body.ui-night h3,
+body.ui-night .item-result-desc,
+body.ui-night .item-row-title,
+body.ui-night .input-title,
+body.ui-night h3,
+body.ui-night .item-result-desc{color:#f8fafc !important}
+body.ui-night .item-result-btn:hover,
+body.ui-night .item-result-btn:hover{background:#1e293b !important}
+body.ui-night .item-part-card,
+body.ui-night .item-part-card{
+  background:#172554 !important;
+  color:#dbeafe !important;
+}
+body.ui-night .btn-secondary,
+body.ui-night .btn-secondary{
+  background:#334155 !important;
+  color:#f8fafc !important;
+}
+@media(max-width:760px){
+  .item-row-grid,.item-row-grid.manual-mode{grid-template-columns:1fr;gap:12px}
+}
+/* ===== end v7 input ui + theme fix ===== */
+
+
+
+
+
+/* ===== v11 ENGINEER NAME AUTOFIT ONLY - PDF SHAPE UNCHANGED ===== */
+#reportPage .engineer-names{
+  font-size:17px !important;
+  line-height:1.08 !important;
+  font-weight:bold !important;
+  padding:6px 9px !important;
+  white-space:pre-line !important;
+  word-break:break-word !important;
+  overflow:hidden !important;
+}
+#reportPage #outBiwEngineerName,
+#reportPage #outEspEngineerName{
+  display:block;
+  width:100%;
+  max-height:100%;
+}
+/* ===== end v11 engineer name autofit ===== */
+
+
+
+
+
+/* ===== v16 NIGHT ORANGE ACCENT UI ONLY - PDF UNCHANGED ===== */
+:root{
+  --orange-accent:#f59e0b;
+  --orange-accent-2:#fb923c;
+  --orange-soft:#fff7ed;
+}
+.ui-toolbar,
+.form-actions{
+  position:relative;
+}
+.input-panel{
+  border-top:5px solid var(--orange-accent) !important;
+}
+.form-section{
+  border-color:rgba(245,158,11,.32) !important;
+}
+.section-head .step-badge,
+.step-badge{
+  background:linear-gradient(135deg,#f59e0b,#ea580c) !important;
+  color:#111827 !important;
+}
+.input-title{
+  color:#111827;
+}
+.btn-primary{
+  background:linear-gradient(135deg,#f59e0b,#ea580c) !important;
+  color:#111827 !important;
+  box-shadow:0 8px 18px rgba(245,158,11,.25);
+}
+.btn-secondary{
+  border:1px solid rgba(245,158,11,.35) !important;
+}
+.select-card:focus,
+input:focus,
+textarea:focus,
+select:focus{
+  border-color:#f59e0b !important;
+  box-shadow:0 0 0 3px rgba(245,158,11,.16) !important;
+}
+.item-part-card{
+  background:#fff7ed !important;
+  color:#9a3412 !important;
+  border:1px solid rgba(245,158,11,.28);
+}
+.item-result-pn{
+  color:#ea580c !important;
+}
+
+/* Night mode orange accent */
+body.ui-night .input-panel,
+body.ui-night .form-section,
+body.ui-night .modal-box,
+body.ui-night .item-editor-row{
+  border-color:rgba(245,158,11,.38) !important;
+}
+body.ui-night .input-panel{
+  border-top:5px solid #f59e0b !important;
+  box-shadow:0 12px 30px rgba(245,158,11,.12) !important;
+}
+body.ui-night .input-title,
+body.ui-night h3{
+  color:#fed7aa !important;
+}
+body.ui-night .step-badge{
+  background:linear-gradient(135deg,#f59e0b,#fb923c) !important;
+  color:#0f172a !important;
+}
+body.ui-night .btn-primary{
+  background:linear-gradient(135deg,#f59e0b,#fb923c) !important;
+  color:#0f172a !important;
+}
+body.ui-night .btn-secondary{
+  border:1px solid rgba(245,158,11,.42) !important;
+}
+body.ui-night .item-part-card{
+  background:#431407 !important;
+  color:#fed7aa !important;
+  border-color:rgba(245,158,11,.45) !important;
+}
+body.ui-night .item-result-pn{
+  color:#fdba74 !important;
+}
+body.ui-night .serial-status-warn{
+  color:#fdba74 !important;
+}
+/* ===== end v16 night orange accent ===== */
+
+
+
+
+
+
+
+
+
+/* ===== CLEAN PDF ITEMS ENGINE - SINGLE FULL VERTICAL LINES + NICE FLEX FONT ===== */
+#reportPage #tsItemsCleanRow > td{
+  height:360px !important;
+  padding:7px 8px !important;
+  border:2px solid #000 !important;
+  vertical-align:top !important;
+  overflow:hidden !important;
+  position:relative !important;
+  background-color:#fff !important;
+}
+#reportPage #tsItemsCleanRow > td .ts-items-vline{
+  position:absolute !important;
+  top:0 !important;
+  bottom:0 !important;
+  width:1.6px !important;
+  background:#000 !important;
+  z-index:0 !important;
+  pointer-events:none !important;
+}
+#reportPage #tsItemsCleanRow > td .ts-v1{left:15% !important;}
+#reportPage #tsItemsCleanRow > td .ts-v2{left:48% !important;}
+#reportPage #tsItemsCleanRow > td .ts-v3{left:67% !important;}
+#reportPage #tsItemsCleanRow > td .ts-v4{left:84% !important;}
+#reportPage .ts-clean-items-table{
+  width:100% !important;
+  height:auto !important;
+  border-collapse:collapse !important;
+  table-layout:fixed !important;
+  margin:0 !important;
+  background:transparent !important;
+  position:relative !important;
+  z-index:1 !important;
+}
+#reportPage .ts-clean-items-table td{
+  border:0 !important;
+  vertical-align:top !important;
+  padding:2px 7px !important;
+  font-weight:bold !important;
+  line-height:1.14 !important;
+  word-break:normal !important;
+  overflow-wrap:anywhere !important;
+  white-space:normal !important;
+  color:#000 !important;
+  overflow:visible !important;
+  background:transparent !important;
+}
+#reportPage .ts-clean-items-table tr{
+  border:0 !important;
+  height:auto !important;
+  min-height:0 !important;
+}
+#reportPage .items-table .ts-clean-items-table td,
+#reportPage .ts-clean-items-table td{
+  height:auto !important;
+  min-height:0 !important;
+  max-height:none !important;
+}
+#reportPage .ts-clean-items-table .c-qty{width:15%;text-align:center!important;}
+#reportPage .ts-clean-items-table .c-desc{width:33%;text-align:left!important;}
+#reportPage .ts-clean-items-table .c-part{width:19%;text-align:center!important;}
+#reportPage .ts-clean-items-table .c-manual{width:17%;text-align:center!important;}
+#reportPage .ts-clean-items-table .c-serial{width:16%;text-align:center!important;}
+/* ===== end clean PDF items engine single vertical lines + nice flex font ===== */
+
+
+
+/* ===== BIW CLEAN WIZARD / NEXT-BACK LAYER ===== */
+.biw-wizard-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0 14px;padding:12px 14px;border:1px solid #d9e2ec;border-radius:16px;background:linear-gradient(135deg,#f8fbff,#eef7f4);box-shadow:0 8px 22px rgba(15,23,42,.07);font-family:Arial,sans-serif}
+.biw-wizard-title{font-size:14px;font-weight:900;color:#0f3d5e;line-height:1.35}.biw-wizard-sub{font-size:12px;color:#64748b;margin-top:3px}.biw-wizard-dots{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.biw-wizard-dot{width:9px;height:9px;border-radius:99px;background:#cbd5e1}.biw-wizard-dot.done{background:#0f3d5e}.biw-wizard-dot.active{background:#c69a2b;transform:scale(1.18)}
+.biw-wizard-page{display:none!important}.biw-wizard-page.active{display:block!important;animation:biwWizardFade .22s ease;min-height:calc(100vh - 240px)}@keyframes biwWizardFade{from{opacity:.25;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.biw-wizard-nav{position:sticky;bottom:0;z-index:9999;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:16px 0 0;padding:12px;border:1px solid #d9e2ec;border-radius:16px;background:rgba(255,255,255,.96);box-shadow:0 -8px 24px rgba(15,23,42,.08);font-family:Arial,sans-serif}.biw-wizard-nav button{border:0;border-radius:12px;padding:12px 16px;min-height:44px;font-weight:900;cursor:pointer}.biw-wizard-back{background:#e5e7eb;color:#111827}.biw-wizard-next{background:linear-gradient(135deg,#0f172a,#1d4ed8);color:#fff}.biw-wizard-nav button:disabled{opacity:.45;cursor:not-allowed}.biw-wizard-counter{font-size:13px;font-weight:900;color:#64748b;text-align:center;flex:1;min-width:140px}.biw-actions-hidden{display:none!important}@media(max-width:760px){.biw-wizard-top{align-items:flex-start;flex-direction:column}.biw-wizard-dots{justify-content:flex-start}.biw-wizard-nav button{width:calc(50% - 5px)}.biw-wizard-counter{order:-1;flex:0 0 100%;width:100%;margin-bottom:4px}}
+body.generating-pdf .biw-wizard-top,body.generating-pdf .biw-wizard-nav{display:none!important} @media print{.biw-wizard-top,.biw-wizard-nav{display:none!important}}
+/* ===== END BIW CLEAN WIZARD ===== */
+
+</style>
+<style id="backNavStyle">
+.app-back-bar{position:sticky;top:0;z-index:99999;background:linear-gradient(135deg,#0f172a,#1e3a8a);color:#fff;padding:10px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 12px rgba(0,0,0,.15);font-family:Arial,sans-serif}
+.app-back-bar a{color:#fff;text-decoration:none;display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:700;padding:6px 12px;border-radius:8px;background:rgba(255,255,255,.15);transition:background .2s}
+.app-back-bar a:hover{background:rgba(255,255,255,.25)}
+.app-back-bar .app-back-title{flex:1;font-size:14px;font-weight:700;text-align:center;opacity:.9}
+@media print{.app-back-bar{display:none !important}}
+body.generating-pdf .app-back-bar{display:none !important}
+</style>
+<style>
+.biw-topbar{position:fixed;top:8px;left:8px;z-index:99990;font-family:Arial,sans-serif}
+.biw-topbar a,.biw-topbar button{display:inline-block;vertical-align:middle;margin-right:6px;
+  padding:7px 12px;border-radius:999px;border:1px solid rgba(120,130,150,.45);
+  background:rgba(20,26,38,.82);color:#fff;font-size:12px;text-decoration:none;cursor:pointer;
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.biw-topbar a:active,.biw-topbar button:active{background:rgba(232,163,61,.35)}
+@media print{.biw-topbar{display:none!important}}
+</style>
+<style id="dnStyle">
+/* ===== DELIVERY NOTE — تخطيط الورقة ===== */
+#reportPage .info-table td{height:52px}
+.dn-desc-td{padding:0;height:526px;vertical-align:top}
+.dn-desc-wrap{height:526px;display:flex;flex-direction:column;padding:10px 14px;box-sizing:border-box}
+.dn-desc-text{flex:0 1 auto;min-height:0;overflow:hidden;white-space:pre-wrap;text-align:left;
+  font-size:20px;line-height:1.25;word-break:break-word;font-family:"Times New Roman",serif;font-weight:normal}
+.dn-photos{flex:0 0 auto;display:flex;gap:12px;justify-content:center;align-items:flex-start;margin-top:12px}
+.dn-spacer{flex:1 1 auto;min-height:0}
+.dn-photos img{max-height:225px;max-width:48%;object-fit:contain;border:1px solid #000;display:none;background:#fff}
+.dn-photos.count-1 img{max-width:66%}
+#reportPage .items-table th{height:54px}
+
+/* ===== واجهة رفع الصور ===== */
+.dn-drop{border:2px dashed #94a3b8;border-radius:14px;padding:18px;text-align:center;background:#f8fafc;cursor:pointer}
+.dn-drop.on{border-color:#0f766e;background:#ecfeff}
+.dn-drop-title{font-weight:900;font-size:15px;color:#0f172a}
+.dn-drop-sub{font-size:12px;color:#64748b;margin-top:4px;font-weight:700}
+.dn-thumbs{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.dn-thumb{position:relative;width:132px;height:132px;border:1px solid #cbd5e1;border-radius:12px;overflow:hidden;background:#fff}
+.dn-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.dn-thumb button{position:absolute;top:5px;right:5px;border:0;border-radius:50%;width:26px;height:26px;
+  background:rgba(185,28,28,.92);color:#fff;font-weight:900;font-size:15px;line-height:1;cursor:pointer;padding:0}
+.dn-photo-count{margin-top:8px;font-size:12px;font-weight:900;color:#0f766e}
+.dn-photo-count.bad{color:#991b1b}
+</style>
+</head><body>
+<script>
+/* عين تشخيصية: أي خطأ JS يظهر بشريط واضح بدل الفشل الصامت */
+window.addEventListener('error',function(ev){
+  try{
+    var b=document.getElementById('biwErrBar');
+    if(!b){b=document.createElement('div');b.id='biwErrBar';
+      b.style.cssText='position:fixed;bottom:0;left:0;right:0;z-index:999999;background:#b91c1c;color:#fff;font:12px/1.5 monospace;padding:8px 12px;word-break:break-all;direction:ltr;text-align:left';
+      document.body.appendChild(b);}
+    b.textContent='\u26a0 '+(ev.message||'error')+' @ '+(ev.filename||'').split('/').pop()+':'+(ev.lineno||'');
+  }catch(e){}
+});
+</script>
+
+<div class="biw-topbar">
+  <a href="index.html">&#8962; HOME</a>
+  <button type="button" onclick="location.reload()">&#10227;</button>
+</div>
+
+<div class="app-back-bar">
+  <a href="index.html">← Menu</a>
+  <span class="app-back-title">Delivery Note</span>
+  <span style="width:60px"></span>
+</div>
+
+<div class="app-shell">
+ <div class="input-panel">
+  <h1 class="input-title">Delivery Note</h1>
+  <p class="input-note">املأ البيانات ثم اختر Download PDF أو Share PDF. الورقة النهائية إنجليزي فقط.</p>
+
+  <div class="form-section" id="section-job-info">
+    <div class="section-head"><div class="step-badge">1</div>
+      <div class="section-title-wrap"><h3>المعلومات / Job Information</h3>
+      <p>جميع الخانات مطلوبة قبل إنشاء PDF.</p></div></div>
+    <div class="job-grid">
+      <div class="form-field"><label>Client</label>
+        <div id="clientDisplay" class="select-card placeholder" onclick="openClientModal()">اضغط لاختيار Client / Company</div>
+        <input id="clientInput" type="hidden"><input id="companyInput" type="hidden"></div>
+      <div class="form-field"><label for="dateInput">Date</label>
+        <input id="dateInput" type="date"></div>
+      <div class="form-field"><label for="wellInput">Well</label>
+        <input id="wellInput" type="text" placeholder="Example: UF-33"></div>
+      <div class="form-field"><label for="hoistInput">Hoist / Rig</label>
+        <input id="hoistInput" type="text" placeholder="Example: H-65 or R-65"></div>
+    </div>
+    <div id="validationHint" class="validation-hint"></div>
+  </div>
+
+  <div class="form-section" id="section-description">
+    <div class="section-head"><div class="step-badge">2</div>
+      <div class="section-title-wrap"><h3>الوصف والصور / Description &amp; Photos</h3>
+      <p>الوصف والصور يطلعون داخل نفس البوكس في الـ PDF.</p></div></div>
+    <div class="form-field"><label for="descriptionInput">Description</label>
+      <textarea id="descriptionInput" rows="7" placeholder="اكتب الأغراض المسلمة وأي تفاصيل / Write the delivered items and any details"></textarea>
+      <div class="required-hint">الكلام ينسق نفسه تلقائياً داخل البوكس مهما كان طوله</div></div>
+    <div class="form-field" style="margin-top:12px"><label>Photos — مطلوب</label>
+      <div id="dnDrop" class="dn-drop" onclick="document.getElementById('dnFile').click()">
+        <div class="dn-drop-title">اضغط لرفع الصور</div>
+        <div class="dn-drop-sub">صورة واحدة على الأقل — بحد أقصى صورتين</div>
+      </div>
+      <input id="dnFile" type="file" accept="image/*" multiple style="display:none">
+      <div id="dnThumbs" class="dn-thumbs"></div>
+      <div id="dnPhotoCount" class="dn-photo-count bad">0 / 2 — مطلوب صورة على الأقل</div>
+    </div>
+  </div>
+
+  <div class="form-section" id="section-signatures">
+    <div class="section-head"><div class="step-badge">3</div>
+      <div class="section-title-wrap"><h3>التواقيع / Signatures</h3><p>Receiver مطلوب.</p></div></div>
+    <div class="form-grid">
+      <div class="form-field"><label>BIW Engineer</label>
+        <div id="biwEngineerDisplay" class="select-card placeholder" onclick="openEngineerModal()">اضغط لاختيار BIW Engineer</div>
+        <div class="required-hint">اختياري / Optional</div></div>
+      <div class="form-field"><label for="receiverInput">Receiver Name</label>
+        <input id="receiverInput" type="text" placeholder="اكتب اسم المستلم"></div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button class="btn btn-primary" type="button" onclick="downloadPDF()">Download PDF</button>
+    <button class="btn btn-secondary" type="button" onclick="sharePDF()">Share PDF</button>
+    <button class="btn btn-secondary" type="button" onclick="clearForm()">Clear</button>
+  </div>
+  <div id="pdfStatus" class="status-text"></div>
+ </div>
+</div>
+
+<div id="clientModal" class="modal-overlay" onclick="closeClientModalByBackdrop(event)"><div class="modal-box"><h3>Select Client</h3>
+  <div class="modal-field"><label>Client</label><select id="modalClient" onchange="updateModalClientPreview()"><option value="">Select Client</option><option value="PDO">PDO</option><option value="OQ">OQ</option><option value="OXY">OXY</option><option value="Daleel">Daleel</option><option value="Petrogas">Petrogas</option><option value="ARA">ARA</option><option value="BP">BP</option><option value="Halliburton">Halliburton</option></select></div>
+  <div class="modal-field"><label>Company</label><select id="modalCompany" onchange="updateModalClientPreview()"><option value="">Select Company</option><option value="SLB">SLB</option><option value="Baker Hughes">Baker Hughes</option><option value="Levare">Levare</option><option value="Al Khorayef">Al Khorayef</option><option value="Halliburton">Halliburton</option></select></div>
+  <div class="modal-preview">Result: <span id="modalClientPreview">---</span></div>
+  <div class="modal-actions"><button class="cancel-btn" type="button" onclick="closeClientModal()">Cancel</button><button class="done-btn" type="button" onclick="saveClientSelection()">Done</button></div></div></div>
+
+<div id="engineerModal" class="modal-overlay" onclick="closeEngineerModalByBackdrop(event)"><div class="modal-box"><h3>Select BIW Engineer</h3>
+  <div id="engineerOptions"></div>
+  <div class="modal-actions"><button class="cancel-btn" type="button" onclick="closeEngineerModal()">Cancel</button><button class="done-btn" type="button" onclick="saveEngineerSelection()">Done</button></div></div></div>
+
+<div id="pdfStage" class="pdf-stage"><div id="reportPage" class="page">
+  <table class="top-table"><tr>
+    <td class="top-left logo-cell"><div class="logo-wrap"><img class="logo-img" src="assets/timesheet-image-1.webp" alt="ITT BIW Logo"></div></td>
+    <td class="top-center center"><div class="top-title">DELIVERY<br>NOTE</div></td>
+    <td class="top-right logo-cell"><div class="logo-wrap"><img class="logo-img" src="assets/timesheet-image-2.webp" alt="BIW Connector Systems"></div></td>
+  </tr></table>
+  <table class="info-table">
+    <tr><td class="info-label cell">Client</td><td class="info-value"><span id="outClient" class="report-value"></span></td>
+        <td class="info-right-label cell">Well</td><td class="info-right-value"><span id="outWell" class="report-value"></span></td></tr>
+    <tr><td class="info-label cell">Date</td><td class="info-value"><span id="outDate" class="report-value"></span></td>
+        <td id="outHoistLabel" class="info-right-label cell">Hoist</td><td class="info-right-value"><span id="outHoist" class="report-value"></span></td></tr>
+  </table>
+  <table class="items-table"><tr><th>Description</th></tr>
+    <tr><td class="dn-desc-td"><div class="dn-desc-wrap">
+      <div id="outDescText" class="dn-desc-text"></div>
+      <div id="outPhotos" class="dn-photos"><img id="outPhoto1" alt=""><img id="outPhoto2" alt=""></div>
+      <div class="dn-spacer"></div>
+    </div></td></tr></table>
+  <table class="sign-table">
+    <tr class="header-row"><td class="sign-left"></td><td class="engineer small-header">BIW Engineer</td><td class="representative company-header">Company Representative</td><td class="supervisor small-header">Receiver</td></tr>
+    <tr><td class="name-label">Name</td><td id="outBiwEngineerName" class="engineer-names"></td><td rowspan="3"></td><td id="outReceiverName" class="engineer-names"></td></tr>
+    <tr><td class="comment-label">Comment</td><td></td><td></td></tr>
+    <tr><td class="sign-label-text">Sign</td><td><div class="signature-box"><img id="outBiwSignature" class="signature-img" alt="BIW Signature"></div></td><td></td></tr>
+  </table>
+</div></div>
+
+<script src="libs/html2canvas.min.js"></script><script src="libs/jspdf.umd.min.js"></script>
+<script>
+/* ================= DELIVERY NOTE — logic ================= */
+const ENGINEERS=["Mohammed Mujaini","Said Mujaini","Hamed Sadi","Mohammed Busaidi"];
+const ENGINEER_SIGNATURES={"Mohammed Mujaini":"assets/timesheet-image-3.webp","Said Mujaini":"assets/timesheet-image-4.webp","Hamed Sadi":"assets/timesheet-image-5.webp","Mohammed Busaidi":"assets/timesheet-image-6.webp"};
+const STORE_KEY="biw-delivery-note-v1";
+const MAX_PHOTOS=2;
+
+let selectedClient="",selectedCompany="",selectedEngineerNames=[],draftEngineerNames=[],photos=[];
+
+const $=id=>document.getElementById(id);
+const setText=(id,v)=>{const el=$(id);if(el)el.textContent=v||"";};
+const esc=v=>String(v||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+
+/* ---------- Client modal ---------- */
+function openClientModal(){$("modalClient").value=selectedClient;$("modalCompany").value=selectedCompany;updateModalClientPreview();$("clientModal").classList.add("active");}
+function closeClientModal(){$("clientModal").classList.remove("active");}
+function closeClientModalByBackdrop(e){if(e.target.id==="clientModal")closeClientModal();}
+function buildClientText(c=selectedClient,co=selectedCompany){return c&&co?(c+" / "+co):"";}
+function updateModalClientPreview(){$("modalClientPreview").textContent=buildClientText($("modalClient").value.trim(),$("modalCompany").value.trim())||"---";}
+function saveClientSelection(){selectedClient=$("modalClient").value.trim();selectedCompany=$("modalCompany").value.trim();$("clientInput").value=selectedClient;$("companyInput").value=selectedCompany;updateClientDisplay();updateReport();saveState();closeClientModal();}
+function updateClientDisplay(){const r=buildClientText(),d=$("clientDisplay");d.textContent=r||"\u0627\u0636\u063a\u0637 \u0644\u0627\u062e\u062a\u064a\u0627\u0631 Client / Company";d.classList.toggle("placeholder",!r);}
+
+/* ---------- Engineer modal ---------- */
+function renderEngineerOptions(){$("engineerOptions").innerHTML=ENGINEERS.map(n=>'<label class="engineer-option"><input type="checkbox" value="'+esc(n)+'" '+(draftEngineerNames.includes(n)?"checked":"")+' onchange="toggleEngineerName(this)"> '+esc(n)+'</label>').join("");}
+function openEngineerModal(){draftEngineerNames=[...selectedEngineerNames];renderEngineerOptions();$("engineerModal").classList.add("active");}
+function closeEngineerModal(){$("engineerModal").classList.remove("active");}
+function closeEngineerModalByBackdrop(e){if(e.target.id==="engineerModal")closeEngineerModal();}
+function toggleEngineerName(i){const n=i.value;if(i.checked&&!draftEngineerNames.includes(n))draftEngineerNames.push(n);if(!i.checked)draftEngineerNames=draftEngineerNames.filter(x=>x!==n);}
+function saveEngineerSelection(){selectedEngineerNames=[...draftEngineerNames];updateEngineerDisplay();updateReport();saveState();closeEngineerModal();}
+function updateEngineerDisplay(){const d=$("biwEngineerDisplay");d.textContent=selectedEngineerNames.length?selectedEngineerNames.join("\n"):"\u0627\u0636\u063a\u0637 \u0644\u0627\u062e\u062a\u064a\u0627\u0631 BIW Engineer";d.classList.toggle("placeholder",!selectedEngineerNames.length);}
+
+/* ---------- Normalizers ---------- */
+function formatDateDisplay(v){if(!v)return"";const p=v.split("-").map(Number),d=new Date(p[0],p[1]-1,p[2]),M=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];if(isNaN(d))return"";return String(p[2]).padStart(2,"0")+"-"+M[d.getMonth()]+"-"+d.getFullYear();}
+function normalizeWell(v){const raw=String(v||"").trim().toUpperCase(),m=raw.match(/^([A-Z]+)\s*[- ]?\s*([0-9]+)$/);return m?(m[1]+"-"+m[2]):raw;}
+function normalizeHoistRig(v){const raw=String(v||"").trim().toUpperCase(),m=raw.match(/^([HR])\s*[-, ]?\s*([0-9]+)$/);if(!m)return{valid:false,label:"Hoist",value:raw};return{valid:true,label:m[1]==="R"?"Rig":"Hoist",value:m[1]+"-"+m[2]};}
+
+/* ---------- Photos ---------- */
+function shrinkImage(file){
+  return new Promise((res,rej)=>{
+    const fr=new FileReader();
+    fr.onerror=()=>rej(new Error("\u0645\u0627 \u0642\u062f\u0631\u062a \u0623\u0642\u0631\u0623 \u0627\u0644\u0635\u0648\u0631\u0629"));
+    fr.onload=()=>{
+      const img=new Image();
+      img.onerror=()=>rej(new Error("\u0645\u0644\u0641 \u0627\u0644\u0635\u0648\u0631\u0629 \u063a\u064a\u0631 \u0635\u0627\u0644\u062d"));
+      img.onload=()=>{
+        const MAX=1200;let w=img.naturalWidth||img.width,h=img.naturalHeight||img.height;
+        if(!w||!h){rej(new Error("\u0645\u0644\u0641 \u0627\u0644\u0635\u0648\u0631\u0629 \u063a\u064a\u0631 \u0635\u0627\u0644\u062d"));return;}
+        const s=Math.min(1,MAX/Math.max(w,h));w=Math.round(w*s);h=Math.round(h*s);
+        const c=document.createElement("canvas");c.width=w;c.height=h;
+        const ctx=c.getContext("2d");ctx.fillStyle="#fff";ctx.fillRect(0,0,w,h);ctx.drawImage(img,0,0,w,h);
+        res(c.toDataURL("image/jpeg",0.85));
+      };
+      img.src=fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+async function handlePhotoFiles(list){
+  const files=[];
+  for(let i=0;i<list.length;i++){const f=list[i];if(f&&f.type&&f.type.indexOf("image/")===0)files.push(f);}
+  if(!files.length){setStatus("\u0627\u0631\u0641\u0639 \u0645\u0644\u0641 \u0635\u0648\u0631\u0629 \u0641\u0642\u0637");setTimeout(()=>setStatus(""),2500);return;}
+  for(const f of files){
+    if(photos.length>=MAX_PHOTOS){setStatus("\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u0642\u0635\u0649 \u0635\u0648\u0631\u062a\u064a\u0646");setTimeout(()=>setStatus(""),2500);break;}
+    try{photos.push(await shrinkImage(f));}catch(e){setStatus(e.message||"\u062e\u0637\u0623 \u0641\u064a \u0627\u0644\u0635\u0648\u0631\u0629");setTimeout(()=>setStatus(""),3000);}
+  }
+  renderPhotos();updateReport();saveState();
+}
+function removePhoto(i){photos.splice(i,1);renderPhotos();updateReport();saveState();}
+function renderPhotos(){
+  const box=$("dnThumbs");box.innerHTML="";
+  photos.forEach((src,i)=>{
+    const d=document.createElement("div");d.className="dn-thumb";
+    const im=document.createElement("img");im.src=src;
+    const b=document.createElement("button");b.type="button";b.textContent="\u00d7";
+    b.addEventListener("click",function(ev){ev.stopPropagation();removePhoto(i);});
+    d.appendChild(im);d.appendChild(b);box.appendChild(d);
+  });
+  const c=$("dnPhotoCount");
+  c.textContent=photos.length+" / "+MAX_PHOTOS+(photos.length?"":" \u2014 \u0645\u0637\u0644\u0648\u0628 \u0635\u0648\u0631\u0629 \u0639\u0644\u0649 \u0627\u0644\u0623\u0642\u0644");
+  c.classList.toggle("bad",photos.length===0);
+}
+
+/* ---------- Report ---------- */
+function updateReport(){
+  setText("outClient",buildClientText());
+  setText("outDate",formatDateDisplay($("dateInput").value));
+  setText("outWell",normalizeWell($("wellInput").value));
+  const h=normalizeHoistRig($("hoistInput").value);
+  $("outHoistLabel").textContent=h.label;setText("outHoist",h.value);
+  setText("outReceiverName",$("receiverInput").value.trim());
+  setText("outDescText",$("descriptionInput").value);
+  const p1=$("outPhoto1"),p2=$("outPhoto2"),wrap=$("outPhotos");
+  if(photos[0]){p1.src=photos[0];p1.style.display="block";}else{p1.removeAttribute("src");p1.style.display="none";}
+  if(photos[1]){p2.src=photos[1];p2.style.display="block";}else{p2.removeAttribute("src");p2.style.display="none";}
+  wrap.classList.toggle("count-1",photos.length===1);
+  setText("outBiwEngineerName",selectedEngineerNames.join("\n"));
+  const sig=$("outBiwSignature"),first=selectedEngineerNames.find(n=>ENGINEER_SIGNATURES[n]);
+  if(first){sig.src=ENGINEER_SIGNATURES[first];sig.style.display="block";}else{sig.removeAttribute("src");sig.style.display="none";}
+  fitDescription();autoFitSingleLineValues();
+}
+function autoFitSingleLineValues(){
+  document.querySelectorAll("#reportPage .report-value").forEach(el=>{
+    el.style.fontSize="18px";let s=18;
+    while(el.scrollWidth>el.clientWidth&&s>8){s-=1;el.style.fontSize=s+"px";}
+  });
+}
+let descOverflow=false;
+function fitsNow(el){return el.scrollHeight<=el.clientHeight+1&&el.scrollWidth<=el.clientWidth+1;}
+function fitDescription(){
+  const el=$("outDescText");if(!el){descOverflow=false;return;}
+  const imgs=document.querySelectorAll("#outPhotos img");
+  const tiers=[225,170,130];
+  for(let t=0;t<tiers.length;t++){
+    imgs.forEach(i=>{i.style.maxHeight=tiers[t]+"px";});
+    let s=20;el.style.fontSize=s+"px";el.style.lineHeight="1.25";
+    if(!el.clientHeight){descOverflow=false;return;}
+    while(!fitsNow(el)&&s>6){s-=0.5;el.style.fontSize=s+"px";if(s<=13)el.style.lineHeight="1.1";}
+    if(fitsNow(el)){descOverflow=false;return;}
+    if(!photos.length)break;
+  }
+  descOverflow=true;
+}
+
+/* ---------- Validation ---------- */
+function validateBeforePDF(){
+  updateReport();
+  const missing=[];
+  if(!selectedClient)missing.push("Client");
+  if(!selectedCompany)missing.push("Company");
+  if(!$("dateInput").value)missing.push("Date");
+  if(!$("wellInput").value.trim())missing.push("Well");
+  const hRaw=$("hoistInput").value.trim(),h=normalizeHoistRig(hRaw);
+  if(!hRaw)missing.push("Hoist/Rig");else if(!h.valid)missing.push("Hoist/Rig format must be H-65 or R-65");
+  if(!$("descriptionInput").value.trim())missing.push("Description");
+  if(!photos.length)missing.push("At least 1 Photo");
+  if(descOverflow)missing.push("Description too long \u2014 shorten it or remove a photo");
+  if(!$("receiverInput").value.trim())missing.push("Receiver Name");
+  const hint=$("validationHint");
+  if(missing.length){
+    const msg="Complete the form before generating PDF: "+missing.join(", ");
+    hint.textContent=msg;hint.classList.add("active");
+    hint.scrollIntoView({behavior:"smooth",block:"center"});
+    throw new Error(msg);
+  }
+  hint.textContent="";hint.classList.remove("active");
+}
+
+/* ---------- PDF ---------- */
+function setStatus(m){const el=$("pdfStatus");if(el)el.textContent=m||"";}
+function formatDateForFile(){const d=new Date(),p=n=>String(n).padStart(2,"0");return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+"_"+p(d.getHours())+"-"+p(d.getMinutes());}
+function pdfFileName(){
+  const w=normalizeWell($("wellInput").value)||"";
+  return "delivery_note"+(w?"_"+w.replace(/[^A-Za-z0-9-]/g,""):"")+"_"+formatDateForFile()+".pdf";
+}
+async function createPdfBlob(){
+  validateBeforePDF();
+  if(!window.html2canvas||!window.jspdf)throw new Error("PDF libraries are not loaded. Please check your internet connection, then try again.");
+  const report=$("reportPage");
+  document.body.classList.add("generating-pdf");
+  setStatus("Generating PDF...");
+  await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+  updateReport();
+  try{
+    const canvas=await html2canvas(report,{scale:2,useCORS:true,allowTaint:true,backgroundColor:"#ffffff",logging:false,windowWidth:794,windowHeight:1123});
+    const imgData=canvas.toDataURL("image/jpeg",1.0);
+    const jsPDF=window.jspdf.jsPDF;
+    const pdf=new jsPDF({orientation:"portrait",unit:"mm",format:"a4",compress:true});
+    pdf.addImage(imgData,"JPEG",0,0,210,297,undefined,"FAST");
+    return pdf.output("blob");
+  }finally{
+    document.body.classList.remove("generating-pdf");
+    setStatus("");
+  }
+}
+async function downloadPDF(){
+  try{
+    const blob=await createPdfBlob(),url=URL.createObjectURL(blob),a=document.createElement("a");
+    a.href=url;a.download=pdfFileName();document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+    setStatus("PDF downloaded.");setTimeout(()=>setStatus(""),2500);
+  }catch(e){setStatus(e.message||"Failed to generate PDF.");}
+}
+async function sharePDF(){
+  try{
+    const blob=await createPdfBlob(),file=new File([blob],pdfFileName(),{type:"application/pdf"});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      await navigator.share({title:"Delivery Note",text:"Delivery Note PDF",files:[file]});setStatus("PDF shared.");
+    }else{
+      const url=URL.createObjectURL(blob),a=document.createElement("a");
+      a.href=url;a.download=file.name;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+      setStatus("Sharing is not supported here. PDF downloaded instead.");
+    }
+    setTimeout(()=>setStatus(""),3000);
+  }catch(e){setStatus(e.message||"Failed to share PDF.");}
+}
+
+/* ---------- Autosave ---------- */
+function saveState(){
+  try{
+    localStorage.setItem(STORE_KEY,JSON.stringify({
+      client:selectedClient,company:selectedCompany,
+      date:$("dateInput").value,well:$("wellInput").value,hoist:$("hoistInput").value,
+      desc:$("descriptionInput").value,receiver:$("receiverInput").value,
+      engineers:selectedEngineerNames,photos:photos
+    }));
+  }catch(e){}
+}
+function loadState(){
+  let s=null;try{s=JSON.parse(localStorage.getItem(STORE_KEY)||"null");}catch(e){}
+  if(!s)return;
+  selectedClient=s.client||"";selectedCompany=s.company||"";
+  $("clientInput").value=selectedClient;$("companyInput").value=selectedCompany;
+  $("dateInput").value=s.date||"";$("wellInput").value=s.well||"";$("hoistInput").value=s.hoist||"";
+  $("descriptionInput").value=s.desc||"";$("receiverInput").value=s.receiver||"";
+  selectedEngineerNames=Array.isArray(s.engineers)?s.engineers:[];
+  photos=Array.isArray(s.photos)?s.photos.slice(0,MAX_PHOTOS):[];
+}
+function clearForm(){
+  selectedClient="";selectedCompany="";selectedEngineerNames=[];photos=[];
+  ["dateInput","wellInput","hoistInput","descriptionInput","receiverInput","clientInput","companyInput"].forEach(id=>{$(id).value="";});
+  try{localStorage.removeItem(STORE_KEY);}catch(e){}
+  updateClientDisplay();updateEngineerDisplay();renderPhotos();updateReport();
+  $("validationHint").textContent="";$("validationHint").classList.remove("active");
+  setStatus("Cleared.");setTimeout(()=>setStatus(""),1800);
+}
+
+/* ---------- Boot ---------- */
+document.addEventListener("DOMContentLoaded",()=>{
+  loadState();
+  updateClientDisplay();updateEngineerDisplay();renderPhotos();
+  ["dateInput","wellInput","hoistInput","descriptionInput","receiverInput"].forEach(id=>{
+    $(id).addEventListener("input",()=>{updateReport();saveState();});
+    $(id).addEventListener("change",()=>{updateReport();saveState();});
+  });
+  const fi=$("dnFile");
+  fi.addEventListener("change",()=>{handlePhotoFiles(fi.files);fi.value="";});
+  const drop=$("dnDrop");
+  drop.addEventListener("dragover",e=>{e.preventDefault();drop.classList.add("on");});
+  drop.addEventListener("dragleave",()=>drop.classList.remove("on"));
+  drop.addEventListener("drop",e=>{e.preventDefault();drop.classList.remove("on");handlePhotoFiles(e.dataTransfer.files);});
+  updateReport();
+});
+</script>
+</body></html>
