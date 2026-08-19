@@ -705,7 +705,7 @@ function validateBeforePDF(){updateReport();const missing=[];if(!selectedClient)
 
     if(!rows.length){
       display.classList.add("placeholder");
-      display.innerHTML = `<div class="items-display-title">اضغط لإضافة الأغراض</div><div class="items-display-sub">Search by Description. Part Number fills automatically.</div>`;
+      display.innerHTML = `<div class="items-display-title">اضغط لإضافة الأغراض</div><div class="items-display-sub">Search by Description or Part Number \u2014 type any part like P300 and pick from the list.</div>`;
       summary.textContent = "No items added yet.";
       document.querySelectorAll("[data-items-count]").forEach(el => el.textContent = "0");
       return;
@@ -769,11 +769,11 @@ function validateBeforePDF(){updateReport();const missing=[];if(!selectedClient)
           </div>
 
           <div class="item-mini-field">
-            <label>${manual ? "Description" : "Search Description"}</label>
+            <label>${manual ? "Description" : "Search Description or Part Number"}</label>
             ${manual ? `
               <input value="${esc(row.desc || "")}" oninput="updateDraftItemFinal(${index}, 'desc', this.value)" placeholder="Type Description">
             ` : `
-              <input value="${esc(row.desc || "")}" oninput="searchDescriptionFinal(${index}, this.value)" onfocus="searchDescriptionFinal(${index}, this.value)" placeholder="Type Description">
+              <input value="${esc(row.desc || "")}" oninput="searchDescriptionFinal(${index}, this.value)" onfocus="searchDescriptionFinal(${index}, this.value)" placeholder="Example: P300 or BOOT SEAL">
               <div id="itemResultsFinal_${index}" class="item-results-box"></div>
               <div class="item-part-card">${row.part ? "Part Number: " + esc(row.part) : "Part Number will appear here"}</div>
             `}
