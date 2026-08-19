@@ -452,10 +452,13 @@ body.generating-pdf .app-back-bar{display:none !important}
 .dn-desc-wrap{height:526px;display:flex;flex-direction:column;padding:10px 14px;box-sizing:border-box}
 .dn-desc-text{flex:0 1 auto;min-height:0;overflow:hidden;white-space:pre-wrap;text-align:left;
   font-size:20px;line-height:1.25;word-break:break-word;font-family:"Times New Roman",serif;font-weight:normal}
-.dn-photos{flex:0 0 auto;display:flex;gap:12px;justify-content:center;align-items:flex-start;margin-top:12px}
+.dn-photos{flex:0 0 auto;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:flex-start;margin-top:12px}
 .dn-spacer{flex:1 1 auto;min-height:0}
 .dn-photos img{max-height:225px;max-width:48%;object-fit:contain;border:1px solid #000;display:none;background:#fff}
-.dn-photos.count-1 img{max-width:66%}
+.dn-photos.count-1 img{max-width:64%}
+.dn-photos.count-2 img{max-width:48%}
+.dn-photos.count-3 img{max-width:32%}
+.dn-photos.count-4 img{max-width:23.5%}
 #reportPage .items-table th{height:54px}
 
 /* ===== واجهة رفع الصور ===== */
@@ -504,7 +507,7 @@ window.addEventListener('error',function(ev){
   <div class="form-section" id="section-job-info">
     <div class="section-head"><div class="step-badge">1</div>
       <div class="section-title-wrap"><h3>المعلومات / Job Information</h3>
-      <p>جميع الخانات مطلوبة قبل إنشاء PDF.</p></div></div>
+      <p>Client و Date و Well مطلوبة. Hoist / Rig اختياري.</p></div></div>
     <div class="job-grid">
       <div class="form-field"><label>Client</label>
         <div id="clientDisplay" class="select-card placeholder" onclick="openClientModal()">اضغط لاختيار Client / Company</div>
@@ -526,20 +529,20 @@ window.addEventListener('error',function(ev){
     <div class="form-field"><label for="descriptionInput">Description</label>
       <textarea id="descriptionInput" rows="7" placeholder="اكتب الأغراض المسلمة وأي تفاصيل / Write the delivered items and any details"></textarea>
       <div class="required-hint">الكلام ينسق نفسه تلقائياً داخل البوكس مهما كان طوله</div></div>
-    <div class="form-field" style="margin-top:12px"><label>Photos — مطلوب</label>
+    <div class="form-field" style="margin-top:12px"><label>Photos — اختياري</label>
       <div id="dnDrop" class="dn-drop" onclick="document.getElementById('dnFile').click()">
         <div class="dn-drop-title">اضغط لرفع الصور</div>
-        <div class="dn-drop-sub">صورة واحدة على الأقل — بحد أقصى صورتين</div>
+        <div class="dn-drop-sub">اختياري — بحد أقصى ٤ صور، والحجم يضبط نفسه داخل البوكس</div>
       </div>
       <input id="dnFile" type="file" accept="image/*" multiple style="display:none">
       <div id="dnThumbs" class="dn-thumbs"></div>
-      <div id="dnPhotoCount" class="dn-photo-count bad">0 / 2 — مطلوب صورة على الأقل</div>
+      <div id="dnPhotoCount" class="dn-photo-count">0 / 4 — اختياري</div>
     </div>
   </div>
 
   <div class="form-section" id="section-signatures">
     <div class="section-head"><div class="step-badge">3</div>
-      <div class="section-title-wrap"><h3>التواقيع / Signatures</h3><p>Receiver مطلوب.</p></div></div>
+      <div class="section-title-wrap"><h3>التواقيع / Signatures</h3><p>Receiver مطلوب. Hoist / Rig اختياري.</p></div></div>
     <div class="form-grid">
       <div class="form-field"><label>BIW Engineer</label>
         <div id="biwEngineerDisplay" class="select-card placeholder" onclick="openEngineerModal()">اضغط لاختيار BIW Engineer</div>
@@ -583,7 +586,7 @@ window.addEventListener('error',function(ev){
   <table class="items-table"><tr><th>Description</th></tr>
     <tr><td class="dn-desc-td"><div class="dn-desc-wrap">
       <div id="outDescText" class="dn-desc-text"></div>
-      <div id="outPhotos" class="dn-photos"><img id="outPhoto1" alt=""><img id="outPhoto2" alt=""></div>
+      <div id="outPhotos" class="dn-photos"><img id="outPhoto1" alt=""><img id="outPhoto2" alt=""><img id="outPhoto3" alt=""><img id="outPhoto4" alt=""></div>
       <div class="dn-spacer"></div>
     </div></td></tr></table>
   <table class="sign-table">
@@ -600,7 +603,7 @@ window.addEventListener('error',function(ev){
 const ENGINEERS=["Mohammed Mujaini","Said Mujaini","Hamed Sadi","Mohammed Busaidi"];
 const ENGINEER_SIGNATURES={"Mohammed Mujaini":"assets/timesheet-image-3.webp","Said Mujaini":"assets/timesheet-image-4.webp","Hamed Sadi":"assets/timesheet-image-5.webp","Mohammed Busaidi":"assets/timesheet-image-6.webp"};
 const STORE_KEY="biw-delivery-note-v1";
-const MAX_PHOTOS=2;
+const MAX_PHOTOS=4;
 
 let selectedClient="",selectedCompany="",selectedEngineerNames=[],draftEngineerNames=[],photos=[];
 
@@ -657,7 +660,7 @@ async function handlePhotoFiles(list){
   for(let i=0;i<list.length;i++){const f=list[i];if(f&&f.type&&f.type.indexOf("image/")===0)files.push(f);}
   if(!files.length){setStatus("\u0627\u0631\u0641\u0639 \u0645\u0644\u0641 \u0635\u0648\u0631\u0629 \u0641\u0642\u0637");setTimeout(()=>setStatus(""),2500);return;}
   for(const f of files){
-    if(photos.length>=MAX_PHOTOS){setStatus("\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u0642\u0635\u0649 \u0635\u0648\u0631\u062a\u064a\u0646");setTimeout(()=>setStatus(""),2500);break;}
+    if(photos.length>=MAX_PHOTOS){setStatus("\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u0642\u0635\u0649 \u0664 \u0635\u0648\u0631");setTimeout(()=>setStatus(""),2500);break;}
     try{photos.push(await shrinkImage(f));}catch(e){setStatus(e.message||"\u062e\u0637\u0623 \u0641\u064a \u0627\u0644\u0635\u0648\u0631\u0629");setTimeout(()=>setStatus(""),3000);}
   }
   renderPhotos();updateReport();saveState();
@@ -673,8 +676,8 @@ function renderPhotos(){
     d.appendChild(im);d.appendChild(b);box.appendChild(d);
   });
   const c=$("dnPhotoCount");
-  c.textContent=photos.length+" / "+MAX_PHOTOS+(photos.length?"":" \u2014 \u0645\u0637\u0644\u0648\u0628 \u0635\u0648\u0631\u0629 \u0639\u0644\u0649 \u0627\u0644\u0623\u0642\u0644");
-  c.classList.toggle("bad",photos.length===0);
+  c.textContent=photos.length+" / "+MAX_PHOTOS+(photos.length?"":" \u2014 \u0627\u062e\u062a\u064a\u0627\u0631\u064a");
+  c.classList.remove("bad");
 }
 
 /* ---------- Report ---------- */
@@ -686,10 +689,12 @@ function updateReport(){
   $("outHoistLabel").textContent=h.label;setText("outHoist",h.value);
   setText("outReceiverName",$("receiverInput").value.trim());
   setText("outDescText",$("descriptionInput").value);
-  const p1=$("outPhoto1"),p2=$("outPhoto2"),wrap=$("outPhotos");
-  if(photos[0]){p1.src=photos[0];p1.style.display="block";}else{p1.removeAttribute("src");p1.style.display="none";}
-  if(photos[1]){p2.src=photos[1];p2.style.display="block";}else{p2.removeAttribute("src");p2.style.display="none";}
-  wrap.classList.toggle("count-1",photos.length===1);
+  const wrap=$("outPhotos");
+  for(let i=0;i<MAX_PHOTOS;i++){
+    const im=$("outPhoto"+(i+1));if(!im)continue;
+    if(photos[i]){im.src=photos[i];im.style.display="block";}else{im.removeAttribute("src");im.style.display="none";}
+  }
+  for(let i=1;i<=MAX_PHOTOS;i++) wrap.classList.toggle("count-"+i,photos.length===i);
   setText("outBiwEngineerName",selectedEngineerNames.join("\n"));
   const sig=$("outBiwSignature"),first=selectedEngineerNames.find(n=>ENGINEER_SIGNATURES[n]);
   if(first){sig.src=ENGINEER_SIGNATURES[first];sig.style.display="block";}else{sig.removeAttribute("src");sig.style.display="none";}
@@ -727,9 +732,8 @@ function validateBeforePDF(){
   if(!$("dateInput").value)missing.push("Date");
   if(!$("wellInput").value.trim())missing.push("Well");
   const hRaw=$("hoistInput").value.trim(),h=normalizeHoistRig(hRaw);
-  if(!hRaw)missing.push("Hoist/Rig");else if(!h.valid)missing.push("Hoist/Rig format must be H-65 or R-65");
+  if(hRaw&&!h.valid)missing.push("Hoist/Rig format must be H-65 or R-65");
   if(!$("descriptionInput").value.trim())missing.push("Description");
-  if(!photos.length)missing.push("At least 1 Photo");
   if(descOverflow)missing.push("Description too long \u2014 shorten it or remove a photo");
   if(!$("receiverInput").value.trim())missing.push("Receiver Name");
   const hint=$("validationHint");
