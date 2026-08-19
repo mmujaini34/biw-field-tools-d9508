@@ -33,6 +33,18 @@ input:focus,select:focus,textarea:focus{border-color:#f59e0b;box-shadow:0 0 0 3p
 .part-preview,.small-help{font-size:12px;font-weight:800;color:#475569;margin-top:5px;line-height:1.3}
 .preview-wrap{overflow:auto;border-radius:14px;border:1px solid #cbd5e1;background:#cbd5e1;padding:10px}
 .ar-tip{margin-top:5px;font-size:11.5px;font-weight:800;color:#64748b;line-height:1.35}
+/* ===== searchable part picker ===== */
+.pn-results{display:none;margin-top:6px;max-height:230px;overflow:auto;border:1px solid #cbd5e1;border-radius:10px;background:#fff}
+.pn-results.active{display:block}
+.pn-res{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid #eef2f7;background:#fff;padding:9px 11px;cursor:pointer}
+.pn-res:last-child{border-bottom:0}
+.pn-res:hover,.pn-res:focus{background:#ecfeff}
+.pn-res.sel{background:#0f766e}
+.pn-res.sel .pn-res-d,.pn-res.sel .pn-res-p{color:#fff}
+.pn-res-d{display:block;font-size:12.5px;font-weight:900;color:#0f172a;line-height:1.25}
+.pn-res-p{display:block;font-size:12px;font-weight:900;color:#0f766e;margin-top:2px;direction:ltr}
+.pn-none{padding:10px 11px;font-size:12px;font-weight:800;color:#991b1b}
+.pn-count{margin-top:5px;font-size:11.5px;font-weight:800;color:#0f766e}
 .ar-tip b{color:#0f172a}
 .input-panel h2 .ar{font-size:13px;color:#64748b;font-weight:800;margin-left:6px}
 .example{display:block;color:#b45309;font-weight:900;margin-top:2px}
@@ -507,7 +519,7 @@ function fractionHtml(type){
   return esc(type || '');
 }
 function buildEngineerOptions(){ const sel=$('fieldEngineerInput'); ENGINEERS.forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n;sel.appendChild(o);}); }
-function blankPartRow(){return {catalogIndex:'', qty:'', serial:'', mfg:'', install:'', pull:'', reused:''};}
+function blankPartRow(){return {catalogIndex:'', search:'', qty:'', serial:'', mfg:'', install:'', pull:'', reused:''};}
 function addPartRow(){partRows.push(blankPartRow()); renderPartsEditor(); updateReport();}
 function removePartRow(i){partRows.splice(i,1); renderPartsEditor(); updateReport();}
 function updatePart(i,key,val){
@@ -523,17 +535,50 @@ function updatePart(i,key,val){
   }
   updateReport();
 }
+function partMatches(q){
+  const t=String(q||'').trim().toLowerCase();
+  const list=CATALOG.map((it,idx)=>({it,idx}));
+  if(!t) return list;
+  return list.filter(x=>x.it.desc.toLowerCase().includes(t)||x.it.part.toLowerCase().includes(t));
+}
+function paintPartResults(i,q){
+  const box=document.getElementById('partResults_'+i);
+  if(!box) return;
+  const res=partMatches(q), cur=String((partRows[i]||{}).catalogIndex);
+  box.innerHTML = res.length
+    ? res.map(x=>`<button type="button" class="pn-res ${cur===String(x.idx)?'sel':''}" onclick="choosePart(${i},${x.idx})"><span class="pn-res-d">${esc(x.it.desc)}</span><span class="pn-res-p">${esc(x.it.part)}</span></button>`).join('')
+    : '<div class="pn-none">No Part Number found / ما في نتيجة</div>';
+  box.classList.add('active');
+}
+function showPartResults(i){
+  if(!partRows[i]) return;
+  const item=CATALOG[Number(partRows[i].catalogIndex)];
+  paintPartResults(i, item ? '' : (partRows[i].search||''));
+}
+function searchPart(i,val){
+  if(!partRows[i]) return;
+  partRows[i].search=val;
+  partRows[i].catalogIndex='';
+  paintPartResults(i,val);
+  updateReport();
+}
+function choosePart(i,idx){
+  if(!partRows[i]) return;
+  const it=CATALOG[Number(idx)];
+  partRows[i].search = it ? (it.desc+' — '+it.part) : '';
+  updatePart(i,'catalogIndex',String(idx));
+}
 function renderPartsEditor(){
   const root=$('partsEditor');
   if(!partRows.length) partRows=[blankPartRow()];
   root.innerHTML = partRows.map((r,i)=>{
     const item = CATALOG[Number(r.catalogIndex)];
     const serialRequired = item ? item.serialRequired !== false : true;
-    const opts = '<option value="">Select Description</option>' + CATALOG.map((it,idx)=>`<option value="${idx}" ${String(r.catalogIndex)===String(idx)?'selected':''}>${esc(it.desc)} — ${esc(it.part)}</option>`).join('');
+    const searchValue = item ? (item.desc + ' — ' + item.part) : (r.search || '');
     return `<div class="item-row">
       <div class="item-title"><span>Item ${i+1} / القطعة ${i+1}</span><button class="btn btn-danger" type="button" onclick="removePartRow(${i})">Remove</button></div>
       <div class="item-grid">
-        <div class="field"><label>Description / الوصف</label><select onchange="updatePart(${i},'catalogIndex',this.value)">${opts}</select><div class="part-preview">${item?'Part Number: '+esc(item.part):'Part Number will appear here / سيظهر رقم القطعة هنا'}</div><div class="ar-tip">اختر الوصف فقط؛ PDF يطبع Part Number فقط.</div></div>
+        <div class="field"><label>Description / Part Number — الوصف أو رقم القطعة</label><input id="partSearch_${i}" value="${esc(searchValue)}" placeholder="اكتب حروف أو أرقام للبحث — مثال: P300" oninput="searchPart(${i},this.value)" onfocus="showPartResults(${i})"><div id="partResults_${i}" class="pn-results"></div><div class="part-preview">${item?'Part Number: '+esc(item.part):'Part Number will appear here / سيظهر رقم القطعة هنا'}</div><div class="ar-tip">اكتب أي جزء من الوصف أو رقم القطعة ثم اختر من القائمة.</div></div>
         <div class="field"><label>Qty / العدد</label><input type="number" min="1" value="${esc(r.qty)}" placeholder="1" oninput="this.value=toEnglishDigits(this.value).replace(/[^0-9]/g,'');updatePart(${i},'qty',this.value)"><div class="ar-tip">اختياري؛ إذا تركته فاضي = 1.</div></div>
         <div class="field"><label>Serial Number / السيريال</label><input ${!serialRequired?'readonly':''} value="${esc(r.serial)}" placeholder="${serialRequired?'S/N مثال: 63547 / 836345':'N/A'}" oninput="this.value=toEnglishDigits(this.value);updatePart(${i},'serial',this.value)"><div class="ar-tip">إذا القطعة N/A يتم تعبئتها تلقائيًا.</div></div>
         <div class="field"><label>Mfg Date / تاريخ التصنيع</label><input type="date" value="${esc(r.mfg)}" onchange="updatePart(${i},'mfg',this.value)"><div class="ar-tip">اختياري.</div></div>
