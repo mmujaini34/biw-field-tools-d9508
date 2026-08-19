@@ -525,7 +525,7 @@ function buildSheet(){
   var id=document.getElementById('mId').value.trim();
   var mon=document.getElementById('mMonth').value;
   var tag=document.getElementById('mTag').value;
-  var sorted=rows.slice().sort(function(a,b){return (a.date||"9999").localeCompare(b.date||"9999");});
+  var sorted=rows.slice(); /* ترتيب الجدول = ترتيب الفواتير المرفوعة (نفس ترتيب شاشة المراجعة) */
   var h='';
   h+='<img class="logo" src="'+LOGO+'" alt="IBD">';
   h+='<div class="ftitle"><span>EXPENSES&nbsp; CLAIM&nbsp; FORM</span></div>';
