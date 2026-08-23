@@ -1,8 +1,7 @@
 {
-  "version": "3.12.0",
+  "version": "3.12.1",
   "notes": [
-    "تحديث إجباري — بحث القطع في Time Sheet و Empty Time Sheet و Installation Report: اكتب أي جزء من الوصف أو رقم القطعة (مثال: P أو P300) وتظهر لك النتائج المطابقة فقط ثم تختار منها. في Installation Report استُبدلت قائمة الاختيار الطويلة بمربع بحث",
-    "Delivery Note: الصور صارت اختيارية وبحد أقصى ٤ صور، وحجمها يضبط نفسه تلقائيًا داخل بوكس الوصف كلما زاد عددها",
-    "Delivery Note: خانة Hoist / Rig صارت اختيارية — تقدر تتركها فاضية"
+    "تحديث إجباري — Installation Report: تصحيح مواضع خانات الهيدر (Customer / Country / Date / Company Man / ESP Supervisor / Rig / Well / Arrive / Job Start / Job End) بحيث ما يدخل النص فوق العناوين المطبوعة في النموذج",
+    "Installation Report: خانة Rig / Hoist صار لها خلفية بيضاء تغطي العنوان المطبوع — خط واحد واضح بدل خطين فوق بعض"
   ]
 }
