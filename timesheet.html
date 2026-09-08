@@ -770,7 +770,7 @@ const SAVED_ITEMS=[{"desc":"UNI-LOK PRESSURE BLOCK ASSY 5000PSI","part":"ULK55-0
             ${manual ? `
               <input value="${esc(row.desc || "")}" oninput="updateDraftItemFinal(${index}, 'desc', this.value)" placeholder="Type Description">
             ` : `
-              <input value="${esc(row.desc || "")}" oninput="searchDescriptionFinal(${index}, this.value)" onfocus="searchDescriptionFinal(${index}, this.value)" placeholder="Example: P300 or BOOT SEAL">
+              <input value="${esc(row.desc || "")}" oninput="searchDescriptionFinal(${index}, this.value)" onfocus="this.select();searchDescriptionFinal(${index}, this.value)" placeholder="Example: P300 or BOOT SEAL">
               <div id="itemResultsFinal_${index}" class="item-results-box"></div>
               <div class="item-part-card">${row.part ? "Part Number: " + esc(row.part) : "Part Number will appear here"}</div>
             `}

@@ -654,7 +654,12 @@ function pdfName(){
   return first+"'s time sheet - "+mon+yy;
 }
 function makePdf(el,done,fail){
+  var note=el.querySelector('.ovlNote');
+  var prevDisplay=note?note.style.display:null;
+  if(note)note.style.display='none';
+  function restore(){if(note)note.style.display=prevDisplay||'';}
   html2canvas(el,{scale:2,backgroundColor:'#ffffff',useCORS:true}).then(function(canvas){
+    restore();
     var jsPDFC=(window.jspdf&&window.jspdf.jsPDF)?window.jspdf.jsPDF:window.jsPDF;
     var pdf=new jsPDFC('p','mm','a4');
     /* صفحة A4 وحدة دائماً: نصغّر المحتوى ليدخل كامل */
@@ -665,7 +670,7 @@ function makePdf(el,done,fail){
     var x=(pw-w)/2, y=margin;
     pdf.addImage(canvas.toDataURL('image/jpeg',0.92),'JPEG',x,y,w,hh);
     done(pdf.output('blob'), canvas);
-  }).catch(function(e){fail(e);});
+  }).catch(function(e){restore();fail(e);});
 }
 function previewPdf(){
   var el=document.getElementById('sheet');

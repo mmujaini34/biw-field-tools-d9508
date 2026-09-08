@@ -1,7 +1,7 @@
 {
-  "version": "3.12.1",
+  "version": "3.12.2",
   "notes": [
-    "تحديث إجباري — Installation Report: تصحيح مواضع خانات الهيدر (Customer / Country / Date / Company Man / ESP Supervisor / Rig / Well / Arrive / Job Start / Job End) بحيث ما يدخل النص فوق العناوين المطبوعة في النموذج",
-    "Installation Report: خانة Rig / Hoist صار لها خلفية بيضاء تغطي العنوان المطبوع — خط واحد واضح بدل خطين فوق بعض"
+    "Monthly Time Sheet PDF: إزالة تنبيه الأيام المتداخلة (⚠ يوم متداخل) من ملف الـ PDF المصدّر — يبقى ظاهر في الشاشة بس مو في الملف",
+    "Installation Time Sheet + Installation Report: خانة البحث عن القطعة تصير محددة تلقائيًا عند الضغط عليها، تكتب القطعة الجديدة بدون ما تمسح يدوي"
   ]
 }
