@@ -1739,6 +1739,18 @@ function validateBeforePDF(){updateReport();const missing=[];if(!selectedClient)
     if(typeof autoFitReport==='function') autoFitReport();
     if(typeof fitDescription==='function') fitDescription();
   }
+  /* ينتظر تحميل كل الشعارات/الصور داخل النموذج قبل التصوير — يمنع اختفاء الشعار إذا ما اكتمل تحميله بعد */
+  function waitForImages(root){
+    var imgs = root ? Array.prototype.slice.call(root.querySelectorAll('img')) : [];
+    return Promise.all(imgs.map(function(img){
+      if(img.complete && img.naturalWidth>0) return Promise.resolve();
+      return new Promise(function(resolve){
+        img.addEventListener('load', resolve, {once:true});
+        img.addEventListener('error', resolve, {once:true});
+        setTimeout(resolve, 4000);
+      });
+    }));
+  }
   window.createPdfBlob = async function(){
     validateRequired();
     beforeRender();
@@ -1752,6 +1764,7 @@ function validateBeforePDF(){updateReport();const missing=[];if(!selectedClient)
     await new Promise(function(resolve){ requestAnimationFrame(function(){ requestAnimationFrame(resolve); }); });
     try{
       beforeRender();
+      await waitForImages(report);
       var canvas=await html2canvas(report,{scale:2,useCORS:true,allowTaint:true,backgroundColor:'#ffffff',logging:false,windowWidth:794,windowHeight:1123});
       if(!canvas || canvas.width<10 || canvas.height<10) throw new Error('PDF canvas is empty.');
       var pdf=new window.jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
