@@ -382,6 +382,11 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
     <span class="glass-en">DELIVERY</span>
     <span class="glass-ar">سند التسليم</span>
   </a>
+  <a class="glass" href="admin.html">
+    <span class="glass-orb"><svg class="glass-ico" viewBox="0 0 34 34"><rect x="8" y="15" width="18" height="14" rx="3"/><path d="M12 15 v-4 a5 5 0 0 1 10 0 v4"/><line x1="17" y1="20" x2="17" y2="24"/></svg></span>
+    <span class="glass-en">ADMIN</span>
+    <span class="glass-ar">الإدارة</span>
+  </a>
 </nav>
 
 <div class="devsig">Developed by Mohammed Al Mujaini</div>
@@ -446,7 +451,7 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
 })();
 /* فحص التحديث: تلقائي عند الفتح + يدوي بزر ⟳ */
 (function(){
-  var CUR='3.12.3';                       /* نسخة هذا الملف */
+  var CUR='3.13.0';                       /* نسخة هذا الملف */
   function toNum(v){var p=String(v).replace(/^v/,'').split('.');return (+p[0]||0)*10000+(+p[1]||0)*100+(+p[2]||0);}
   function doUpdate(btn){
     btn.disabled=true;btn.textContent='... يحدّث';
@@ -539,7 +544,7 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
   function verify(){
     /* نتأكد فعليًا إن كل الصفحات والمكتبات بالكاش */
     if(!window.caches){setState('READY',true);return;}
-    var must=['timesheet.html','checklist.html','report.html','empty-timesheet.html','expenses.html','month-timesheet.html','libs/jspdf.umd.min.js','libs/html2canvas.min.js','bg.jpg'];
+    var must=['timesheet.html','checklist.html','report.html','empty-timesheet.html','expenses.html','month-timesheet.html','libs/jspdf.umd.min.js','libs/html2canvas.min.js','bg.jpg','archive.js','archive-queue.js'];
     caches.keys().then(function(ks){
       var name=null;
       for(var i=0;i<ks.length;i++){if(ks[i].indexOf('biw-field-tools')===0){name=ks[i];}}
@@ -556,5 +561,6 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
   }
 })();
 </script>
+<script src="archive-queue.js"></script><script src="archive.js"></script>
 </body>
 </html>

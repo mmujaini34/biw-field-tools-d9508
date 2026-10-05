@@ -1,5 +1,7 @@
-/* BIW Field Tools — Service Worker v3.12.3 (Safari-proof, redirect-proof, offline-first) */
-const CACHE_NAME = 'biw-field-tools-v3.12.3';
+/* BIW Field Tools — Service Worker v3.13.0 (Safari-proof, redirect-proof, offline-first) */
+const CACHE_NAME = 'biw-field-tools-v3.13.0';
+/* طابور رفع الأرشيف: نفس الكود المستخدم بالصفحات */
+try { importScripts('./archive-queue.js'); } catch (e) {}
 const ASSETS = [
   './',
   './index.html',
@@ -10,6 +12,9 @@ const ASSETS = [
   './expenses.html',
   './delivery-note.html',
   './month-timesheet.html',
+  './admin.html',
+  './archive.js',
+  './archive-queue.js',
   './bg.jpg',
   './libs/html2canvas.min.js',
   './libs/jspdf.umd.min.js',
@@ -141,3 +146,9 @@ function refreshInBackground(request, url) {
     }).catch(() => {});
   } catch (e) {}
 }
+
+/* أندرويد: إذا رجع النت والتطبيق مقفول، يكمل رفع الملفات المعلّقة للأرشيف */
+self.addEventListener('sync', (e) => {
+  if (e.tag !== 'biw-archive-flush' || !self.BIWQueue) return;
+  e.waitUntil(self.BIWQueue.flush().then((left) => { if (left) throw new Error('pending'); }));
+});

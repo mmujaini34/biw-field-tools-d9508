@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e0a10">
+<meta name="robots" content="noindex,nofollow">
+<title>الإدارة — BIW Field Tools</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{background:#0e0a10;color:#f4eee6;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,Arial,sans-serif;
+  font-size:15px;line-height:1.5;-webkit-text-size-adjust:100%}
+button{font:inherit;color:inherit;cursor:pointer;-webkit-appearance:none;appearance:none}
+.ltr{direction:ltr;unicode-bidi:isolate}
+
+/* ---------- الشريط العلوي ---------- */
+.bar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:8px;
+  padding:calc(10px + env(safe-area-inset-top)) 14px 10px;background:rgba(14,10,16,.92);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,196,106,.22)}
+.bar h1{flex:1;margin:0;font-size:17px;font-weight:800;color:#ffc46a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb{flex:none;display:inline-block;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.2);
+  background:rgba(255,255,255,.05);color:#fff;font-size:12px;font-weight:700;letter-spacing:.5px;text-decoration:none}
+.tb:active{background:rgba(255,196,106,.22);border-color:#ffc46a}
+.tb[hidden]{display:none}
+
+main{max-width:760px;margin:0 auto;padding:16px 14px calc(34px + env(safe-area-inset-bottom))}
+
+/* ---------- القفل ---------- */
+.lock{max-width:340px;margin:9vh auto 0;text-align:center}
+.lock .ico{width:74px;height:74px;margin:0 auto 14px;border-radius:50%;border:1.5px solid rgba(255,196,106,.6);
+  background:rgba(255,196,106,.08);display:flex;align-items:center;justify-content:center}
+.lock svg{width:34px;height:34px;fill:none;stroke:#ffc46a;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.lock h2{margin:0 0 4px;font-size:22px;font-weight:800}
+.lock p{margin:0 0 18px;font-size:13px;color:rgba(244,238,230,.62)}
+.lock input{display:block;width:100%;padding:14px 12px;border-radius:13px;border:1px solid rgba(255,255,255,.22);
+  background:rgba(255,255,255,.06);color:#fff;font:inherit;font-size:17px;text-align:center;direction:ltr;outline:none}
+.lock input:focus{border-color:#ffc46a;background:rgba(255,196,106,.08)}
+.go{display:block;width:100%;margin-top:10px;padding:14px 12px;border-radius:13px;border:1px solid #ffc46a;
+  background:#ffc46a;color:#1a1208;font-size:16px;font-weight:800}
+.go[disabled]{opacity:.55}
+.msg{min-height:22px;margin-top:12px;font-size:13.5px;font-weight:700;color:#ff9c8a}
+
+/* ---------- مسار التنقل ---------- */
+.crumb{display:flex;align-items:center;gap:8px;margin:0 0 14px}
+.back{flex:none;padding:8px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);
+  font-size:13px;font-weight:700}
+.back:active{background:rgba(255,196,106,.22);border-color:#ffc46a}
+.where{flex:1;min-width:0;font-size:14px;font-weight:700;color:rgba(244,238,230,.75);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.where b{color:#fff}
+
+.note{margin:0 0 12px;font-size:12.5px;color:rgba(244,238,230,.55)}
+
+/* ---------- بطاقات المهندسين ---------- */
+.eng{display:flex;align-items:center;gap:13px;width:100%;margin:0 0 10px;padding:14px;border-radius:16px;text-align:right;
+  border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.045)}
+.eng:active{background:rgba(255,196,106,.14);border-color:rgba(255,196,106,.7)}
+.av{flex:none;width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:rgba(255,196,106,.14);border:1px solid rgba(255,196,106,.55);color:#ffd79a;font-size:15px;font-weight:800;direction:ltr}
+.eng .tx{flex:1;min-width:0}
+.eng .nm{display:block;font-size:16.5px;font-weight:800;direction:ltr;text-align:right}
+.eng .sub{display:block;margin-top:1px;font-size:12px;color:rgba(244,238,230,.55)}
+.cnt{flex:none;min-width:38px;padding:5px 10px;border-radius:999px;background:rgba(255,196,106,.16);color:#ffd79a;
+  font-size:14px;font-weight:800;text-align:center;direction:ltr}
+.cnt.zero{background:rgba(255,255,255,.06);color:rgba(244,238,230,.4)}
+
+/* ---------- خانات الأدوات ---------- */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (min-width:560px){.grid{grid-template-columns:1fr 1fr 1fr}}
+.tool{position:relative;display:block;width:100%;min-height:104px;padding:14px 12px 12px;border-radius:16px;text-align:right;
+  border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.045)}
+.tool:active{background:rgba(255,196,106,.14);border-color:rgba(255,196,106,.7)}
+.tool .en{display:block;font-size:13px;font-weight:800;letter-spacing:1px;color:#ffc46a;direction:ltr;text-align:right}
+.tool .ar{display:block;margin-top:2px;font-size:14.5px;font-weight:700}
+.tool .n{display:block;margin-top:10px;font-size:26px;font-weight:800;line-height:1}
+.tool .n small{font-size:12px;font-weight:600;color:rgba(244,238,230,.5);margin-right:6px}
+.tool.empty{opacity:.5}
+
+/* ---------- قائمة الملفات ---------- */
+.month{margin:18px 2px 8px;font-size:12px;font-weight:800;letter-spacing:.6px;color:rgba(255,196,106,.85)}
+.month:first-child{margin-top:0}
+.doc{display:flex;align-items:center;gap:12px;width:100%;margin:0 0 8px;padding:12px;border-radius:14px;text-align:right;
+  border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04)}
+.doc:active{background:rgba(255,196,106,.14);border-color:rgba(255,196,106,.7)}
+.doc[disabled]{opacity:.6}
+.pdf{flex:none;width:38px;height:46px;border-radius:7px;background:rgba(255,120,100,.14);border:1px solid rgba(255,140,120,.5);
+  color:#ffb3a3;font-size:10px;font-weight:800;letter-spacing:.5px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px}
+.doc .tx{flex:1;min-width:0}
+.doc .fn{display:block;font-size:14.5px;font-weight:700;direction:ltr;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.doc .meta{display:block;margin-top:2px;font-size:12px;color:rgba(244,238,230,.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.doc .with{display:block;margin-top:2px;font-size:11.5px;color:#9fd8c8}
+.empty-box{padding:34px 12px;border-radius:16px;border:1px dashed rgba(255,255,255,.18);text-align:center;color:rgba(244,238,230,.55);font-size:14px}
+
+/* ---------- هذا الجهاز ---------- */
+.dev{margin-top:26px;padding:14px;border-radius:16px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03)}
+.dev h3{margin:0 0 4px;font-size:13px;font-weight:800;color:rgba(244,238,230,.75)}
+.dev p{margin:0;font-size:13px;color:rgba(244,238,230,.6)}
+.dev b{color:#fff}
+.dev button{margin-top:10px;padding:9px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.22);background:transparent;font-size:12.5px;font-weight:700}
+.dev button:active{background:rgba(255,156,138,.18);border-color:#ff9c8a}
+
+.toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));z-index:9;max-width:88vw;padding:11px 16px;border-radius:999px;
+  background:#2a2029;border:1px solid rgba(255,196,106,.5);color:#fff;font-size:13.5px;font-weight:700;
+  -webkit-transform:translateX(-50%);transform:translateX(-50%);opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.on{opacity:1}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <a class="tb ltr" href="index.html">HOME</a>
+  <h1>الإدارة</h1>
+  <button class="tb" id="refreshBtn" type="button" hidden>⟳ تحديث</button>
+  <button class="tb" id="lockBtn" type="button" hidden>قفل</button>
+</div>
+
+<main id="view"></main>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+  'use strict';
+  var FN='https://szomlyrlpznrdyewknec.supabase.co/functions/v1/biw-archive';
+  var TOKEN='biw-fss-2026';
+  var SS='biw_admin_pass', IDK='biw_identity';
+  var TOOLS=[
+    {k:'timesheet',en:'TIME SHEET',ar:'تايم شيت'},
+    {k:'empty-timesheet',en:'EMPTY TS',ar:'تايم شيت حر'},
+    {k:'month-timesheet',en:'MONTH TS',ar:'إثبات عمل'},
+    {k:'expenses',en:'EXPENSES',ar:'المصاريف'},
+    {k:'report',en:'REPORT',ar:'تقرير التركيب'},
+    {k:'checklist',en:'CHECKLIST',ar:'تشك لست'},
+    {k:'delivery-note',en:'DELIVERY',ar:'سند التسليم'}
+  ];
+  var ENGINEERS=['Mohammed Mujaini','Said Mujaini','Hamed Sadi','Mohammed Busaidi'];
+  var view=document.getElementById('view');
+  var pass=null, items=null;
+  try{pass=sessionStorage.getItem(SS)||null;}catch(e){}
+
+  function el(tag,cls,text){var n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined&&text!==null)n.textContent=text;return n;}
+  function clear(){while(view.firstChild)view.removeChild(view.firstChild);}
+  var toastT=null;
+  function toast(t){var x=document.getElementById('toast');x.textContent=t;x.classList.add('on');clearTimeout(toastT);toastT=setTimeout(function(){x.classList.remove('on');},2800);}
+  function setBar(open){document.getElementById('refreshBtn').hidden=!open;document.getElementById('lockBtn').hidden=!open;}
+
+  function api(action,body){
+    return fetch(FN+'?a='+action,{method:'POST',headers:{'Content-Type':'application/json','x-app-token':TOKEN},body:JSON.stringify(body)})
+      .then(function(r){return r.json().catch(function(){return {};}).then(function(j){j.status=r.status;return j;});});
+  }
+  function problem(j){
+    if(j.status===403)return 'الرقم السري غلط';
+    if(j.status===429)return 'محاولات كثيرة — جرّب بعد 10 دقائق';
+    return 'تعذر الاتصال بالسيرفر ('+(j.error||j.status)+')';
+  }
+
+  /* ---------- القفل ---------- */
+  function lockView(msg){
+    setBar(false);clear();
+    var w=el('div','lock');
+    var ico=el('div','ico');
+    ico.innerHTML='<svg viewBox="0 0 34 34"><rect x="8" y="15" width="18" height="14" rx="3"/><path d="M12 15 v-4 a5 5 0 0 1 10 0 v4"/><line x1="17" y1="20" x2="17" y2="24"/></svg>';
+    w.appendChild(ico);
+    w.appendChild(el('h2','','الإدارة'));
+    w.appendChild(el('p','','هذا القسم خاص بالإدارة. أدخل الرقم السري.'));
+    var f=document.createElement('form');
+    var inp=document.createElement('input');
+    inp.type='password';inp.autocomplete='current-password';inp.setAttribute('autocapitalize','off');inp.setAttribute('autocorrect','off');
+    inp.spellcheck=false;inp.placeholder='الرقم السري';inp.setAttribute('aria-label','الرقم السري');
+    var go=el('button','go','دخول');go.type='submit';
+    var m=el('div','msg',msg||'');
+    f.appendChild(inp);f.appendChild(go);w.appendChild(f);w.appendChild(m);
+    f.addEventListener('submit',function(e){
+      e.preventDefault();
+      var p=inp.value;
+      if(!p){m.textContent='اكتب الرقم السري';return;}
+      if(navigator.onLine===false){m.textContent='ما فيه نت — الإدارة تحتاج اتصال';return;}
+      go.disabled=true;go.textContent='جاري التحقق…';m.textContent='';
+      load(p).then(function(err){
+        if(err){go.disabled=false;go.textContent='دخول';m.textContent=err;inp.value='';inp.focus();}
+      });
+    });
+    view.appendChild(w);
+    setTimeout(function(){try{inp.focus();}catch(e){}},60);
+  }
+
+  /* يحمّل الأرشيف؛ يرجّع نص الخطأ أو null */
+  function load(p){
+    return api('list',{pass:p}).then(function(j){
+      if(!j.ok)return problem(j);
+      pass=p;items=j.items||[];
+      try{sessionStorage.setItem(SS,p);}catch(e){}
+      setBar(true);route();
+      return null;
+    },function(){return 'ما فيه اتصال بالإنترنت';});
+  }
+  function lock(){
+    pass=null;items=null;
+    try{sessionStorage.removeItem(SS);}catch(e){}
+    if(location.hash)history.replaceState(null,'',location.pathname+location.search);
+    lockView('');
+  }
+
+  /* ---------- أدوات مساعدة ---------- */
+  function of(name){return items.filter(function(it){return (it.engineers||[]).indexOf(name)!==-1;});}
+  function initials(name){var p=name.split(' ');return (p[0].charAt(0)+(p[1]?p[1].charAt(0):'')).toUpperCase();}
+  function when(iso){
+    var d=new Date(iso);if(isNaN(d))return '';
+    var mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];
+    var p=function(n){return (n<10?'0':'')+n;};
+    return p(d.getDate())+' '+mo+' '+d.getFullYear()+' · '+p(d.getHours())+':'+p(d.getMinutes());
+  }
+  function monthKey(iso){
+    var d=new Date(iso);if(isNaN(d))return '';
+    return ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'][d.getMonth()]+' '+d.getFullYear();
+  }
+  function size(n){n=+n||0;return n>=1048576?(n/1048576).toFixed(1)+' MB':Math.max(1,Math.round(n/1024))+' KB';}
+  function crumb(backHash,parts){
+    var c=el('div','crumb');
+    var b=el('button','back','‹ رجوع');b.type='button';
+    b.onclick=function(){location.hash=backHash;};
+    c.appendChild(b);
+    var w=el('div','where');
+    parts.forEach(function(t,i){
+      if(i)w.appendChild(document.createTextNode('  ›  '));
+      var s=el(i===parts.length-1?'b':'span','ltr',t);w.appendChild(s);
+    });
+    c.appendChild(w);
+    return c;
+  }
+
+  /* ---------- 1) المهندسين ---------- */
+  function engineersView(){
+    clear();
+    view.appendChild(el('p','note','اختر المهندس لعرض ملفاته. المجموع: '+items.length+' ملف.'));
+    ENGINEERS.forEach(function(name,i){
+      var mine=of(name);
+      var b=el('button','eng');b.type='button';
+      b.appendChild(el('span','av',initials(name)));
+      var tx=el('span','tx');
+      tx.appendChild(el('span','nm',name));
+      var sub=el('span','sub',mine.length?'آخر ملف: ':'ما فيه ملفات بعد');
+      if(mine.length)sub.appendChild(el('span','ltr',when(mine[0].created_at)));
+      tx.appendChild(sub);
+      b.appendChild(tx);
+      b.appendChild(el('span','cnt'+(mine.length?'':' zero'),String(mine.length)));
+      b.onclick=function(){location.hash='#/e/'+i;};
+      view.appendChild(b);
+    });
+    view.appendChild(deviceBox());
+  }
+
+  /* ---------- 2) خانات المهندس ---------- */
+  function toolsView(i){
+    var name=ENGINEERS[i],mine=of(name);
+    clear();
+    view.appendChild(crumb('#/',[name]));
+    var g=el('div','grid');
+    TOOLS.forEach(function(t){
+      var n=mine.filter(function(it){return it.tool===t.k;}).length;
+      var b=el('button','tool'+(n?'':' empty'));b.type='button';
+      b.appendChild(el('span','en',t.en));
+      b.appendChild(el('span','ar',t.ar));
+      var c=el('span','n',String(n));c.appendChild(el('small','',n===1?'ملف':'ملفات'));
+      b.appendChild(c);
+      b.onclick=function(){location.hash='#/e/'+i+'/'+t.k;};
+      g.appendChild(b);
+    });
+    view.appendChild(g);
+  }
+
+  /* ---------- 3) ملفات الخانة ---------- */
+  function docsView(i,toolKey){
+    var name=ENGINEERS[i],t=null;
+    TOOLS.forEach(function(x){if(x.k===toolKey)t=x;});
+    if(!t){location.hash='#/e/'+i;return;}
+    var docs=of(name).filter(function(it){return it.tool===toolKey;});
+    clear();
+    view.appendChild(crumb('#/e/'+i,[name,t.en]));
+    if(!docs.length){view.appendChild(el('div','empty-box','ما فيه ملفات في هذي الخانة بعد.'));return;}
+    var lastMonth=null;
+    docs.forEach(function(it){
+      var mk=monthKey(it.created_at);
+      if(mk!==lastMonth){lastMonth=mk;view.appendChild(el('div','month',mk));}
+      var b=el('button','doc');b.type='button';
+      b.appendChild(el('span','pdf','PDF'));
+      var tx=el('span','tx');
+      tx.appendChild(el('span','fn',it.filename||'document.pdf'));
+      var bits=[when(it.created_at)];
+      if(it.well)bits.push(it.well);
+      if(it.client)bits.push(it.client);
+      bits.push(size(it.size_bytes));
+      tx.appendChild(el('span','meta ltr',bits.join('  ·  ')));
+      var others=(it.engineers||[]).filter(function(n){return n!==name;});
+      if(others.length)tx.appendChild(el('span','with','مشترك مع: '+others.join(' + ')));
+      b.appendChild(tx);
+      b.onclick=function(){openDoc(it,b);};
+      view.appendChild(b);
+    });
+  }
+
+  function openDoc(it,btn){
+    if(navigator.onLine===false){toast('ما فيه نت — فتح الملف يحتاج اتصال');return;}
+    /* النافذة تنفتح فورًا مع اللمسة (عشان آيفون ما يمنعها) ثم نوجّهها للملف */
+    var w=null;
+    try{w=window.open('about:blank','_blank');}catch(e){}
+    btn.disabled=true;
+    api('open',{pass:pass,id:it.id}).then(function(j){
+      btn.disabled=false;
+      if(!j.ok||!j.url){if(w)try{w.close();}catch(e){}
+        if(j.status===403){lock();return;}
+        toast(j.status===404?'الملف غير موجود':problem(j));return;}
+      if(w&&!w.closed){w.location.href=j.url;}else{location.href=j.url;}
+    },function(){btn.disabled=false;if(w)try{w.close();}catch(e){}toast('ما فيه اتصال بالإنترنت');});
+  }
+
+  /* ---------- هذا الجهاز ---------- */
+  function deviceBox(){
+    var d=el('div','dev');
+    d.appendChild(el('h3','','هذا الجهاز'));
+    var cur=null;try{cur=localStorage.getItem(IDK);}catch(e){}
+    var p=el('p','','مسجل باسم: ');
+    p.appendChild(el('b','ltr',cur==='guest'?'Guest (ضيف)':(cur||'غير مسجل')));
+    d.appendChild(p);
+    if(cur){
+      var b=el('button','','إعادة تعيين اسم هذا الجهاز');b.type='button';
+      b.onclick=function(){
+        if(!confirm('بينمسح اسم هذا الجهاز، وأول ما تفتح التطبيق بيطلب الاسم من جديد. متأكد؟'))return;
+        try{localStorage.removeItem(IDK);}catch(e){}
+        toast('تم — الجهاز بيطلب الاسم عند الفتح');engineersView();
+      };
+      d.appendChild(b);
+    }
+    return d;
+  }
+
+  /* ---------- التنقل ---------- */
+  function route(){
+    if(!pass||!items){lockView('');return;}
+    var m=location.hash.match(/^#\/e\/([0-3])(?:\/([a-z-]+))?$/);
+    if(!m){engineersView();}
+    else if(m[2]){docsView(+m[1],m[2]);}
+    else{toolsView(+m[1]);}
+    window.scrollTo(0,0);
+  }
+  window.addEventListener('hashchange',route);
+  document.getElementById('lockBtn').onclick=lock;
+  document.getElementById('refreshBtn').onclick=function(){
+    var b=this;b.disabled=true;
+    load(pass).then(function(err){b.disabled=false;if(err){toast(err);if(err==='الرقم السري غلط')lock();}else toast('تم التحديث');});
+  };
+
+  if(pass){
+    clear();view.appendChild(el('p','note','جاري التحميل…'));
+    load(pass).then(function(err){if(err){pass=null;try{sessionStorage.removeItem(SS);}catch(e){}lockView(err==='الرقم السري غلط'?'':err);}});
+  }else{
+    lockView('');
+  }
+})();
+</script>
+</body>
+</html>
