@@ -1,5 +1,5 @@
-/* BIW Field Tools — Service Worker v3.13.1 (Safari-proof, redirect-proof, offline-first) */
-const CACHE_NAME = 'biw-field-tools-v3.13.1';
+/* BIW Field Tools — Service Worker v3.13.2 (Safari-proof, redirect-proof, offline-first) */
+const CACHE_NAME = 'biw-field-tools-v3.13.2';
 /* طابور رفع الأرشيف: نفس الكود المستخدم بالصفحات */
 try { importScripts('./archive-queue.js'); } catch (e) {}
 const ASSETS = [
