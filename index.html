@@ -159,10 +159,10 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
   -webkit-transform:translateY(-46%);transform:translateY(-46%);
   text-align:center;font-size:0}
 @media (min-width:760px){
-  .nav-left{left:22px;right:auto;top:auto;width:auto;
-    bottom:calc(84px + env(safe-area-inset-bottom));
-    -webkit-transform:none;transform:none;padding:0}
-  .nav-left .glass{display:block;width:auto;max-width:none;margin:0}
+  /* آيباد: صف ثاني فوق الصف الأساسي (كان عمود يركب على أول أيقونة بالصف) */
+  .nav-left{left:0;right:0;top:auto;width:auto;
+    bottom:calc(276px + env(safe-area-inset-bottom));
+    -webkit-transform:none;transform:none;padding:0 10px}
 }
 
 /* ============ توقيع المطور ============ */
@@ -201,7 +201,7 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
   .brand-title{font-size:34px}
   nav{right:0;left:0;top:auto;bottom:calc(84px + env(safe-area-inset-bottom));
     -webkit-transform:none;transform:none;padding:0 10px}
-  .glass{display:inline-block;vertical-align:top;width:24%;max-width:190px;margin:0 4px}
+  .glass{display:inline-block;vertical-align:top;width:23.5%;max-width:190px;margin:0 4px}
   .glass-orb{width:126px;height:126px;
     background:rgba(210,230,255,.10);border-color:rgba(220,240,255,.5);
     -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
@@ -214,10 +214,33 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
   .glass-orb{width:64px;height:64px}
   .glass-ico{width:28px;height:28px;margin:-14px 0 0 -14px}
 }
+/* جوال بالعرض: صف واحد لكل الأيقونات (العمودين ما يكفيهم الارتفاع) */
+@media (orientation:landscape) and (max-height:560px){
+  nav,.nav-left{top:auto;bottom:calc(66px + env(safe-area-inset-bottom));width:auto;padding:0;
+    -webkit-transform:none;transform:none}
+  #nav{left:50%;right:0}
+  .nav-left{left:0;right:50%}
+  .glass,.nav-left .glass{display:inline-block;vertical-align:top;width:25%;max-width:none;margin:0}
+  .glass-orb{width:56px;height:56px}
+  .glass-ico{width:26px;height:26px;margin:-13px 0 0 -13px}
+  .glass-en{font-size:9.5px;margin-top:6px}
+  .glass-ar{font-size:9px}
+}
 @media (prefers-reduced-motion:reduce){
   #kb,.sunGlow,.waterShine,.ember,.net .dot,.pj .beam,.pj .crank,.flock,.flock *,.smoke,.dust,.haze,.glint,.beacon{-webkit-animation:none!important;animation:none!important}
   .glass-orb{opacity:1;-webkit-transform:none;transform:none;-webkit-animation:none!important;animation:none!important}
 }
+
+/* ============ ترحيب عند الدخول ============ */
+#welcome{position:fixed;top:0;left:50%;z-index:8;max-width:92vw;margin-top:calc(12px + env(safe-area-inset-top));
+  padding:13px 24px;border-radius:999px;white-space:nowrap;font-size:16.5px;font-weight:800;color:#fff;direction:rtl;
+  background:rgba(14,9,13,.82);border:1px solid rgba(255,196,106,.8);
+  box-shadow:0 10px 34px rgba(0,0,0,.55),0 0 20px rgba(255,196,106,.28);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);pointer-events:none;opacity:0;
+  -webkit-transform:translate(-50%,-150%);transform:translate(-50%,-150%);
+  -webkit-transition:-webkit-transform .55s cubic-bezier(.25,1.2,.4,1),opacity .4s;transition:transform .55s cubic-bezier(.25,1.2,.4,1),opacity .4s}
+#welcome.on{opacity:1;-webkit-transform:translate(-50%,0);transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){#welcome{-webkit-transition:opacity .3s;transition:opacity .3s;-webkit-transform:translate(-50%,0);transform:translate(-50%,0)}}
 
 /* ============ رسالة التحديث الإجباري ============ */
 #updModal{position:fixed;inset:0;z-index:99;display:none;background:rgba(10,5,9,.82);
@@ -343,6 +366,8 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
   <div class="brand-line"></div>
 </header>
 
+<div id="welcome" role="status">ارحب يا وحش منور يا زعيم</div>
+
 <nav id="nav">
   <a class="glass" href="timesheet.html">
     <span class="glass-orb"><svg class="glass-ico" viewBox="0 0 34 34"><circle cx="17" cy="17" r="12.5"/><line x1="17" y1="9" x2="17" y2="17"/><line x1="17" y1="17" x2="23" y2="21"/></svg></span>
@@ -434,6 +459,19 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
   }
   window.addEventListener('resize',fit);window.addEventListener('orientationchange',fit);fit();
 })();
+/* ترحيب عند دخول البرنامج — مرة لكل فتحة للتطبيق */
+(function(){
+  var el=document.getElementById('welcome');if(!el)return;
+  function seen(){try{return sessionStorage.getItem('biw_welcomed')==='1';}catch(e){return false;}}
+  function show(){
+    if(seen())return;
+    try{sessionStorage.setItem('biw_welcomed','1');}catch(e){}
+    setTimeout(function(){el.classList.add('on');},500);
+    setTimeout(function(){el.classList.remove('on');},4500);
+  }
+  var id=null;try{id=localStorage.getItem('biw_identity');}catch(e){}
+  if(id)show();else window.addEventListener('biw-identity',show);
+})();
 /* ظهور الأيقونات المتدرج */
 (function(){
   var orbs=document.querySelectorAll('.glass-orb');
@@ -451,7 +489,7 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
 })();
 /* فحص التحديث: تلقائي عند الفتح + يدوي بزر ⟳ */
 (function(){
-  var CUR='3.13.0';                       /* نسخة هذا الملف */
+  var CUR='3.13.1';                       /* نسخة هذا الملف */
   function toNum(v){var p=String(v).replace(/^v/,'').split('.');return (+p[0]||0)*10000+(+p[1]||0)*100+(+p[2]||0);}
   function doUpdate(btn){
     btn.disabled=true;btn.textContent='... يحدّث';

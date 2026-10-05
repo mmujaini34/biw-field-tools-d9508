@@ -21,17 +21,20 @@
     if (v === GUEST) return GUEST;
     return ENGINEERS.indexOf(v) !== -1 ? v : null;
   }
-  function setIdentity(v) { try { localStorage.setItem(KEY, v); } catch (e) {} }
+  function setIdentity(v) {
+    try { localStorage.setItem(KEY, v); } catch (e) {}
+    try { window.dispatchEvent(new Event('biw-identity')); } catch (e) {}
+  }
   function isEngineer() { var id = identity(); return !!id && id !== GUEST; }
 
   /* أسماء الفورمات مكتوبة بأكثر من شكل — نوحّدها على الأسماء الأربعة */
   function mapName(raw) {
     var s = String(raw || '').toLowerCase().replace(/[^a-z ]/g, ' ').replace(/\s+/g, ' ').trim();
     if (!s) return null;
-    if (s.indexOf('busaidi') !== -1 || s === 'b mohammed') return 'Mohammed Busaidi';
+    if (s.indexOf('busaidi') !== -1 || s === 'b mohammed' || s === 'mohammed b') return 'Mohammed Busaidi';
     if (/\bsaid\b/.test(s)) return 'Said Mujaini';
-    if (s.indexOf('hamed') !== -1) return 'Hamed Sadi';
-    if (s.indexOf('mujaini') !== -1 || s === 'm mohammed') return 'Mohammed Mujaini';
+    if (/\bhamed\b/.test(s)) return 'Hamed Sadi';
+    if (s.indexOf('mujaini') !== -1 || s === 'm mohammed' || s === 'mohammed m') return 'Mohammed Mujaini';
     return null;
   }
 
