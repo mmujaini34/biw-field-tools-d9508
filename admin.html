@@ -38,6 +38,7 @@ main{max-width:760px;margin:0 auto;padding:16px 14px calc(34px + env(safe-area-i
 .lock input{display:block;width:100%;padding:14px 12px;border-radius:13px;border:1px solid rgba(255,255,255,.22);
   background:rgba(255,255,255,.06);color:#fff;font:inherit;font-size:17px;text-align:center;direction:ltr;outline:none}
 .lock input:focus{border-color:#ffc46a;background:rgba(255,196,106,.08)}
+.eye{display:block;margin:6px auto 0;padding:7px 14px;border:0;background:transparent;color:rgba(244,238,230,.62);font-size:12.5px;font-weight:700}
 .go{display:block;width:100%;margin-top:10px;padding:14px 12px;border-radius:13px;border:1px solid #ffc46a;
   background:#ffc46a;color:#1a1208;font-size:16px;font-weight:800}
 .go[disabled]{opacity:.55}
@@ -134,7 +135,7 @@ main{max-width:760px;margin:0 auto;padding:16px 14px calc(34px + env(safe-area-i
     {k:'checklist',en:'CHECKLIST',ar:'تشك لست'},
     {k:'delivery-note',en:'DELIVERY',ar:'سند التسليم'}
   ];
-  var ENGINEERS=['Mohammed Mujaini','Said Mujaini','Hamed Sadi','Mohammed Busaidi'];
+  var ENGINEERS=['Mohammed Mujaini','Said Mujaini','Hamed Sadi','Mohammed Busaidi','Omar Al Husaini'];
   var view=document.getElementById('view');
   var pass=null, items=null;
   try{pass=sessionStorage.getItem(SS)||null;}catch(e){}
@@ -170,7 +171,10 @@ main{max-width:760px;margin:0 auto;padding:16px 14px calc(34px + env(safe-area-i
     inp.spellcheck=false;inp.placeholder='الرقم السري';inp.setAttribute('aria-label','الرقم السري');
     var go=el('button','go','دخول');go.type='submit';
     var m=el('div','msg',msg||'');
-    f.appendChild(inp);f.appendChild(go);w.appendChild(f);w.appendChild(m);
+    /* زر إظهار: على الجوال الكيبورد يغيّر الحرف الأول أو الأرقام بدون ما تنتبه */
+    var eye=el('button','eye','إظهار الرقم');eye.type='button';
+    eye.onclick=function(){var hid=inp.type==='password';inp.type=hid?'text':'password';eye.textContent=hid?'إخفاء الرقم':'إظهار الرقم';};
+    f.appendChild(inp);f.appendChild(eye);f.appendChild(go);w.appendChild(f);w.appendChild(m);
     f.addEventListener('submit',function(e){
       e.preventDefault();
       var p=inp.value;
@@ -338,7 +342,7 @@ main{max-width:760px;margin:0 auto;padding:16px 14px calc(34px + env(safe-area-i
   /* ---------- التنقل ---------- */
   function route(){
     if(!pass||!items){lockView('');return;}
-    var m=location.hash.match(/^#\/e\/([0-3])(?:\/([a-z-]+))?$/);
+    var m=location.hash.match(/^#\/e\/([0-4])(?:\/([a-z-]+))?$/);
     if(!m){engineersView();}
     else if(m[2]){docsView(+m[1],m[2]);}
     else{toolsView(+m[1]);}

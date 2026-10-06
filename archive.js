@@ -6,7 +6,7 @@
   'use strict';
   if (window.BIWArchive) return;
 
-  var ENGINEERS = ['Mohammed Mujaini', 'Said Mujaini', 'Hamed Sadi', 'Mohammed Busaidi'];
+  var ENGINEERS = ['Mohammed Mujaini', 'Said Mujaini', 'Hamed Sadi', 'Mohammed Busaidi', 'Omar Al Husaini'];
   var KEY = 'biw_identity';
   var GUEST = 'guest';
   var TOOLS = { 'timesheet': 1, 'empty-timesheet': 1, 'month-timesheet': 1, 'report': 1, 'checklist': 1, 'delivery-note': 1, 'expenses': 1 };
@@ -27,11 +27,12 @@
   }
   function isEngineer() { var id = identity(); return !!id && id !== GUEST; }
 
-  /* أسماء الفورمات مكتوبة بأكثر من شكل — نوحّدها على الأسماء الأربعة */
+  /* أسماء الفورمات مكتوبة بأكثر من شكل — نوحّدها على أسماء المهندسين المعتمدة */
   function mapName(raw) {
     var s = String(raw || '').toLowerCase().replace(/[^a-z ]/g, ' ').replace(/\s+/g, ' ').trim();
     if (!s) return null;
     if (s.indexOf('busaidi') !== -1 || s === 'b mohammed' || s === 'mohammed b') return 'Mohammed Busaidi';
+    if (s.indexOf('husaini') !== -1 || /\bomar\b/.test(s)) return 'Omar Al Husaini';
     if (/\bsaid\b/.test(s)) return 'Said Mujaini';
     if (/\bhamed\b/.test(s)) return 'Hamed Sadi';
     if (s.indexOf('mujaini') !== -1 || s === 'm mohammed' || s === 'mohammed m') return 'Mohammed Mujaini';
