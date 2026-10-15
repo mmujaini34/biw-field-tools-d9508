@@ -89,6 +89,15 @@ select.inp option{color:#000;background:#fff}
 .del{flex:0 0 26px;height:26px;border:none;background:transparent;color:rgba(255,255,255,.4);
   font-size:18px;cursor:pointer;border-radius:7px;line-height:1}
 .del:active{color:#ff9d94}
+/* v3.13.5: invoice review on phones — Date/OMR on one line, Description/Receipt under them, nothing squeezed */
+input[type=date]{min-width:0;max-width:100%}
+@media(max-width:600px){
+  .lhead,.lrow{flex-wrap:wrap;row-gap:4px}
+  .c-date,.c-amt{flex:1 1 calc(50% - 22px);min-width:0}
+  .c-desc{flex:1 1 calc(62% - 6px);min-width:0}
+  .c-rec{flex:1 1 calc(38% - 6px);min-width:0}
+  .c-date{order:1}.c-amt{order:2}.del,.lhead>span:last-child{order:3}.c-desc{order:4}.c-rec{order:5}
+}
 .trow{display:flex;align-items:center;margin-top:10px;padding-top:10px;border-top:2px solid rgba(255,196,106,.5)}
 .stamp{margin-inline-start:auto;font-weight:800;font-size:16.5px;color:#ffc46a;border:2px solid #ffc46a;
   border-radius:9px;padding:4px 13px;direction:ltr;font-variant-numeric:tabular-nums;transform:rotate(-1.5deg)}
