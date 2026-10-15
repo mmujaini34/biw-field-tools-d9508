@@ -208,6 +208,9 @@ window.addEventListener('error',function(ev){
   -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .biw-topbar a:active,.biw-topbar button:active{background:rgba(232,163,61,.35)}
 @media print{.biw-topbar{display:none!important}}
+
+/* v3.13.4: date boxes never grow past their column on phones/tablets */
+input[type=date]{min-width:0;max-width:100%}
 </style>
 <div class="biw-topbar">
   <a href="index.html">&#8962; HOME</a>

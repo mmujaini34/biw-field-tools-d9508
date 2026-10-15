@@ -473,6 +473,9 @@ body.generating-pdf .app-back-bar{display:none !important}
   background:rgba(185,28,28,.92);color:#fff;font-weight:900;font-size:15px;line-height:1;cursor:pointer;padding:0}
 .dn-photo-count{margin-top:8px;font-size:12px;font-weight:900;color:#0f766e}
 .dn-photo-count.bad{color:#991b1b}
+
+/* v3.13.4: date boxes never grow past their column on phones/tablets */
+input[type=date]{min-width:0;max-width:100%}
 </style>
 </head><body>
 <script>
@@ -601,7 +604,7 @@ window.addEventListener('error',function(ev){
 <script>
 /* ================= DELIVERY NOTE — logic ================= */
 const ENGINEERS=["Mohammed Mujaini","Said Mujaini","Hamed Sadi","Mohammed Busaidi","Omar Al Husaini"];
-const ENGINEER_SIGNATURES={"Mohammed Mujaini":"assets/timesheet-image-3.webp","Said Mujaini":"assets/timesheet-image-4.webp","Hamed Sadi":"assets/timesheet-image-5.webp","Mohammed Busaidi":"assets/timesheet-image-6.webp"};
+const ENGINEER_SIGNATURES={"Mohammed Mujaini":"assets/timesheet-image-3.webp","Said Mujaini":"assets/timesheet-image-4.webp","Hamed Sadi":"assets/timesheet-image-5.webp","Mohammed Busaidi":"assets/timesheet-image-6.webp","Omar Al Husaini":"assets/timesheet-image-7.webp"};
 const STORE_KEY="biw-delivery-note-v1";
 const MAX_PHOTOS=4;
 

@@ -134,6 +134,19 @@ tr.total td{background:#92D050;font-weight:800}
   #sheetStage{display:block!important}
   .sheet{margin:0!important;padding:0!important;max-width:100%!important;border-radius:0}
   @page{size:A4;margin:12mm} }
+
+/* v3.13.4: date boxes never grow past their column on phones/tablets */
+input[type=date]{min-width:0;max-width:100%}
+/* v3.13.4: ticket review on phones — Field/Well on one line, From/To under them, nothing squeezed or pushed out */
+@media(max-width:600px){
+  .thead,.trowx{flex-wrap:wrap;row-gap:4px}
+  .c-field,.c-well,.c-d{flex:1 1 calc(50% - 22px);min-width:0}
+  .c-field{order:1}.c-well{order:2}.del,.thead>span:last-child{order:3}.c-d{order:4}
+  .wbar .wrange{flex-wrap:wrap}
+  .wbar .wrange>span:not(.wsum){flex:0 0 64px}
+  .wbar .wrange input{flex:1 1 calc(100% - 76px);min-width:0}
+  .wbar .wrange .wsum{flex:1 1 100%}
+}
 </style>
 </head>
 <body>
