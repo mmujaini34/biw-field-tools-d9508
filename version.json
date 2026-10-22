@@ -1,9 +1,8 @@
 {
-  "version": "3.13.6",
+  "version": "3.13.7",
   "notes": [
-    "الصفحة الرئيسية على الجوال: زر UPDATE ما عاد يغطي العنوان، والأيقونات ما تركب على التوقيع في الجوالات الصغيرة",
-    "Expenses: مراجعة الفواتير مرتبة على الجوال — ما في خانة تنضغط أو تختفي",
-    "توقيع Omar Al Husaini يطلع في Time Sheet و Empty TS و Delivery Note و Report",
-    "Report و Month TS: الخانات مرتبة وما تتداخل"
+    "Report PDF: كلمة Hoist / Rig صارت بنفس خط وحجم Date و Well و Job End",
+    "Report PDF: قيم الكيبل (المقاس، CELF، Flat، الطول، New) صارت في نص المربعات وبنفس خط 33.5 و V / A",
+    "Report PDF: الخط تحت Hoist رجع كامل وما فيه قطع"
   ]
 }
