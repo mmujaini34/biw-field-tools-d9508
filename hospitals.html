@@ -60,11 +60,13 @@
   .chip:hover { border-color: var(--ink); }
   .chip.em { border-color: #E9B4BD; color: var(--red); }
 
-  .controls { display: grid; grid-template-columns: 1.4fr 1fr; gap: 10px; margin-top: 12px; }
-  .field { display: flex; flex-direction: column; gap: 4px; }
+  .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .controls .field:last-child { grid-column: 1 / -1; }
+  @media (min-width: 560px) { .controls { grid-template-columns: 1fr 1.2fr 0.9fr; } .controls .field:last-child { grid-column: auto; } }
+  .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
   .field label { font-size: 13.5px; color: var(--muted); }
   .field select {
-    font: inherit; font-size: 16px; color: var(--ink); height: 46px; padding: 0 12px;
+    width: 100%; min-width: 0; font: inherit; font-size: 16px; color: var(--ink); height: 46px; padding: 0 12px;
     border: 1.5px solid var(--line); border-radius: 10px; background: #fff;
   }
   .field select:focus { outline: 3px solid var(--green); outline-offset: 1px; }
@@ -183,6 +185,20 @@ window.addEventListener('error',function(ev){
   <div class="chips" id="chips" aria-label="بحث سريع"></div>
 
   <div class="controls">
+    <div class="field">
+      <label for="kind">وش تدور عليه؟</label>
+      <select id="kind">
+        <option value="">كل الأماكن</option>
+        <option value="H">مستشفى</option>
+        <option value="C">مجمع / عيادة</option>
+        <option value="P">صيدلية</option>
+        <option value="D">أسنان</option>
+        <option value="E">عيون</option>
+        <option value="O">نظارات</option>
+        <option value="IL">أشعة / مختبر</option>
+        <option value="AM">طب بديل</option>
+      </select>
+    </div>
     <div class="field">
       <label for="area">أنا في</label>
       <select id="area"></select>
@@ -587,23 +603,24 @@ var CORE = (function () {
   }
 
   // band: -1 all, 0 A+, 1 A, 2 B
-  function search(q, origin, band, wide) {
+  function search(q, origin, band, wide, typeSel) {
     var pr = parse(q);
     var ref = pr.area ? { lat: pr.area.lat, lng: pr.area.lng, label: pr.area.ar } : origin;
     var pool = P.filter(function (p) { return band < 0 || p.b[band] === 1; });
     var cand = pool, scope = 'all';
-    if (pr.syms.length) {
+    var tsel = (typeSel && typeSel.length) ? typeSel : null;
+    if (tsel) {                                   // the type picked in the menu wins over types guessed from the text
+      cand = pool.filter(function (p) { return tsel.indexOf(p.t) >= 0; });
+      scope = 'pick';
+    } else if (pr.syms.length) {
       cand = pool.filter(function (p) { return pr.syms.some(function (s) { return symAccepts(s, p, wide); }); });
       scope = 'sym';
     } else if (pr.types.length) {
       cand = pool.filter(function (p) { return pr.types.indexOf(p.t) >= 0; });
       scope = 'type';
-    } else if (!pr.nameToks.length && pr.area) {
-      cand = pool.filter(function (p) { return p.t === 'H' || p.t === 'C'; });
-      scope = 'area';
     } else if (!pr.nameToks.length) {
-      cand = pool.filter(function (p) { return p.t === 'H'; });
-      scope = 'default';
+      cand = pool;                                // nothing specific asked: nearest place of any type
+      scope = pr.area ? 'area' : 'default';
     }
     var nameMiss = false, results, black = [], fuzzy = false;
     var dist = function (p) { return hav(ref, p.area); };
@@ -624,11 +641,11 @@ var CORE = (function () {
       if (hits.length) {
         fuzzy = hits[0].h < pr.nameToks.length - 0.01;
         results = hits.map(function (h) { return { p: h.p, d: dist(h.p) }; });
-      } else if (scope === 'sym') {
+      } else if (scope === 'sym' || (scope === 'pick' && pr.syms.length)) {
         results = cand.map(function (p) { return { p: p, d: dist(p) }; }); // extra words ignored
       } else {
         nameMiss = true;
-        results = (scope === 'all' ? [] : cand).map(function (p) { return { p: p, d: dist(p) }; });
+        results = (scope === 'all' || scope === 'pick' ? [] : cand).map(function (p) { return { p: p, d: dist(p) }; });
       }
     } else {
       results = cand.map(function (p) { return { p: p, d: dist(p) }; });
@@ -639,7 +656,7 @@ var CORE = (function () {
     });
     return { parsed: pr, ref: ref, results: results, nameMiss: nameMiss, scope: scope,
       emerg: pr.syms.some(function (s) { return s.emerg; }),
-      canWiden: pr.syms.some(function (s) { return !!s.wide; }), black: black, fuzzy: fuzzy };
+      canWiden: !tsel && pr.syms.some(function (s) { return !!s.wide; }), black: black, fuzzy: fuzzy };
   }
 
   return { init: init, search: search, parse: parse, norm: norm, hav: hav, TYPE_AR: TYPE_AR, TYPE_PL: TYPE_PL, SYMPTOMS: SYMPTOMS };
@@ -655,6 +672,10 @@ if (typeof module !== 'undefined') module.exports = CORE;
   DATA.areas.forEach(function (a) { AREA[a.ar] = a; });
 
   var $ = function (id) { return document.getElementById(id); };
+  var kindEl = $('kind');
+  var KIND = { H: ['H'], C: ['C'], P: ['P'], D: ['D'], E: ['E'], O: ['O'], IL: ['I', 'L'], AM: ['A', 'M'] };
+  var KIND_PL = { '': 'الأماكن', H: 'المستشفيات', C: 'المجمعات والعيادات', P: 'الصيدليات', D: 'عيادات الأسنان', E: 'مراكز العيون',
+    O: 'محلات النظارات', IL: 'مراكز الأشعة والمختبرات', AM: 'مراكز الطب البديل' };
   var qEl = $('q'), areaEl = $('area'), bandEl = $('band'), resEl = $('results'), countEl = $('count'),
       noteEl = $('note'), emergEl = $('emerg'), moreEl = $('more'), clearEl = $('clear'), gpsEl = $('gps');
 
@@ -801,7 +822,8 @@ if (typeof module !== 'undefined') module.exports = CORE;
     var q = qEl.value;
     clearEl.hidden = !q;
     var band = parseInt(bandEl.value, 10);
-    var res = CORE.search(q, origin(), band, wide);
+    var kind = kindEl.value;
+    var res = CORE.search(q, origin(), band, wide, KIND[kind] || null);
     current = res.results; shown = 0;
     emergEl.hidden = !res.emerg;
 
@@ -810,7 +832,7 @@ if (typeof module !== 'undefined') module.exports = CORE;
     if (pr.area) notes.push('الترتيب من الأقرب إلى ' + esc(pr.area.ar) + '.');
     if (res.black && res.black.length) notes.push('<span class="black">تنبيه: ' + esc(res.black.join('، ')) + ' في قائمة Liva السوداء، يعني ما يقبلون تأمينك.</span>');
     if (res.fuzzy) notes.push('<span class="miss">ما لقينا «' + esc(pr.nameToks.join(' ')) + '» بالضبط في الشبكة. هذي أقرب أسماء تشبهه.</span>');
-    if (res.nameMiss) notes.push('<span class="miss">ما لقينا اسم يشبه «' + esc(pr.nameToks.join(' ')) + '». جرّب تكتبه بالإنجليزي أو بجزء من الاسم.</span>');
+    if (res.nameMiss) notes.push('<span class="miss">ما لقينا اسم يشبه «' + esc(pr.nameToks.join(' ')) + '»' + (kind ? ' ضمن ' + KIND_PL[kind] : '') + '. جرّب تكتبه بالإنجليزي أو بجزء من الاسم' + (kind ? '، أو اختار «كل الأماكن»' : '') + '.</span>');
     var widenBtn = '';
     if (res.canWiden) {
       widenBtn = wide
@@ -825,11 +847,10 @@ if (typeof module !== 'undefined') module.exports = CORE;
     var refLabel = res.ref.label;
     if (!current.length) {
       countEl.textContent = '';
-      resEl.innerHTML = res.nameMiss ? '' : '<li class="empty">ما في نتائج بهذي الفئة. جرّب «كل الفئات».</li>';
+      resEl.innerHTML = res.nameMiss ? '' : '<li class="empty">ما في نتائج بهذا الاختيار. جرّب «كل الأماكن» أو «كل الفئات».</li>';
     } else {
-      countEl.textContent = (res.scope === 'default' && !q.trim())
-        ? 'أقرب المستشفيات إلى ' + refLabel
-        : res.scope === 'area' ? 'أقرب المستشفيات والعيادات إلى ' + refLabel + ' (' + current.length + ')'
+      countEl.textContent = (!q.trim() || res.scope === 'area' || (res.scope === 'pick' && !pr.nameToks.length && !pr.syms.length))
+        ? 'أقرب ' + KIND_PL[kind] + ' إلى ' + refLabel + ' (' + current.length + ')'
         : current.length + ' نتيجة، من الأقرب إلى ' + refLabel;
       resEl.innerHTML = '';
       more();
@@ -863,6 +884,7 @@ if (typeof module !== 'undefined') module.exports = CORE;
   $('form').addEventListener('submit', function (e) { e.preventDefault(); clearTimeout(t); run(); qEl.blur(); });
   clearEl.addEventListener('click', function () { qEl.value = ''; wide = false; run(); qEl.focus(); });
   areaEl.addEventListener('change', function () { if (areaEl.value !== '__gps') store.set('biw_hosp_area', areaEl.value); run(); });
+  kindEl.addEventListener('change', function () { wide = false; run(); });
   bandEl.addEventListener('change', function () { store.set('biw_hosp_band', bandEl.value); run(); });
 
   run();
