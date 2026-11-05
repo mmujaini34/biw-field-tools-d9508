@@ -712,7 +712,7 @@ async function generateAndSharePdf(){
     function sT(t){
       chk(10);doc.setFillColor(11,59,140);doc.roundedRect(mL,y,uW,9,2,2,'F');
       doc.setTextColor(255,255,255);doc.setFontSize(10);doc.setFont('helvetica','bold');
-      doc.text(t,mL+3,y+6.2);y+=11;doc.setTextColor(0,0,0);
+      doc.text(t,mL+uW/2,y+5.77,{align:'center'});y+=11; /* v3.16.1: العنوان في نص الشريط */doc.setTextColor(0,0,0);
     }
     function rw(label,value,shade){
       var lW=uW*0.55,vW=uW*0.45,lX=mL,vX=mL+lW;
@@ -726,7 +726,10 @@ async function generateAndSharePdf(){
       if(shade){doc.setFillColor(245,248,252);doc.rect(mL,y,uW,cH,'F');}
       doc.setDrawColor(210,220,235);doc.setLineWidth(0.2);
       doc.line(mL,y+cH,mL+uW,y+cH);doc.line(vX,y,vX,y+cH);
-      doc.setFont('helvetica','bold');doc.setFontSize(8.2);doc.setTextColor(11,59,140);doc.text(lL,lX+2,y+lh);
+      doc.setFont('helvetica','bold');doc.setFontSize(8.2);doc.setTextColor(11,59,140);
+      /* v3.16.1: كل نص في نص خانته (أفقي وعمودي) */
+      function midY(n){var l=doc.getFontSize()*doc.getLineHeightFactor()/doc.internal.scaleFactor, cap=doc.getFontSize()/doc.internal.scaleFactor*0.718; return y+cH/2-(n-1)*l/2+cap/2;}
+      doc.text(lL,lX+lW/2,midY(lL.length),{align:'center'});
       doc.setFont('helvetica','normal');doc.setFontSize(8.5);
       var vLow=rawValue.toLowerCase();
       if(vLow==='verified'||vLow==='contacted'||vLow==='notified'||vLow==='available'||vLow==='inspected'||vLow==='yes'){doc.setTextColor(22,101,52);}
@@ -735,7 +738,7 @@ async function generateAndSharePdf(){
       if(isPackerFraction){
         // jsPDF built-in Helvetica does not render the single ⅝ glyph correctly.
         // Draw it manually so the PDF visually shows: 9⅝\"
-        var tx=vX+2, ty=y+lh;
+        var fw=doc.getTextWidth('9')+0.7+6.2+doc.getTextWidth('\"'), tx=vX+vW/2-fw/2, ty=midY(1);
         doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.text('9',tx,ty);
         var nx=tx+doc.getTextWidth('9')+0.7;
         doc.setFontSize(5.6);doc.text('5',nx,ty-1.9);
@@ -743,7 +746,7 @@ async function generateAndSharePdf(){
         doc.setFontSize(5.6);doc.text('8',nx+4.0,ty+1.1);
         doc.setFontSize(8.5);doc.text('\"',nx+6.2,ty);
       }else{
-        doc.text(vL,vX+2,y+lh);
+        doc.text(vL,vX+vW/2,midY(vL.length),{align:'center'});
       }
       doc.setTextColor(0,0,0);y+=cH;
     }
@@ -772,11 +775,11 @@ async function generateAndSharePdf(){
     doc.setFillColor(248,250,252);doc.roundedRect(mL,y,uW,14,2,2,'F');
     doc.setDrawColor(gR,gG,gB);doc.setLineWidth(0.5);doc.roundedRect(mL,y,uW,14,2,2,'S');
     doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(11,59,140);
-    doc.text('PDF Created: '+fmtDT(pAt),mL+3,y+5.5);
     var selDate=tv('jobDate');
+    doc.text('PDF Created: '+fmtDT(pAt),mL+uW/2,selDate?y+5.5:y+8.14,{align:'center'}); /* v3.16.1: في نص المربع */
     if(selDate){
       doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(80,90,110);
-      doc.text('Job Date: '+fmtDate(selDate),mL+3,y+10.5);
+      doc.text('Job Date: '+fmtDate(selDate),mL+uW/2,y+10.5,{align:'center'});
     }
     // ── SMALL COMPLETED STAMP: inside the yellow timestamp box, right side ──
     if(isComplete){
@@ -851,7 +854,7 @@ async function generateAndSharePdf(){
     if(sigData){
       chk(38);
       sT('Engineer Signature');
-      try{doc.addImage(sigData,'PNG',mL+2,y,70,28);}catch(e){}
+      try{doc.addImage(sigData,'PNG',mL+(uW-70)/2,y,70,28);}catch(e){} /* v3.16.1: التوقيع في النص */
       y+=32;
     }
 

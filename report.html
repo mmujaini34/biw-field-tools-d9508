@@ -289,6 +289,15 @@ body.ir-dark .reset-btn{background:#2b0b0b;color:#fecaca;border-color:rgba(248,1
 #reportPage .out.tpl{font-family:"BIW Tpl",Arial,sans-serif !important;font-size:23.6px !important;font-weight:400 !important;color:#10243e !important;line-height:1 !important;display:flex;align-items:center;justify-content:center;background:transparent;padding:0}
 #reportPage .out.tpl.tpl-label{font-weight:700 !important;justify-content:flex-start;padding-left:11px}
 /* ===== end v3.13.7 ===== */
+/* ===== v3.16.1 PDF: every value sits in the middle of its own template cell, one ink for all (template navy, Noto Sans) ===== */
+#reportPage .out.tpl:not(.tpl-label){justify-content:center;text-align:center;padding:0 4px;box-sizing:border-box}
+#reportPage #outTransportation{white-space:pre}
+#reportPage .dynamic-table td{font-family:"BIW Tpl",Arial,sans-serif !important;color:#10243e !important;text-align:center !important;vertical-align:middle !important}
+#reportPage .remarks-text{font-family:"BIW Tpl",Arial,sans-serif !important;color:#10243e !important;display:flex;flex-direction:column;justify-content:center;text-align:center}
+#reportPage .sig-wrap{align-items:center !important;justify-content:flex-start !important}
+#reportPage #outFieldEngineerName{display:flex;align-items:center;justify-content:center;text-align:center;width:100%;height:33px;flex:0 0 33px;font-family:"BIW Tpl",Arial,sans-serif !important;font-size:23.6px;font-weight:400 !important;color:#10243e !important;white-space:nowrap;overflow:hidden;line-height:1}
+#reportPage #outFieldEngineerSigs{justify-content:center;width:100%}
+/* ===== end v3.16.1 ===== */
 </style>
 </head>
 <body><script>
@@ -438,17 +447,17 @@ window.addEventListener('error',function(ev){
       <div class="cover" style="left:55px;top:1429px;width:1303px;height:34px;border:1.5px solid #111"></div>
 
       <!-- Basic information -->
-      <div id="outCustomer" class="out" style="left:199px;top:268px;width:287px;height:24px"></div>
-      <div id="outCountry" class="out" style="left:605px;top:268px;width:331px;height:24px"></div>
-      <div id="outReportDate" class="out" style="left:1015px;top:268px;width:333px;height:24px"></div>
-      <div id="outCompanyMan" class="out" style="left:253px;top:302px;width:233px;height:24px"></div>
-      <div id="outEspSupervisorTop" class="out" style="left:683px;top:302px;width:253px;height:24px"></div>
+      <div id="outCustomer" class="out tpl" style="left:198px;top:256px;width:277px;height:33px"></div>
+      <div id="outCountry" class="out tpl" style="left:604px;top:256px;width:320px;height:33px"></div>
+      <div id="outReportDate" class="out tpl" style="left:1014px;top:256px;width:337px;height:33px"></div>
+      <div id="outCompanyMan" class="out tpl" style="left:253px;top:290px;width:222px;height:32px"></div>
+      <div id="outEspSupervisorTop" class="out tpl" style="left:682px;top:290px;width:242px;height:32px"></div>
       <div id="outHoistLabel" class="out tpl tpl-label" style="left:933px;top:290px;width:86px;height:32px">Hoist:</div>
-      <div id="outHoistRig" class="out" style="left:1021px;top:302px;width:139px;height:24px"></div>
-      <div id="outWell" class="out" style="left:1233px;top:302px;width:115px;height:24px"></div>
-      <div id="outArrive" class="out" style="left:265px;top:335px;width:218px;height:24px"></div>
-      <div id="outJobStart" class="out" style="left:612px;top:335px;width:320px;height:24px"></div>
-      <div id="outJobEnd" class="out" style="left:1047px;top:335px;width:301px;height:24px"></div>
+      <div id="outHoistRig" class="out tpl" style="left:1020px;top:290px;width:127px;height:32px"></div>
+      <div id="outWell" class="out tpl" style="left:1233px;top:290px;width:118px;height:32px"></div>
+      <div id="outArrive" class="out tpl" style="left:264px;top:323px;width:211px;height:33px"></div>
+      <div id="outJobStart" class="out tpl" style="left:611px;top:323px;width:313px;height:33px"></div>
+      <div id="outJobEnd" class="out tpl" style="left:1046px;top:323px;width:305px;height:33px"></div>
 
       <!-- Dynamic BIW part table body -->
       <div class="cover" style="left:56px;top:405px;width:1303px;height:134px"></div>
@@ -469,25 +478,25 @@ window.addEventListener('error',function(ev){
       <div id="electricalOutputs"></div>
 
       <!-- Bonnet Pressure Test fixed values -->
-      <div id="outPressure" class="out" style="left:650px;top:1037px;width:100px;height:24px">3000</div>
-      <div id="outPressureTime" class="out" style="left:1180px;top:1037px;width:110px;height:24px">30 min</div>
+      <div id="outPressure" class="out tpl" style="left:551px;top:1025px;width:270px;height:32px">3000</div>
+      <div id="outPressureTime" class="out tpl" style="left:1032px;top:1025px;width:319px;height:32px">30 min</div>
 
       <!-- Well / ESP -->
-      <div id="outCasing" class="out center" style="left:320px;top:1178px;width:150px;height:28px"></div>
-      <div id="outTubing" class="out center" style="left:474px;top:1178px;width:115px;height:28px"></div>
-      <div id="outPackerMan" class="out center" style="left:728px;top:1178px;width:200px;height:28px"></div>
-      <div id="outPackerDepth" class="out center" style="left:934px;top:1178px;width:140px;height:28px"></div>
-      <div id="outWellDepth" class="out center" style="left:1248px;top:1178px;width:108px;height:28px"></div>
-      <div id="outEspManufacturer" class="out center" style="left:58px;top:1288px;width:256px;height:28px"></div>
+      <div id="outCasing" class="out center tpl" style="left:321px;top:1167px;width:148px;height:33px"></div>
+      <div id="outTubing" class="out center tpl" style="left:474px;top:1167px;width:113px;height:33px"></div>
+      <div id="outPackerMan" class="out center tpl" style="left:727px;top:1167px;width:201px;height:33px"></div>
+      <div id="outPackerDepth" class="out center tpl" style="left:934px;top:1167px;width:141px;height:33px"></div>
+      <div id="outWellDepth" class="out center tpl" style="left:1249px;top:1167px;width:106px;height:33px"></div>
+      <div id="outEspManufacturer" class="out center tpl" style="left:59px;top:1278px;width:256px;height:32px"></div>
 
       <!-- Transportation changed line -->
-      <div id="outTransportation" class="out" style="left:70px;top:1439px;width:1230px;height:26px">Transportation: BIW Engineer        Customer:</div>
+      <div id="outTransportation" class="out tpl" style="left:60px;top:1431px;width:1294px;height:31px">Transportation: BIW Engineer        Customer:</div>
 
       <!-- Remarks and signatures -->
-      <div id="outRemarks" class="remarks-text" style="left:78px;top:1514px;width:1245px;height:150px;font-size:22px"></div>
-      <div id="outFieldEngineer" class="sig-wrap" style="left:275px;top:1679px;width:360px;height:100px"><span id="outFieldEngineerName"></span><img id="outFieldEngineerSign" alt="" style="display:none"></div>
-      <div id="outEspSupervisorBottom" class="out" style="left:820px;top:1685px;width:300px;height:24px"></div>
-      <div id="outEspSupervisorSig" class="sig-wrap" style="left:820px;top:1709px;width:300px;height:70px"><img id="outEspSupervisorSign" alt="" style="display:none"></div>
+      <div id="outRemarks" class="remarks-text" style="left:66px;top:1494px;width:1282px;height:175px;font-size:22px"></div>
+      <div id="outFieldEngineer" class="sig-wrap" style="left:245px;top:1676px;width:366px;height:104px"><span id="outFieldEngineerName"></span><img id="outFieldEngineerSign" alt="" style="display:none"></div>
+      <div id="outEspSupervisorBottom" class="out tpl" style="left:813px;top:1676px;width:538px;height:33px"></div>
+      <div id="outEspSupervisorSig" class="sig-wrap" style="left:813px;top:1709px;width:538px;height:71px"><img id="outEspSupervisorSign" alt="" style="display:none"></div>
     </div>
   </div>
 </div>
@@ -500,7 +509,7 @@ const ENGINEER_SIGNATURES = {"Mohammed Mujaini": "data:image/png;base64,iVBORw0K
 const ELECTRICAL_ROWS = [
   'Before Packer','After Packer ins','Before Hanger Inst','After Hanger Inst','On landing leads','After landing the hangar','Before Bonnet Ins','After Bonnet Ins'
 ];
-const ELECTRICAL_Y = [740,774,808,842,875,909,943,976];
+const ELECTRICAL_Y = [729,762,796,830,863,897,930,964]; const ELECTRICAL_H = [32,33,32,32,33,32,33,32]; /* v3.16.1: خلايا القالب بالضبط */
 let partRows = [];
 let elecRows = ELECTRICAL_ROWS.map(name => ({name, time:'', phph:'', phg:''}));
 function $(id){return document.getElementById(id)}
@@ -619,13 +628,13 @@ function renderElectricalOutputs(){
   elecRows.forEach((r,i)=>{
     const t=normalizeTime(r.time); const y=ELECTRICAL_Y[i];
     const vals=[ t?'2000':'', t, t?toEnglishDigits(r.phph).trim():'', t?phgFormat(r.phg):'' ]; /* v3.16: مرحلة بدون وقت مكتوب = ما تطلع في التقرير */
-    const coords=[{x:382,w:215},{x:602,w:214},{x:820,w:298},{x:1122,w:232}];
-    vals.forEach((val,j)=>{const d=document.createElement('div'); d.className='out center'; d.style.left=coords[j].x+'px'; d.style.top=y+'px'; d.style.width=coords[j].w+'px'; d.style.height='26px'; d.textContent=val; root.appendChild(d);});
+    const coords=[{x:383,w:216},{x:601,w:216},{x:820,w:299},{x:1121,w:236}];
+    vals.forEach((val,j)=>{const d=document.createElement('div'); d.className='out center tpl'; d.style.left=coords[j].x+'px'; d.style.top=y+'px'; d.style.width=coords[j].w+'px'; d.style.height=ELECTRICAL_H[i]+'px'; d.textContent=val; root.appendChild(d);});
   });
 }
 function renderPartsTable(){
   const rows = partRows.map(r=>{const item=CATALOG[Number(r.catalogIndex)]; if(!item) return null; let qty=toEnglishDigits(r.qty).trim(); let part=item.part + (qty && qty!=='1' ? ' ('+qty+')' : ''); return {part, serial:item.serialRequired===false?'N/A':normalizeSerial(r.serial), mfg:formatDate(r.mfg), install:formatDate(r.install), pull:formatDate(r.pull), reused:normalizeYesNo(r.reused)};}).filter(Boolean);
-  const table=$('outPartsTable'); const n=Math.max(rows.length,1); const font = rows.length<=4?20:rows.length<=7?16:rows.length<=10?13:11;
+  const table=$('outPartsTable'); const n=Math.max(rows.length,1); const font = rows.length<=4?22:rows.length<=7?16:rows.length<=10?13:11;
   table.innerHTML = (rows.length?rows:[{part:'',serial:'',mfg:'',install:'',pull:'',reused:''}]).map(r=>`<tr><td>${esc(r.part)}</td><td>${esc(r.serial)}</td><td>${esc(r.mfg)}</td><td>${esc(r.install)}</td><td>${esc(r.pull)}</td><td>${esc(r.reused)}</td></tr>`).join('');
   [...table.querySelectorAll('td')].forEach(td=>td.style.fontSize=font+'px');
   [...table.querySelectorAll('tr')].forEach(tr=>tr.style.height=(134/n)+'px');
@@ -709,6 +718,7 @@ function updateReport(){
       }
     }
   }
+  if(window.biwFitOut) window.biwFitOut();
   updateCompletionBar();
 }
 async function createPdfBlob(){
@@ -722,6 +732,7 @@ async function createPdfBlob(){
     await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
     fitRemarks(); /* الآن القالب ظاهر والقياسات حقيقية — التصغير يشتغل فعليًا */
     try{await document.fonts.load('400 23.6px "BIW Tpl"');await document.fonts.load('700 23.6px "BIW Tpl"');}catch(e){} /* v3.13.7: template font ready before capture */
+    if(window.biwFitOut) window.biwFitOut(); /* v3.16.1: يصغّر أي قيمة ما تدخل خليتها، بعد ما الخط جاهز */
     const canvas=await html2canvas(page,{scale:1,useCORS:true,backgroundColor:'#ffffff',logging:false,width:1414,height:2000,windowWidth:1414,windowHeight:2000,scrollX:0,scrollY:0});
     const img=canvas.toDataURL('image/png');
     const {jsPDF}=window.jspdf;
@@ -1195,6 +1206,37 @@ document.addEventListener('DOMContentLoaded',()=>{
       }
     }catch(e){ if(e && /وقفنا/.test(e.message)) throw e; }   /* أي خلل بالفحص نفسه ما يوقف الـ PDF */
     return orig.apply(this, arguments);
+  };
+})();
+</script>
+<script>
+/* v3.16.1: يصغّر الخط لين القيمة تدخل خليتها (يقيس بالخط نفسه، يشتغل حتى لو التقرير مخفي) */
+(function(){
+  var cx=document.createElement('canvas').getContext('2d');
+  function tw(t,px){cx.font='400 '+px+'px "BIW Tpl", Arial, sans-serif';return cx.measureText(t).width;}
+  function fit(el,base,min,avail){
+    var t=(el.textContent||'').replace(/\s+/g,' ').trim();
+    el.style.removeProperty('font-size'); if(!t) return true;
+    var px=base; while(px>min && tw(t,px)>avail) px-=0.5;
+    el.style.setProperty('font-size',px+'px','important'); return tw(t,px)<=avail;
+  }
+  window.biwFitOut=function(){
+    var page=document.getElementById('reportPage'); if(!page) return;
+    page.querySelectorAll('.out.tpl:not(.tpl-label)').forEach(function(el){
+      var w=parseFloat(el.style.width)||el.offsetWidth||0; if(w) fit(el,23.6,11,w-12);
+    });
+    var n=document.getElementById('outFieldEngineerName');
+    if(n){
+      n.style.setProperty('white-space','nowrap','important'); n.style.removeProperty('line-height');
+      if(!fit(n,23.6,12,354)){ n.style.setProperty('white-space','normal','important'); n.style.setProperty('font-size','12px','important'); n.style.setProperty('line-height','1.05','important'); }
+    }
+    page.querySelectorAll('#outPartsTable td').forEach(function(td){
+      var base=parseFloat(td.style.fontSize)||20, pct=parseFloat(td.style.width)||0; if(!pct) return;
+      td.style.removeProperty('font-size'); td.style.fontSize=base+'px';
+      var t=(td.textContent||'').trim(), avail=1303*pct/100-12, px=base;
+      while(px>9 && tw(t,px)>avail) px-=0.5;
+      if(px!==base) td.style.fontSize=px+'px';
+    });
   };
 })();
 </script>

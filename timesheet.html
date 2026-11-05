@@ -1863,4 +1863,71 @@ const SAVED_ITEMS=[{"desc":"UNI-LOK PRESSURE BLOCK ASSY 5000PSI","part":"ULK55-0
 (function(){function go(){ if(window.BIWSign) window.BIWSign.attach({tool:'timesheet', nameInputId:'espEngineerInput', imgId:'outEspSignature', label:'ESP Engineer', resetFns:['resetWholeForm']}); }
  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', go); else go(); })();
 </script>
+<!-- ===== v3.16.1 PDF: كل كلام في نص مربعه (أفقي وعمودي)، ونفس الخط واللون ===== -->
+<style id="biwPdfCenter">
+html body #reportPage .info-table td,html body #reportPage .info-table td.cell{text-align:center !important;vertical-align:middle !important}
+html body #reportPage .info-table td.cell{padding:6px 8px !important}
+html body #reportPage .report-value{text-align:center !important;padding-left:3px !important;padding-right:3px !important}
+html body #reportPage .transport td{text-align:center !important;vertical-align:middle !important}
+html body #reportPage .items-table th{text-align:center !important;vertical-align:middle !important}
+html body #reportPage .ts-clean-items-table td,html body #reportPage .ts-clean-items-table td.c-desc{text-align:center !important;vertical-align:middle !important}
+html body #reportPage .sign-table td{text-align:center !important;vertical-align:middle !important}
+html body #reportPage .sign-table .small-header,html body #reportPage .sign-table .company-header{font-size:17px !important;line-height:1.1 !important;padding:6px 8px !important}
+html body #reportPage .sign-table .name-label,html body #reportPage .sign-table .comment-label,html body #reportPage .sign-table .sign-label-text{padding:6px 8px !important}
+html body #reportPage .sign-table td.engineer-names{display:table-cell !important;white-space:pre !important;word-break:normal !important;overflow:hidden !important;padding:4px 6px !important;text-align:center !important;vertical-align:middle !important}
+html body #reportPage .signature-box{display:flex !important;align-items:center !important;justify-content:center !important}
+html body #reportPage .desc-free-cell,html body #reportPage .dn-desc-text{text-align:center !important}
+html body #reportPage .dn-desc-wrap{justify-content:center !important}
+html body #reportPage .dn-spacer{display:none !important}
+</style>
+<script>
+/* v3.16.1: أسماء المهندسين: كل اسم في سطر وحده، الخط يصغر لين الأسماء كلها تدخل المربع، والوصف الحر في نص مربعه */
+(function(){
+  var cx=document.createElement('canvas').getContext('2d');
+  function fitNames(){
+    ['outBiwEngineerName','outEspEngineerName','outReceiverName'].forEach(function(id){
+      var td=document.getElementById(id); if(!td) return;
+      var lines=String(td.textContent||'').split(/\n+/).map(function(x){return x.trim();}).filter(Boolean);
+      if(!lines.length){ td.style.removeProperty('font-size'); return; }
+      var W=td.clientWidth-16; if(W<=0) return;
+      var H=54; /* صف التوقيع 62px ناقص الحشوة: ما نخلي الصف يكبر */
+      var cs=getComputedStyle(td);
+      function wrapCount(px){ cx.font=cs.fontWeight+' '+px+'px '+cs.fontFamily; var n=0;
+        for(var i=0;i<lines.length;i++){ var words=lines[i].split(/\s+/), cur='';
+          for(var j=0;j<words.length;j++){ var t=cur?cur+' '+words[j]:words[j];
+            if(cx.measureText(t).width<=W) cur=t; else { if(!cur) return 99; n++; cur=words[j]; if(cx.measureText(cur).width>W) return 99; } }
+          n++; }
+        return n; }
+      var px=17; while(px>8 && wrapCount(px)*px*1.1>H) px-=0.5;
+      td.style.setProperty('white-space','pre-line','important');
+      td.style.setProperty('font-size',px+'px','important'); td.style.setProperty('line-height','1.1','important');
+    });
+  }
+  function centerDesc(){
+    var el=document.getElementById('outDescText'); if(!el || !el.classList.contains('desc-free-cell')) return;
+    el.style.removeProperty('padding-top');
+    var h=el.clientHeight; if(!h || !String(el.textContent||'').trim()) return;
+    var rg=document.createRange(); rg.selectNodeContents(el); var tr=rg.getBoundingClientRect(), br=el.getBoundingClientRect();
+    var k=br.height/el.offsetHeight || 1, cs=getComputedStyle(el);
+    var free=h-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom)-tr.height/k;
+    if(free>1) el.style.setProperty('padding-top',(parseFloat(cs.paddingTop)+Math.floor(free/2))+'px','important');
+  }
+  window.biwFitNames=fitNames;
+  function wrap(n,after){
+    var f=window[n]; if(typeof f!=='function' || f.__biwTidy) return;
+    var w=function(){ var r=f.apply(this,arguments); try{ after(); }catch(e){} return r; };
+    w.__biwTidy=1; window[n]=w;
+  }
+  function hookAll(){
+    wrap('updateReport',function(){ fitNames(); centerDesc(); });
+    wrap('autoFitReport',function(){ fitNames(); centerDesc(); });
+    wrap('fitDescription',centerDesc);
+  }
+  /* fitDescription يبدأ من الحشوة الأصلية عشان قياساته ما تتغير */
+  var fd=window.fitDescription;
+  if(typeof fd==='function' && !fd.__biwPre){ var p=function(){ var el=document.getElementById('outDescText'); if(el) el.style.removeProperty('padding-top'); return fd.apply(this,arguments); }; p.__biwPre=1; window.fitDescription=p; }
+  hookAll(); document.addEventListener('DOMContentLoaded',hookAll); setTimeout(hookAll,700);
+})();
+</script>
+
 </body></html>
