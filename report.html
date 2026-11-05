@@ -925,5 +925,109 @@ document.addEventListener('DOMContentLoaded',()=>{
   ready(hookReset);
 })();
 </script>
+<script>
+/* v3.15.0: تكتب رقم البئر (rb23 / RB23 / RB-23 / rb-23) — لو له تايم شيت محفوظ يطلع فوق زر «استخدام» يعبي القطع والسيريال والبيانات */
+(function(){
+  var STORE='biw_ts_store', TTL=3*86400000, APPLIED='biw_ts_store_applied';
+  function wellKey(v){
+    var s=String(v||'').replace(/[٠-٩]/g,function(d){return '٠١٢٣٤٥٦٧٨٩'.indexOf(d);}).replace(/[۰-۹]/g,function(d){return '۰۱۲۳۴۵۶۷۸۹'.indexOf(d);})
+      .toUpperCase().replace(/[^A-Z0-9]/g,'');
+    var m=s.match(/^([A-Z]+)0*([0-9].*)$/); return m ? m[1]+m[2] : s;
+  }
+  function load(){ try{ return JSON.parse(localStorage.getItem(STORE)||'{}')||{}; }catch(e){ return {}; } }
+  function purge(){
+    var st=load(), now=Date.now(), ch=false;
+    Object.keys(st).forEach(function(k){ if(!st[k] || now-(st[k].savedAt||0)>TTL){ delete st[k]; ch=true; } });
+    if(ch){ try{ localStorage.setItem(STORE, JSON.stringify(st)); }catch(e){} }
+    return st;
+  }
+  function fmt(d){ if(!d) return ''; var x=(d instanceof Date)?d:new Date(d+'T00:00:00'); if(isNaN(x)) return String(d);
+    return String(x.getDate()).padStart(2,'0')+'-'+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][x.getMonth()]; }
+  function escH(v){ return String(v==null?'':v).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function setVal(id, v){
+    var el=document.getElementById(id); if(!el || v==null || v==='') return false;
+    if(el.tagName==='SELECT'){
+      var ok=false; for(var i=0;i<el.options.length;i++){ var o=el.options[i]; if(o.value===v || o.text===v){ el.value=o.value; ok=true; break; } }
+      if(!ok) return false;
+    } else { el.value=v; }
+    el.dispatchEvent(new Event('input', {bubbles:true})); el.dispatchEvent(new Event('change', {bubbles:true}));
+    return true;
+  }
+  function pickEngineer(list){
+    list=list||[]; var me=null; try{ me=localStorage.getItem('biw_identity'); }catch(e){}
+    return (me && list.indexOf(me)!==-1) ? me : (list[0]||'');
+  }
+  function hasParts(){ return (typeof partRows!=='undefined') && partRows.some(function(r){ return r.catalogIndex!=='' || String(r.serial||'').trim(); }); }
+  function apply(st){
+    var skipped=[], rows=[];
+    setVal('clientInput', st.selectedClient);
+    setVal('companyInput', st.selectedCompany);
+    setVal('hoistRigInput', st.hoist);
+    setVal('fieldEngineerInput', pickEngineer(st.engineers));
+    setVal('arriveDateInput', st.dateFrom); setVal('jobStartInput', st.dateFrom); setVal('jobEndInput', st.dateTo);
+    (st.items||[]).forEach(function(r){
+      var idx=-1, p=String(r.part||'').trim();
+      for(var i=0;i<CATALOG.length;i++){ if(CATALOG[i].part===p){ idx=i; break; } }
+      if(idx<0 && r.desc){ for(var j=0;j<CATALOG.length;j++){ if(CATALOG[j].desc===r.desc){ idx=j; break; } } }
+      if(idx<0){ skipped.push(r.manual || r.part || r.desc || '?');
+        rows.push({catalogIndex:'', search:String(r.manual||r.desc||r.part||''), qty:String(r.qty||''), serial:String(r.serial||''), mfg:'', install:st.dateTo||'', pull:'', reused:''}); return; }
+      var it=CATALOG[idx];
+      rows.push({catalogIndex:String(idx), search:it.desc+' — '+it.part, qty:String(r.qty||'').replace(/[^0-9]/g,''),
+        serial: it.serialRequired===false ? 'N/A' : String(r.serial||''), mfg:'', install:st.dateTo||'', pull:'', reused:''});
+    });
+    if(rows.length){ partRows.length=0; rows.forEach(function(x){ partRows.push(x); }); if(typeof renderPartsEditor==='function') renderPartsEditor(); }
+    if(typeof updateReport==='function'){ try{ updateReport(); }catch(e){} }
+    try{ document.dispatchEvent(new Event('change')); }catch(e){}   /* يشغّل الحفظ التلقائي للتقرير */
+    return { n: rows.length, skipped: skipped };
+  }
+  var bar=null, dismissed={};
+  function hide(){ if(bar){ bar.remove(); bar=null; } }
+  function show(e, id){
+    var host=document.querySelector('.input-panel'); if(!host) return;
+    hide();
+    var st=e.state, n=(st.items||[]).length, until=new Date((e.savedAt||Date.now())+TTL);
+    var range = st.dateFrom ? ('<bdi>'+escH(fmt(st.dateFrom))+'</bdi>' + (st.dateTo && st.dateTo!==st.dateFrom ? ' إلى <bdi>' + escH(fmt(st.dateTo)) + '</bdi>' : '')) : '';
+    var info=[n+' قطعة']; if(st.selectedClient) info.push('<bdi>'+escH(st.selectedClient)+'</bdi>'); if(range) info.push(range);
+    bar=document.createElement('div'); bar.id='tsStoreBar'; bar.setAttribute('data-state','offer');
+    bar.setAttribute('style','position:sticky;top:46px;z-index:50;margin:10px 0 12px;padding:12px 14px;border-radius:14px;background:#ecfdf5;border:1.5px solid #0f766e;color:#0b3b33;direction:rtl;text-align:right;display:flex;align-items:center;gap:8px;flex-wrap:nowrap;box-shadow:0 8px 22px rgba(15,118,110,.18)');
+    bar.innerHTML='<div style="flex:1 1 auto;min-width:0;font-size:14px;line-height:1.55"><b style="font-size:15.5px">تايم شيت <span dir="ltr">'+escH(e.well||'')+'</span> موجود</b><br>'+info.join('، ')+
+      '<br><span style="color:#5b6b6e;font-size:12.5px">محفوظ لين <span dir="ltr">'+fmt(until)+'</span> وبعدها ينحذف</span></div>'+
+      '<button type="button" id="tsStoreUse" style="font:inherit;font-weight:900;font-size:16px;padding:11px 16px;border-radius:11px;border:0;background:#0f766e;color:#fff;cursor:pointer;flex:none">استخدام</button>'+
+      '<button type="button" id="tsStoreX" aria-label="إغلاق" style="font:inherit;font-size:18px;line-height:1;width:34px;height:34px;border-radius:9px;border:1px solid #94a3b8;background:#fff;color:#334155;cursor:pointer;flex:none">×</button>';
+    var note=host.querySelector('.note'); if(note) note.insertAdjacentElement('afterend', bar); else host.insertBefore(bar, host.firstChild);
+    document.getElementById('tsStoreX').onclick=function(){ dismissed[id]=1; hide(); };
+    document.getElementById('tsStoreUse').onclick=function(){
+      if(hasParts() && !confirm('التقرير فيه قطع من قبل. تبي تستبدلها بقطع التايم شيت '+(e.well||'')+'؟')) return;
+      var res=apply(st);
+      try{ localStorage.setItem(APPLIED, id); }catch(err){}
+      bar.style.background='#f0fdf4'; bar.style.borderColor='#16a34a'; bar.setAttribute('data-state','done');
+      bar.innerHTML='<div style="flex:1 1 auto;min-width:0;font-size:14px;line-height:1.6"><b style="font-size:15.5px">تم ✓</b> انعبت '+res.n+' قطعة مع السيريال وبيانات التايم شيت. عدّل أو ضيف أو احذف براحتك.'+
+        '<br><span style="font-size:12.5px;color:#5b6b6e">تاريخ التركيب لكل القطع = آخر يوم في التايم شيت، راجعه واختار Used / New.</span>'+
+        (res.skipped.length ? '<br><span style="color:#b45309;font-weight:800">اختار هذي القطع بنفسك: '+escH(res.skipped.join('، '))+'</span>' : '')+
+        '</div><button type="button" id="tsStoreX2" aria-label="إغلاق" style="font:inherit;font-size:18px;width:34px;height:34px;border-radius:9px;border:1px solid #94a3b8;background:#fff;cursor:pointer;flex:none;align-self:flex-start">×</button>';
+      document.getElementById('tsStoreX2').onclick=hide;
+      var doneBar=bar; setTimeout(function(){ if(bar===doneBar) hide(); }, 15000);
+    };
+  }
+  function check(){
+    var w=document.getElementById('wellInput'); if(!w) return;
+    var k=wellKey(w.value), store=purge();
+    if(!k || !store[k]){ if(bar && bar.getAttribute('data-state')==='offer') hide(); return; }
+    var e=store[k], id=k+'|'+e.savedAt, applied=null;
+    try{ applied=localStorage.getItem(APPLIED); }catch(err){}
+    if(applied===id || dismissed[id]) return;
+    if(bar && bar.getAttribute('data-id')===id) return;
+    show(e, id); if(bar) bar.setAttribute('data-id', id);
+  }
+  var t=null;
+  function init(){
+    purge();
+    var w=document.getElementById('wellInput');
+    if(w){ w.addEventListener('input', function(){ clearTimeout(t); t=setTimeout(check, 250); }); w.addEventListener('change', check); }
+    setTimeout(check, 700);   /* بعد ما التقرير يسترجع المسودة */
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
 </body>
 </html>

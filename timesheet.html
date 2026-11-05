@@ -1806,4 +1806,49 @@ const SAVED_ITEMS=[{"desc":"UNI-LOK PRESSURE BLOCK ASSY 5000PSI","part":"ULK55-0
 })();
 </script>
 
+<script>
+/* v3.15.0: مخزن التايم شيت — كل بئر له نسخة تنحفظ 3 أيام (من آخر تعديل) وبعدها تنحذف بروحها.
+   التقرير يقرا منها لما تكتب رقم البئر. الكود ما يلمس منطق التايم شيت الأصلي. */
+(function(){
+  var SRC='time_sheet_v3_autosave', STORE='biw_ts_store', TTL=3*86400000;
+  function wellKey(v){
+    var s=String(v||'').replace(/[٠-٩]/g,function(d){return '٠١٢٣٤٥٦٧٨٩'.indexOf(d);}).replace(/[۰-۹]/g,function(d){return '۰۱۲۳۴۵۶۷۸۹'.indexOf(d);})
+      .toUpperCase().replace(/[^A-Z0-9]/g,'');
+    var m=s.match(/^([A-Z]+)0*([0-9].*)$/); return m ? m[1]+m[2] : s;
+  }
+  window.biwWellKey=wellKey;
+  function load(){ try{ return JSON.parse(localStorage.getItem(STORE)||'{}')||{}; }catch(e){ return {}; } }
+  function purge(st){ var now=Date.now(); Object.keys(st).forEach(function(k){ if(!st[k] || now-(st[k].savedAt||0)>TTL) delete st[k]; }); return st; }
+  var atLoad=Object.keys(purge(load())), mine={}, lastKey=null;
+  function snapshot(){
+    try{
+      var store=purge(load()), raw=localStorage.getItem(SRC);
+      if(raw){
+        var st=JSON.parse(raw)||{}, k=wellKey(st.well);
+        if(k && ((st.items||[]).length || st.selectedClient || st.dateFrom)){
+          /* أثناء الكتابة (R ثم RB ثم RB2...) نشيل النسخ الناقصة اللي انخلقت بهالجلسة فقط */
+          if(lastKey && lastKey!==k && mine[lastKey] && atLoad.indexOf(lastKey)<0){ delete store[lastKey]; delete mine[lastKey]; }
+          store[k]={savedAt:Date.now(), well:String(st.well).trim(), state:st};
+          if(atLoad.indexOf(k)<0) mine[k]=1;
+          lastKey=k;
+        }
+      }
+      localStorage.setItem(STORE, JSON.stringify(store));
+    }catch(e){}
+  }
+  window.biwTsStoreSnapshot=snapshot;
+  var t=null; function soon(){ clearTimeout(t); t=setTimeout(snapshot,700); }
+  ['input','change','click','touchend'].forEach(function(ev){ document.addEventListener(ev, soon, true); });
+  window.addEventListener('pagehide', snapshot);
+  document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='hidden') snapshot(); });
+  function hookReset(){
+    var f=window.resetWholeForm;
+    if(typeof f!=='function' || f.__biwStore) return;
+    var w=function(){ snapshot(); return f.apply(this, arguments); };
+    w.__biwStore=true; window.resetWholeForm=w;
+  }
+  hookReset();
+  document.addEventListener('DOMContentLoaded', function(){ hookReset(); setTimeout(snapshot, 1500); });
+})();
+</script>
 </body></html>
