@@ -6,7 +6,7 @@
 <title>BIW Field Tools</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1a0f14">
-<meta name="description" content="BIW Field Tools — Time Sheet, Checklist, Installation Report, Empty Timesheet, Expenses">
+<meta name="description" content="BIW Field Tools — Time Sheet, Checklist, Installation Report, Empty Timesheet, Expenses, Hospitals">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="BIW Tools">
@@ -230,6 +230,30 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
   .glass-orb{width:54px;height:54px}
   .glass-ico{width:24px;height:24px;margin:-12px 0 0 -12px}
 }
+/* v3.14.0: العمود اليسار صار فيه 5 أيقونات (HOSPITALS) — مقاسات أصغر شوي بالجوال عشان العمودين ما يركبون على التوقيع والهيدر والشريط السفلي */
+@media (max-width:759px) and (orientation:portrait) and (max-height:900px){
+  .glass{margin:5px 0}
+  .glass-orb{width:74px;height:74px}
+  .glass-ico{width:33px;height:33px;margin:-16.5px 0 0 -16.5px}
+  .glass-en{margin-top:7px}
+}
+@media (max-width:759px) and (orientation:portrait) and (max-height:800px){
+  .glass{margin:3px 0}
+  .glass-orb{width:60px;height:60px}
+  .glass-ico{width:27px;height:27px;margin:-13.5px 0 0 -13.5px}
+  .glass-en{margin-top:5px}
+}
+@media (max-width:759px) and (orientation:portrait) and (max-height:700px){
+  .glass{margin:2px 0}
+  .glass-orb{width:50px;height:50px}
+  .glass-ico{width:22px;height:22px;margin:-11px 0 0 -11px}
+  .glass-en{font-size:9.5px;margin-top:4px}
+  .glass-ar{font-size:9px;margin-top:1px}
+}
+/* v3.14.0: آيباد — 5 أيقونات بالصف العلوي بدل 4 */
+@media (min-width:760px){
+  .nav-left .glass{width:18.6%}
+}
 /* جوال بالعرض: صف واحد لكل الأيقونات (العمودين ما يكفيهم الارتفاع) */
 @media (orientation:landscape) and (max-height:560px){
   nav,.nav-left{top:auto;bottom:calc(66px + env(safe-area-inset-bottom));width:auto;padding:0;
@@ -237,6 +261,7 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
   #nav{left:50%;right:0}
   .nav-left{left:0;right:50%}
   .glass,.nav-left .glass{display:inline-block;vertical-align:top;width:25%;max-width:none;margin:0}
+  .nav-left .glass{width:20%}
   .glass-orb{width:56px;height:56px}
   .glass-ico{width:26px;height:26px;margin:-13px 0 0 -13px}
   .glass-en{font-size:9.5px;margin-top:6px}
@@ -423,6 +448,11 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
     <span class="glass-en">DELIVERY</span>
     <span class="glass-ar">سند التسليم</span>
   </a>
+  <a class="glass" href="hospitals.html">
+    <span class="glass-orb"><svg class="glass-ico" viewBox="0 0 34 34"><path d="M17 30 C17 30 7.5 21 7.5 13.5 a9.5 9.5 0 0 1 19 0 C26.5 21 17 30 17 30 Z"/><line x1="17" y1="9" x2="17" y2="18"/><line x1="12.5" y1="13.5" x2="21.5" y2="13.5"/></svg></span>
+    <span class="glass-en">HOSPITALS</span>
+    <span class="glass-ar">أقرب مستشفى</span>
+  </a>
   <a class="glass" href="admin.html">
     <span class="glass-orb"><svg class="glass-ico" viewBox="0 0 34 34"><rect x="8" y="15" width="18" height="14" rx="3"/><path d="M12 15 v-4 a5 5 0 0 1 10 0 v4"/><line x1="17" y1="20" x2="17" y2="24"/></svg></span>
     <span class="glass-en">ADMIN</span>
@@ -436,7 +466,7 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
   <div class="dock-inner">
     <span class="net" id="net"><span class="dot"></span><span id="netTx">ONLINE</span></span>
     <span class="sep"></span>
-    <span class="ver" id="verTx">v3.13.7</span>
+    <span class="ver" id="verTx">v3.14.0</span>
     <span class="sep"></span>
     <span class="ver" id="cacheState">...</span>
   </div>
@@ -505,7 +535,7 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
 })();
 /* فحص التحديث: تلقائي عند الفتح + يدوي بزر ⟳ */
 (function(){
-  var CUR='3.13.7';                       /* نسخة هذا الملف */
+  var CUR='3.14.0';                       /* نسخة هذا الملف */
   var vt=document.getElementById('verTx');if(vt)vt.textContent='v'+CUR;   /* الرقم المعروض يتبع نسخة الملف دائمًا */
   function toNum(v){var p=String(v).replace(/^v/,'').split('.');return (+p[0]||0)*10000+(+p[1]||0)*100+(+p[2]||0);}
   function doUpdate(btn){
@@ -599,7 +629,7 @@ nav{position:fixed;right:10px;top:50%;z-index:6;
   function verify(){
     /* نتأكد فعليًا إن كل الصفحات والمكتبات بالكاش */
     if(!window.caches){setState('READY',true);return;}
-    var must=['timesheet.html','checklist.html','report.html','empty-timesheet.html','expenses.html','month-timesheet.html','libs/jspdf.umd.min.js','libs/html2canvas.min.js','bg.jpg','archive.js','archive-queue.js'];
+    var must=['timesheet.html','checklist.html','report.html','empty-timesheet.html','expenses.html','month-timesheet.html','hospitals.html','libs/jspdf.umd.min.js','libs/html2canvas.min.js','bg.jpg','archive.js','archive-queue.js'];
     caches.keys().then(function(ks){
       var name=null;
       for(var i=0;i<ks.length;i++){if(ks[i].indexOf('biw-field-tools')===0){name=ks[i];}}

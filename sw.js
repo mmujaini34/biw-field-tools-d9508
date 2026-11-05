@@ -1,5 +1,5 @@
-/* BIW Field Tools — Service Worker v3.13.7 (Safari-proof, redirect-proof, offline-first) */
-const CACHE_NAME = 'biw-field-tools-v3.13.7';
+/* BIW Field Tools — Service Worker v3.14.0 (Safari-proof, redirect-proof, offline-first) */
+const CACHE_NAME = 'biw-field-tools-v3.14.0';
 /* طابور رفع الأرشيف: نفس الكود المستخدم بالصفحات */
 try { importScripts('./archive-queue.js'); } catch (e) {}
 const ASSETS = [
@@ -11,6 +11,7 @@ const ASSETS = [
   './empty-timesheet.html',
   './expenses.html',
   './delivery-note.html',
+  './hospitals.html',
   './month-timesheet.html',
   './admin.html',
   './archive.js',

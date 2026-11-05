@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hospitals — أقرب مستشفى</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#F3F5F2">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  :root {
+    --paper: #F3F5F2;
+    --ink: #17262B;
+    --green: #0E6B57;
+    --green-ink: #0A4E40;
+    --red: #C8102E;
+    --sand: #EAE1CD;
+    --muted: #5B6B6E;
+    --line: #D6DDD8;
+    --amber: #8A4A00;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: -apple-system, "SF Arabic", "Segoe UI", Roboto, Tahoma, Arial, sans-serif;
+    font-size: 16px; line-height: 1.55;
+  }
+  .wrap { max-width: 680px; margin: 0 auto; padding: 22px 18px 48px; }
+  .kicker { margin: 0; color: var(--muted); font-size: 14px; }
+  h1 { font-size: clamp(30px, 8vw, 42px); line-height: 1.12; margin: 6px 0 8px; font-weight: 700; }
+  .lede { color: var(--muted); margin: 0 0 18px; }
+
+  form.search { position: relative; }
+  .search input {
+    width: 100%; height: 58px; font: inherit; font-size: 18px; color: var(--ink);
+    padding-inline-start: 48px; padding-inline-end: 46px;
+    background: #fff; border: 2px solid var(--ink); border-radius: 14px;
+    -webkit-appearance: none; appearance: none;
+  }
+  .search input::-webkit-search-cancel-button { -webkit-appearance: none; display: none; }
+  .search input::placeholder { color: #8A9799; }
+  .search input:focus { outline: 3px solid var(--green); outline-offset: 2px; }
+  .search .icon { position: absolute; inset-inline-start: 16px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; color: var(--muted); pointer-events: none; }
+  .search .clear {
+    position: absolute; inset-inline-end: 8px; top: 50%; transform: translateY(-50%);
+    width: 38px; height: 38px; border: 0; border-radius: 10px; background: transparent; color: var(--muted);
+    font-size: 22px; line-height: 1; cursor: pointer;
+  }
+  .search .clear[hidden] { display: none; }
+
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding: 12px 2px 6px; margin: 0 -2px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex: none; font: inherit; font-size: 15px; padding: 7px 14px; border-radius: 999px;
+    border: 1px solid var(--line); background: #fff; color: var(--ink); cursor: pointer;
+  }
+  .chip:hover { border-color: var(--ink); }
+  .chip.em { border-color: #E9B4BD; color: var(--red); }
+
+  .controls { display: grid; grid-template-columns: 1.4fr 1fr; gap: 10px; margin-top: 12px; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 13.5px; color: var(--muted); }
+  .field select {
+    font: inherit; font-size: 16px; color: var(--ink); height: 46px; padding: 0 12px;
+    border: 1.5px solid var(--line); border-radius: 10px; background: #fff;
+  }
+  .field select:focus { outline: 3px solid var(--green); outline-offset: 1px; }
+  .gps { margin-top: 8px; font: inherit; font-size: 14px; color: var(--green-ink); background: none; border: 0; padding: 4px 0; text-decoration: underline; cursor: pointer; }
+  .gps[hidden] { display: none; }
+
+  .emerg {
+    margin: 18px 0 0; padding: 14px 16px; border-radius: 14px; background: var(--red); color: #fff;
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  }
+  .emerg p { margin: 0; font-size: 15px; line-height: 1.5; }
+  .emerg strong { display: block; font-size: 17px; }
+  .emerg a {
+    flex: none; color: var(--red); background: #fff; text-decoration: none; font-weight: 700;
+    font-size: 26px; padding: 6px 16px; border-radius: 10px; font-variant-numeric: tabular-nums;
+  }
+  .emerg[hidden] { display: none; }
+
+  .note { margin: 16px 0 0; font-size: 15px; color: var(--ink); }
+  .note .miss { color: var(--amber); }
+  .widen { font: inherit; font-size: 14.5px; color: var(--green-ink); background: none; border: 0; padding: 0; text-decoration: underline; cursor: pointer; }
+
+  .count { font-weight: 600; font-size: 17px; margin: 20px 0 8px; }
+  ol.results { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  .r { display: grid; grid-template-columns: 66px 1fr; gap: 14px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+  .sign {
+    height: 66px; border-radius: 9px; background: var(--green); color: #fff;
+    box-shadow: inset 0 0 0 3px var(--green), inset 0 0 0 5px #fff;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .sign b { font-size: 23px; font-weight: 700; direction: ltr; unicode-bidi: isolate; }
+  .sign span { font-size: 12px; margin-top: 5px; }
+  .sign.unknown { background: var(--muted); box-shadow: inset 0 0 0 3px var(--muted), inset 0 0 0 5px #fff; }
+  .r h3 { margin: 0; font-size: 17px; font-weight: 600; line-height: 1.35; }
+  .meta { margin: 3px 0 0; color: var(--muted); font-size: 14.5px; }
+  .meta .type { color: var(--green-ink); font-weight: 600; }
+  .warn { margin: 4px 0 0; color: var(--amber); font-size: 14px; }
+  .addr { margin: 3px 0 0; font-size: 14px; color: var(--ink); }
+  .nophone { margin: 10px 0 0; font-size: 14px; color: var(--muted); }
+  .note .black { color: var(--red); }
+  .phones { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 10px; }
+  .tel {
+    display: inline-flex; align-items: center; gap: 7px; font-size: 17px; font-weight: 600; color: var(--ink);
+    text-decoration: none; background: #fff; border: 1.5px solid var(--ink); border-radius: 10px; padding: 6px 12px;
+    font-variant-numeric: tabular-nums;
+  }
+  .tel svg { width: 16px; height: 16px; color: var(--green); }
+  .tel:hover { background: var(--sand); }
+  .copy { font: inherit; font-size: 13.5px; color: var(--muted); background: none; border: 0; padding: 4px 2px; text-decoration: underline; cursor: pointer; }
+  .foot { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; margin-top: 10px; font-size: 14px; }
+  .foot a { color: var(--green-ink); font-weight: 600; }
+  .foot .bands { color: var(--muted); }
+
+  .more { display: block; width: 100%; margin: 18px 0 0; padding: 13px; font: inherit; font-weight: 600; color: var(--ink); background: #fff; border: 1.5px solid var(--ink); border-radius: 12px; cursor: pointer; }
+  .more[hidden] { display: none; }
+  .empty { padding: 18px 0; color: var(--muted); }
+
+  footer { margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 13.5px; color: var(--muted); line-height: 1.75; }
+  footer p { margin: 0 0 6px; }
+  :focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  @media (min-width: 560px) {
+    .wrap { padding-top: 36px; }
+    .r { grid-template-columns: 76px 1fr; gap: 18px; }
+    .sign { height: 76px; }
+    .sign b { font-size: 26px; }
+  }
+  .wrap { padding-top: calc(54px + env(safe-area-inset-top)); }
+  @media (min-width: 560px) { .wrap { padding-top: calc(58px + env(safe-area-inset-top)); } }
+</style>
+<style>
+.biw-topbar{position:fixed;top:calc(8px + env(safe-area-inset-top));left:8px;z-index:99990;font-family:Arial,sans-serif;direction:ltr}
+.biw-topbar a,.biw-topbar button{display:inline-block;vertical-align:middle;margin-right:6px;
+  padding:7px 12px;border-radius:999px;border:1px solid rgba(120,130,150,.45);
+  background:rgba(20,26,38,.82);color:#fff;font-size:12px;text-decoration:none;cursor:pointer;
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.biw-topbar a:active,.biw-topbar button:active{background:rgba(232,163,61,.35)}
+@media print{.biw-topbar{display:none!important}}
+</style>
+</head>
+<body>
+<script>
+/* عين تشخيصية: أي خطأ JS يظهر بشريط واضح بدل الفشل الصامت */
+window.addEventListener('error',function(ev){
+  try{
+    var b=document.getElementById('biwErrBar');
+    if(!b){b=document.createElement('div');b.id='biwErrBar';
+      b.style.cssText='position:fixed;bottom:0;left:0;right:0;z-index:999999;background:#b91c1c;color:#fff;font:12px/1.5 monospace;padding:8px 12px;word-break:break-all;direction:ltr;text-align:left';
+      document.body.appendChild(b);}
+    b.textContent='\u26a0 '+(ev.message||'error')+' @ '+(ev.filename||'').split('/').pop()+':'+(ev.lineno||'');
+  }catch(e){}
+});
+</script>
+
+<div class="biw-topbar">
+  <a href="index.html">&#8962; HOME</a>
+  <button type="button" onclick="location.reload()">&#10227;</button>
+</div>
+
+<div class="wrap">
+  <header>
+    <p class="kicker">شبكة Liva الطبية في عُمان، قائمة يناير 2026</p>
+    <h1>وين أقرب مستشفى؟</h1>
+    <p class="lede">اكتب اللي تحس فيه، أو اسم المستشفى، أو المنطقة.</p>
+  </header>
+
+  <form class="search" role="search" id="form">
+    <label for="q" class="sr">بحث</label>
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
+    <input id="q" type="search" autocomplete="off" enterkeyhint="search" placeholder="مثلاً: ألم ضرس، حرارة، بدر السماء">
+    <button type="button" class="clear" id="clear" aria-label="مسح البحث" hidden>×</button>
+  </form>
+
+  <div class="chips" id="chips" aria-label="بحث سريع"></div>
+
+  <div class="controls">
+    <div class="field">
+      <label for="area">أنا في</label>
+      <select id="area"></select>
+    </div>
+    <div class="field">
+      <label for="band">فئة بطاقة التأمين</label>
+      <select id="band">
+        <option value="-1">كل الفئات</option>
+        <option value="0">A Plus</option>
+        <option value="1">A</option>
+        <option value="2">B</option>
+      </select>
+    </div>
+  </div>
+  <button type="button" class="gps" id="gps" hidden>حدد موقعي بالـ GPS</button>
+
+  <div class="emerg" id="emerg" hidden>
+    <p><strong>إذا الحالة طارئة لا تنتظر</strong>اتصل بالإسعاف، أو روح أقرب طوارئ حكومي أو خاص.</p>
+    <a href="tel:9999" aria-label="اتصل 9999">9999</a>
+  </div>
+
+  <p class="note" id="note" hidden></p>
+  <p class="count" id="count" aria-live="polite"></p>
+  <ol class="results" id="results"></ol>
+  <button type="button" class="more" id="more" hidden></button>
+
+  <footer>
+    <p>المصدر: قائمة شبكة Liva في عُمان، محدّثة يناير 2026 (فئات A Plus و A و B). Liva تقدر تضيف أو تشيل أي مكان أو تغيّر فئته بأي وقت، فاتصل وتأكد قبل لا تروح.</p>
+    <p>المسافة تقريبية: خط مستقيم بين وسط منطقتك ووسط منطقة المكان، مو مسافة الطريق. علامة ≈ تعني إن موقع المنطقة نفسه تقريبي.</p>
+    <p>المستشفيات الحكومية مو ضمن هذي القائمة. الصفحة ترشدك للمكان وما تغني عن الطبيب.</p>
+  </footer>
+</div>
+
+<script>
+var DATA = {"providers":[{"n":"Aarabian dental center","t":"D","a":"الموالح","loc":"Mawaleh","p":["24545733"],"b":[1,1,1],"x":[],"ad":"Al-Mouj Commercial Centre,1st floor- Almawalih"},{"n":"Abeer Hospital","t":"H","a":"روي","loc":"Ruwi","p":["24770800"],"b":[1,1,1],"x":[],"ad":"Dareen Street, Ruwi"},{"n":"Abu Al Dahab Clinic & Pharmacy","t":"C","a":"صلالة","loc":"Salalah","p":["23291303"],"b":[1,1,1],"x":[],"ad":"New Salalah"},{"n":"ADLIFE CLINIC","t":"C","a":"بركاء","loc":"Barka","p":["22825000"],"b":[1,1,1],"x":[],"ad":"Barkha - Nakhal Street BARKA, 320"},{"n":"ADLIFE CLINIC","t":"C","a":"بركاء","loc":"Barka","p":["96587508"],"b":[1,1,1],"x":[],"ad":"Khazaen Khazaen Economic City, Al Maskaan Village, Barka 130"},{"n":"Aflag Pharmacy","t":"P","a":"شارع 18 نوفمبر","loc":"18th Nov Street","p":["92847104"],"b":[1,1,1],"x":[],"ad":"18 Novamer stret"},{"n":"Aflag Pharmacy","t":"P","a":"الحيل","loc":"Al Hail","p":[],"b":[1,1,1],"x":[],"ad":"al hila"},{"n":"Aflag Pharmacy","t":"P","a":"المعبيلة","loc":"Mabela","p":["24465223"],"b":[1,1,1],"x":[],"ad":""},{"n":"Aflag Pharmacy","t":"P","a":"جامع السلطان قابوس الأكبر","loc":"SQGM","p":["24465223"],"b":[1,1,1],"x":[],"ad":""},{"n":"Aflag Pharmacy","t":"P","a":"العامرات","loc":"Amerat","p":["24978074"],"b":[1,1,1],"x":[],"ad":""},{"n":"Aflag Pharmacy","t":"P","a":"الموالح","loc":"Mawaleh","p":["92847104"],"b":[1,1,1],"x":[],"ad":"Mazoon Squaer"},{"n":"AHMED AL NAIMI POLYCLINIC","t":"C","a":"الخابورة","loc":"Khabourah","p":["99247274"],"b":[1,1,1],"x":[],"ad":"Al-Khabourah-Al-Khabourah"},{"n":"AHMED AL NUAIMI MEDICAL CENTER","t":"C","a":"الردة","loc":"Raddha","p":[],"b":[1,1,1],"x":[],"ad":"Saham-Al-Raddah"},{"n":"AL ADRAK MULTISPECIALITY HOSPITAL","t":"H","a":"العامرات","loc":"Amerat","p":["22825000"],"b":[1,1,1],"x":[],"ad":""},{"n":"Al Afaq Diagnsotic Centre","t":"I","a":"العذيبة","loc":"Azaiba","p":["24501162"],"b":[1,1,1],"x":[],"ad":"MUSCAT-GHALA STREET, GHALA"},{"n":"AL AHAD POLYCLINIC","t":"C","a":"عبري","loc":"Ibri","p":["25694478"],"b":[1,1,1],"x":[],"ad":""},{"n":"Al Amal Medical & Healthcare Centre","t":"C","a":"الخوض","loc":"Al Khoudh","p":["24543070"],"b":[1,1,1],"x":[],"ad":""},{"n":"Al Amal Medical & Healthcare Centre","t":"C","a":"الخوير","loc":"Al Khuwaire","p":["24485822"],"b":[1,1,1],"x":[],"ad":""},{"n":"Al Amal Medical & Healthcare Centre","t":"C","a":"روي","loc":"Ruwi","p":["24811519"],"b":[1,1,1],"x":[],"ad":""},{"n":"Al Andhar Clinic","t":"A","a":"صلالة","loc":"Salalah","p":["96698547"],"b":[1,1,1],"x":[],"ad":"Next To Al mashoor shopping complex,Al Saadah"},{"n":"AL BAHJA INDIAN AYURVEDIC CLINIC","t":"A","a":"صور","loc":"Sur","p":["25543220"],"b":[1,1,1],"x":[],"ad":"MURTHAFA ,SUR"},{"n":"AL BAHJA SPECIALITY DENTAL CENTER","t":"D","a":"صور","loc":"Sur","p":["25742390"],"b":[1,1,1],"x":[],"ad":"Murtafa"},{"n":"Al Bashayer Specialised Medical Center","t":"C","a":"الخوير","loc":"Al Khuwaire","p":["24112117"],"b":[1,1,1],"x":[],"ad":"116 Ghala Street, Muscat, Oman"},{"n":"AL BASMA DISTINCTIVE MEDICAL SERVICES","t":"C","a":"المعبيلة","loc":"Mabela","p":["98053286"],"b":[1,1,1],"x":[],"ad":""},{"n":"AL BASMA PHARMACY","t":"P","a":"بهلاء","loc":"Bahla","p":["95199081"],"b":[1,1,1],"x":[],"ad":""},{"n":"AL BASMA PHARMACY","t":"P","a":"فرق","loc":"Farq","p":["95199081"],"b":[1,1,1],"x":[],"ad":"NIZWA - FIRQ"},{"n":"AL BASMA PHARMACY","t":"P","a":"فرق","loc":"Farq2","p":["95199081"],"b":[1,1,1],"x":[],"ad":"NIZWA - FIRQ 2"},{"n":"AL BASMA PHARMACY","t":"P","a":"نزوى","loc":"Nizwa","p":["95199081"],"b":[1,1,1],"x":[],"ad":"NIZWA - SOUQ"},{"n":"Al Basma Specialized Medical Center","t":"C","a":"نزوى","loc":"Nizwa","p":["25230863"],"b":[1,1,1],"x":[],"ad":""},{"n":"Al Bawarek Pharmacy","t":"P","a":"العذيبة","loc":"Azaiba","p":["246155147"],"b":[1,1,1],"x":[],"ad":""},{"n":"Al Bawarek Pharmacy","t":"P","a":"المعبيلة","loc":"MABILAH","p":["24455560"],"b":[1,1,1],"x":[],"ad":""},{"n":"Al Bawarek Pharmacy","t":"P","a":"دماء والطائيين","loc":"Wadi Al Tayeen","p":["25526150"],"b":[1,1,1],"x":[],"ad":""},{"n":"Al Bawarek Pharmacy","t":"P","a":"إبراء","loc":"Al ayat Ibra","p":["25572556"],"b":[1,1,1],"x":[],"ad":""},{"n":"Al Bawarek Pharmacy","t":"P","a":"إبراء","loc":"Al Hamdi Ibra","p":["25549111"],"b":[1,1,1],"x":[],"ad":""},{"n":"Al Bawarek Pharmacy","t":"P","a":"جعلان بني بو علي","loc":"Jalan Bani Bu Ali","p":["25554211"],"b":[1,1,1],"x":[],"ad":""},{"n":"Al Bawarek Pharmacy","t":"P","a":"سمد الشأن","loc":"Samad Al Shan","p":["25526971"],"b":[1,1,1],"x":[],"ad":""},{"n":"Al Bidayah Specialty Clinics","t":"C","a":"السويق","loc":"AL SUWAIQ","p":["24992477"],"b":[1,1,1],"x":[],"ad":""},{"n":"AL DHAHIRA PULSE MEDICAL CENTER","t":"C","a":"ضنك","loc":"Dhank","p":[],"b":[1,1,1],"x":[],"ad":"Dhank, Aldhahira"},{"n":"AL EHSAN INTERNATIONAL MEDICAL CENTER","t":"C","a":"العامرات","loc":"Amerat","p":["24882226"],"b":[1,1,1],"x":[],"ad":""},{"n":"Al Ehshan Polyclinic","t":"C","a":"الخضراء","loc":"Al Kahadra","p":["24882226"],"b":[1,1,1],"x":[],"ad":"AL KADARA"},{"n":"Al Enaya Medical Complex","t":"C","a":"سناو","loc":"Sinaw","p":["25524124"],"b":[1,1,1],"x":[],"ad":""},{"n":"Al Essa Dental Clinic","t":"D","a":"الخوير","loc":"Al Khuwaire","p":["24961776"],"b":[1,1,1],"x":[],"ad":"Al Hashar Charity Building, Al Khuwair 33"},{"n":"Al Faisal Modern Clinic","t":"C","a":"الكامل والوافي","loc":"Al Kamil","p":["25557611"],"b":[1,1,1],"x":[],"ad":"Al Kamil Wal Wafi"},{"n":"Al Farabi Pharmacy","t":"P","a":"مطرح","loc":"Muttrah","p":["24835912"],"b":[1,1,1],"x":[],"ad":"HAMRIYA"},{"n":"AL FAROOQ PHARMACY - SAWADI","t":"P","a":"السوادي","loc":"Sawadi","p":["26795596"],"b":[1,1,1],"x":[],"ad":"AL SWADI"},{"n":"Al Farooq Specialized Polyclinic - Al sawadi","t":"C","a":"السوادي","loc":"Al sawadi","p":["26884553"],"b":[1,1,1],"x":[],"ad":"AL SWADI"},{"n":"Al Farooq Specialized Polyclinic - Barka","t":"C","a":"بركاء","loc":"Barka","p":["26884553"],"b":[1,1,1],"x":[],"ad":""},{"n":"AL Hail Clinic","t":"C","a":"السيب","loc":"Seeb","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"Al Hakeem Medical center","t":"C","a":"صلالة","loc":"Salalah","p":["23201122"],"b":[1,1,1],"x":[],"ad":""},{"n":"Al Haramain polyclinic","t":"C","a":"بركة الموز","loc":"Berkat Al Mouz","p":["95392219"],"b":[1,1,1],"x":[],"ad":"BIRKAT AL MOOZ"},{"n":"Al Harman Pharmacy","t":"P","a":"بركة الموز","loc":"Barakat Al Mouz","p":["95392219"],"b":[1,1,1],"x":[],"ad":"BIRKAT AL MOOZ"},{"n":"AL HASHAR PHARMACY","t":"P","a":"مطرح","loc":"Muttrah","p":["24714687"],"b":[1,1,1],"x":[],"ad":""},{"n":"AL HASHAR PHARMACY","t":"P","a":"روي","loc":"Ruwi","p":["24783334"],"b":[1,1,1],"x":[],"ad":""},{"n":"AL HASHAR PHARMACY","t":"P","a":"الوادي الكبير","loc":"Wadi Kabir","p":["24816471"],"b":[1,1,1],"x":[],"ad":""},{"n":"AL HASHAR PHARMACY","t":"P","a":"القرم","loc":"Qurum","p":["24565789"],"b":[1,1,1],"x":[],"ad":""},{"n":"AL HASHAR PHARMACY","t":"P","a":"الخوير","loc":"Al Khuwaire","p":["24271701"],"b":[1,1,1],"x":[],"ad":""},{"n":"AL HASHAR PHARMACY","t":"P","a":"العذيبة","loc":"Azaiba","p":["24714687"],"b":[1,1,1],"x":[],"ad":""},{"n":"AL HASHAR PHARMACY","t":"P","a":"صلالة","loc":"Salalah","p":["23297622"],"b":[1,1,1],"x":[],"ad":""},{"n":"Al Hassar Clinic","t":"C","a":"شناص","loc":"Shinas","p":["26747114"],"b":[1,1,1],"x":[],"ad":""},{"n":"Al Hayat International Hospital","t":"H","a":"الغبرة","loc":"Al Ghubra","p":["22004000"],"b":[1,1,0],"x":[],"ad":""},{"n":"Al Jaber Clinic","t":"C","a":"الثرمد","loc":"Al Tharmad","p":["26810679"],"b":[1,1,1],"x":[],"ad":"THARMAD-SUWAIQ WILAYAT"},{"n":"Al Khadra Dental Center","t":"D","a":"السويق","loc":"Suwaiq","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"Al Kiyumi Pharmacy - Oman","t":"P","a":"السويق","loc":"Suwaiq","p":["26708600"],"b":[1,1,1],"x":[],"ad":""},{"n":"Al Lamki Polyclinic","t":"C","a":"الخوير","loc":"Al Khuwaire","p":["24489543"],"b":[1,1,1],"x":[],"ad":"Al Khuwair Souq"},{"n":"Al Lamma Clinic","t":"C","a":"إبراء","loc":"Ibra","p":["25570165"],"b":[1,1,1],"x":[],"ad":"SAFALAT IBRA- Near MAWSALAT BUS STOP"},{"n":"Al Maha Polyclinic","t":"C","a":"العذيبة","loc":"Azaiba","p":["24505052"],"b":[1,1,1],"x":[],"ad":""},{"n":"AL MAHD MEDICAL COMPLEX","t":"C","a":"المضيبي","loc":"Mudhaibi","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"Al Masa Opticals","t":"O","a":"صلالة","loc":"Salalah","p":["23299366"],"b":[1,1,1],"x":[],"ad":""},{"n":"Al Mawasa Pharmacy - Salalah (AL RAAZI)","t":"P","a":"صلالة","loc":"Salalah","p":["23294400"],"b":[1,1,1],"x":[],"ad":""},{"n":"Al Misk Medical Centre","t":"C","a":"سمائل","loc":"Sumail","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"Al Misk Medical Centre","t":"C","a":"عراقي","loc":"Araqi","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"Al Misk Medical Centre","t":"C","a":"السويق","loc":"Suwaiq","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"AL MUZN OASIS MEDICAL CENTER","t":"C","a":"المضيبي","loc":"Mudhaibi","p":["22070941"],"b":[1,1,1],"x":[],"ad":"Near Centara Hotel - Ghala"},{"n":"Al Nile Specialized Medical Center","t":"C","a":"نزوى","loc":"Nizwa","p":["25426665"],"b":[1,1,1],"x":[],"ad":""},{"n":"Al Noor Medical Complex","t":"C","a":"صور","loc":"Sur","p":["25545393"],"b":[1,1,1],"x":[],"ad":"SOUTH AL SHARQIYA"},{"n":"Al Quds Pharmacy","t":"P","a":"بركة الموز","loc":"Birkat Al Mawz","p":["25442132"],"b":[1,1,1],"x":[],"ad":"(BIRKAT ALMOZ)NIZWA"},{"n":"Al Quds Pharmacy","t":"P","a":"نزوى","loc":"Nizwa","p":["24279028"],"b":[1,1,1],"x":[],"ad":"(AL MADA)NIZWA"},{"n":"Al Quds Pharmacy","t":"P","a":"إزكي","loc":"Izki","p":["25345006"],"b":[1,1,1],"x":[],"ad":"(TAWA AL OQBA) IZKI"},{"n":"Al Raazi Polyclinic - Salalah","t":"C","a":"صلالة","loc":"Salalah","p":["23225201"],"b":[1,1,1],"x":[],"ad":""},{"n":"AL RAHA CLINIC","t":"C","a":"جعلان بني بو حسن","loc":"Jalan Bani Bu Hassan","p":["99035719"],"b":[1,1,1],"x":[],"ad":"jalan bani buhassan"},{"n":"AL RAHMA Medical center","t":"C","a":"الموالح","loc":"Mawaleh","p":["24554410"],"b":[1,1,1],"x":[],"ad":"AL HAIL, ASEEB, O"},{"n":"AL REDHA CLINIC & LABORATORY","t":"C","a":"مصيرة","loc":"Masirah","p":["25504566"],"b":[1,1,1],"x":[],"ad":""},{"n":"Al Riyadh Specialised Medical Complex","t":"C","a":"صلالة","loc":"Salalah","p":["23295296"],"b":[1,1,1],"x":[],"ad":""},{"n":"AL SAADA HOSPITAL","t":"H","a":"صحار","loc":"Sohar","p":["22389999"],"b":[1,1,0],"x":[],"ad":""},{"n":"Al Saadi Specialized Medical Centre","t":"C","a":"المصنعة","loc":"Musannah","p":["26870138"],"b":[1,1,1],"x":[],"ad":""},{"n":"AL SALAMA INTERNATIONAL MEDICAL CENTER","t":"C","a":"المعبيلة","loc":"Sinaya Mabela","p":["22700059"],"b":[1,1,1],"x":[],"ad":""},{"n":"AL SALAMA MODERN MEDICAL POLYCLINIC","t":"C","a":"الأنصب","loc":"Al Ansab","p":["24202045"],"b":[1,1,1],"x":[],"ad":"Bausher"},{"n":"Al Sana Clinic","t":"C","a":"الخوض","loc":"Al Khoudh","p":["24270655"],"b":[1,1,1],"x":[],"ad":""},{"n":"Al Sawaqam Clinic & Pharmacy","t":"C","a":"الوادي الكبير","loc":"Wadi Kabir","p":["24814359"],"b":[1,1,1],"x":[],"ad":""},{"n":"Al Seef Medical Complex","t":"C","a":"جعلان بني بو علي","loc":"Jalan Bani Bu Ali","p":["25796699"],"b":[1,1,1],"x":[],"ad":"OPP. OMANTEL OFFICE"},{"n":"Al Seef Medical Complex","t":"C","a":"دماء والطائيين","loc":"Dima Wa Al Taeen","p":["25560138"],"b":[1,1,1],"x":[],"ad":"Wilayat DAMA WA AT TAIYIN"},{"n":"Al Seef Medical Complex","t":"C","a":"الكامل والوافي","loc":"Al Kamil","p":["25796026"],"b":[1,1,1],"x":[],"ad":"Wilayat AL KAMIL WA AL WAFI"},{"n":"Al Seef Medical Complex","t":"C","a":"جعلان بني بو حسن","loc":"Jalan Bani Bu Hassan","p":["25550102"],"b":[1,1,1],"x":[],"ad":"BEHIND SULTAN QABOOS MASJID"},{"n":"Al Shumoos Medical Center","t":"C","a":"بركاء","loc":"Barka","p":["22381111"],"b":[1,1,1],"x":[],"ad":""},{"n":"Al Shumoos Medical Center","t":"C","a":"صحار","loc":"Sohar","p":["22381111"],"b":[1,1,1],"x":[],"ad":""},{"n":"Al Tharmad pharmacy","t":"P","a":"الثرمد","loc":"Al Tharmad","p":["26810679"],"b":[1,1,1],"x":[],"ad":"NEAR TO MAKKAH HYPERMARKET, THARMAD"},{"n":"AL WATEEN DENTAL CLINIC","t":"D","a":"العامرات","loc":"Amerat","p":[],"b":[1,1,1],"x":[],"ad":"shop no. 118, syed fayyaz plaza , mabella south seven"},{"n":"Al Zahir Medical Complex","t":"C","a":"صلالة","loc":"Salalah","p":["23291040"],"b":[1,1,1],"x":[],"ad":""},{"n":"Al Zahra Medical Complex","t":"C","a":"القرم","loc":"Qurum","p":["24571093"],"b":[1,1,1],"x":[],"ad":"ALQURUM"},{"n":"AL ZAHRAA MEDICAL CENTER","t":"C","a":"جعلان بني بو علي","loc":"Jalan Bani Bu Ali","p":["25586390"],"b":[1,1,1],"x":[],"ad":"808, 400IBRA"},{"n":"AL ZAKI MEDICAL CENTRE","t":"C","a":"صور","loc":"Sur","p":["22071107"],"b":[1,1,1],"x":[],"ad":""},{"n":"Alawi Clinic","t":"C","a":"الوادي الكبير","loc":"Wadi Kabir","p":["24816982"],"b":[1,1,1],"x":[],"ad":""},{"n":"All Seasons Ayurveda Clinic","t":"A","a":"الخوير","loc":"Al Khuwaire","p":["24475280"],"b":[1,1,1],"x":[],"ad":""},{"n":"Amana Modern Medical Centre","t":"C","a":"المعبيلة","loc":"Mabela","p":["24452070"],"b":[1,1,1],"x":[],"ad":"mabellah ind area"},{"n":"Ammar Specialist Eye Center","t":"E","a":"صحار","loc":"Sohar","p":["26847595"],"b":[1,1,1],"x":[],"ad":"BUILDING NO.2248 TARIF AL BATHA STREET SOHAR OMAN"},{"n":"APEX EYE CENTER","t":"E","a":"العذيبة","loc":"Azaiba","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"Apollo Health Care Center","t":"C","a":"غلا","loc":"Ghala","p":["24594050"],"b":[1,1,1],"x":[],"ad":""},{"n":"Apollo Hospitals Muscat","t":"H","a":"الحمرية","loc":"Al Hamriya","p":["24787766"],"b":[1,1,1],"x":[],"ad":""},{"n":"APOLLO SPECIALITY HOSPITAL","t":"H","a":"الحيل","loc":"Al Hail","p":["24430303"],"b":[1,1,1],"x":[],"ad":""},{"n":"Arabi Specialized Hopsital","t":"C","a":"الوطية","loc":"Al Wattayah","p":[],"b":[1,0,0],"x":[],"ad":""},{"n":"Aster Al Raffah Hospital","t":"H","a":"صحار","loc":"Sohar","p":["26940800"],"b":[1,1,1],"x":[],"ad":""},{"n":"Aster Al Raffah Medical centre","t":"C","a":"صحار","loc":"Sohar","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"Aster Al Raffah Medical centre","t":"C","a":"لوى","loc":"Liwa","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"Aster Al Raffah polyclinic","t":"C","a":"المعبيلة","loc":"Mabela","p":["99454615"],"b":[1,1,1],"x":[],"ad":"Al Khoudh"},{"n":"Aster Al Raffah polyclinic","t":"C","a":"العامرات","loc":"Amerat","p":["98828140"],"b":[1,1,1],"x":[],"ad":"Al Ghubra"},{"n":"Aster Al Raffah polyclinic","t":"C","a":"الخوض","loc":"Al Khoudh","p":["98828140"],"b":[1,1,0],"x":[],"ad":""},{"n":"Aster Royal Hospital","t":"H","a":"الغبرة","loc":"Al Ghubra","p":["98828140"],"b":[1,1,0],"x":[],"ad":""},{"n":"AVANTI OPTICAL SHOP OMAN MALL","t":"O","a":"عُمان مول","loc":"Oman Mall - Bowshar","p":["24504433"],"b":[1,0,0],"x":[],"ad":""},{"n":"Avicen Clinic","t":"C","a":"الدقم","loc":"Duqm","p":["22478742"],"b":[1,1,1],"x":[],"ad":""},{"n":"AVICEN PHARMACY ADAM","t":"P","a":"أدم","loc":"Adam","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"AVICEN PHARMACY AL SUWAIQ","t":"P","a":"السويق","loc":"Suwaiq","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"AVICEN PHARMACY ANSAB","t":"P","a":"الأنصب","loc":"Ansab","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"AVICEN PHARMACY ARAQI","t":"P","a":"عراقي","loc":"Araqi","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"AVICEN PHARMACY BARKA","t":"P","a":"بركاء","loc":"Barka","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"AVICEN PHARMACY BIDBID","t":"P","a":"بدبد","loc":"Bidbid","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"AVICEN PHARMACY DUQM","t":"P","a":"الدقم","loc":"Duqm","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"AVICEN PHARMACY DUQM2","t":"P","a":"الدقم","loc":"Duqm","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"AVICEN PHARMACY FALAJ","t":"P","a":"فلج القبائل","loc":"Falaj","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"AVICEN PHARMACY GHUBRA","t":"P","a":"الغبرة","loc":"Ghubra","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"AVICEN PHARMACY IBRI2","t":"P","a":"عبري","loc":"Ibri","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"AVICEN PHARMACY INDUSTRIAL GHALA","t":"P","a":"غلا","loc":"Ghala","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"AVICEN PHARMACY MABELA INDUSTRIAL AREA","t":"P","a":"المعبيلة","loc":"Mabela","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"AVICEN PHARMACY MAQNIYAT","t":"P","a":"مقنيات","loc":"Maqniyat","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"Ayaan Eye Care Center","t":"E","a":"مدينة السلطان قابوس","loc":"MSQ","p":["24949435"],"b":[1,1,0],"x":[],"ad":"VILLA 213 & 214 , AL INSHIRAH ST, MADINAT SULTAN QABOOS"},{"n":"Azhar Cosmo Clinic","t":"C","a":"الموالح","loc":"Mawaleh","p":["24188464"],"b":[1,1,1],"x":[],"ad":""},{"n":"Azhar Polyclinic","t":"C","a":"الموالح","loc":"Mawaleh","p":["24539095"],"b":[1,1,1],"x":[],"ad":"SOUTH AL MAWALIH, MUSCAT , SEEB"},{"n":"Azhar Polyclinic","t":"C","a":"المعبيلة","loc":"Mabela","p":["24539095"],"b":[1,1,1],"x":[],"ad":""},{"n":"AZHAR PRIVATE HOSPITAL","t":"H","a":"الموالح","loc":"Mawaleh","p":["24278918"],"b":[1,1,1],"x":[],"ad":""},{"n":"Babylon Medical Centre","t":"C","a":"الأنصب","loc":"Ansab","p":["24200517"],"b":[1,1,1],"x":[],"ad":"Babylon Medical Center,G9W8+G8 Muscat , Al Ansab St, Muscat"},{"n":"Babylon Medical Centre","t":"C","a":"العامرات","loc":"Amerat","p":["24878911"],"b":[1,1,1],"x":[],"ad":"Babylon Medical Centre, FGX2+G2X, Al Amarat"},{"n":"Badr Al Sama Hospital - Sohar","t":"H","a":"صحار","loc":"Sohar","p":["22826624"],"b":[1,1,1],"x":[],"ad":""},{"n":"Badr Al Samaa Hospital - Salalah","t":"H","a":"صلالة","loc":"Salalah","p":["23291830"],"b":[1,1,1],"x":[],"ad":""},{"n":"Badr Al Samaa Hospital - Al Khoud","t":"H","a":"الخوض","loc":"Al Khoudh","p":["24546099"],"b":[1,1,1],"x":[],"ad":""},{"n":"Badr Al Samaa Hospital - Barka","t":"H","a":"بركاء","loc":"Barka","p":["26884910"],"b":[1,1,1],"x":[],"ad":""},{"n":"Badr Al Samaa Hospital - Nizwa","t":"H","a":"نزوى","loc":"Nizwa","p":["25447772"],"b":[1,1,1],"x":[],"ad":""},{"n":"Badr Al Samaa Hospital - Ruwi","t":"H","a":"روي","loc":"Ruwi","p":["22717171"],"b":[1,1,1],"x":[],"ad":""},{"n":"BADR AL SAMAA POLY CLINIC SOHAR","t":"C","a":"صحار","loc":"Sohar","p":["26754131"],"b":[1,1,1],"x":[],"ad":""},{"n":"Badr Al Samaa Polyclinic","t":"C","a":"فلج القبائل","loc":"Al Falaj","p":["26846660"],"b":[1,1,1],"x":[],"ad":""},{"n":"Badr Al Samaa Polyclinic","t":"C","a":"صور","loc":"Sur","p":["25546112"],"b":[1,1,1],"x":[],"ad":"Badr Al S+E28+C9:G9+C9:I9+E28+C9:G9+C9:M9+C9:L9+C9:K9"},{"n":"Badr Al Samaa Polyclinic","t":"C","a":"السويق","loc":"Suwaiq","p":["26060612"],"b":[1,1,1],"x":[],"ad":""},{"n":"Badr Al Samaa Polyclinic","t":"C","a":"الخوير","loc":"Al Khuwaire","p":["24488322"],"b":[1,1,1],"x":[],"ad":""},{"n":"BADR AL SAMAA POLYCLINIC","t":"C","a":"الدقم","loc":"Duqm","p":["22826435"],"b":[1,1,1],"x":[],"ad":""},{"n":"BADR AL SAMAA PREMIUM MEDICAL CENTER","t":"C","a":"المعبيلة","loc":"Mabela","p":["24488322"],"b":[1,1,1],"x":[],"ad":""},{"n":"Badr Al Samaa Royal Hopsital","t":"H","a":"الغبرة","loc":"Al Ghubra","p":["22387777"],"b":[1,1,0],"x":[],"ad":""},{"n":"Balsm Pharmacy - MSQ","t":"P","a":"مدينة السلطان قابوس","loc":"MSQ","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"Barakat Al Noor Clinic","t":"C","a":"الخوير","loc":"Al Khuwaire","p":["24489599"],"b":[1,1,1],"x":[],"ad":"BUILDING NO.2956,WAY NO.2541,BLOCK NO.225,AL KHUWAIR"},{"n":"Basmat Al Amal Medical Complex","t":"C","a":"بهلاء","loc":"Bahla","p":["25421222"],"b":[1,1,1],"x":[],"ad":"AL MAMOORA"},{"n":"Basmat Al Amal Medical Complex","t":"C","a":"نزوى","loc":"Nizwa","p":["25214074"],"b":[1,1,1],"x":[],"ad":""},{"n":"Basmat Al Amal Medical Complex","t":"C","a":"سمائل","loc":"Sumail","p":["99227162"],"b":[1,1,1],"x":[],"ad":"SAMAIL"},{"n":"BEST MEDICARE MEDICAL CENTER","t":"C","a":"بركاء","loc":"Barka","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"Blessing Healthcare Centre","t":"C","a":"صحار","loc":"Sohar","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"Bombay Medical & Diagnostic Centre","t":"C","a":"روي","loc":"Ruwi","p":["24795252"],"b":[1,1,1],"x":[],"ad":""},{"n":"Bombay Optical","t":"O","a":"روي","loc":"Ruwi","p":["24798383"],"b":[1,1,1],"x":[],"ad":""},{"n":"Bombay Pharmacy","t":"P","a":"روي","loc":"Ruwi","p":["24798383"],"b":[1,1,1],"x":[],"ad":""},{"n":"BRIGHT SMILE DENTAL CLINIC","t":"D","a":"صحم","loc":"SAHAM","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"Burjeel Hospital","t":"H","a":"الخوير","loc":"Al Khuwaire","p":["24399777"],"b":[1,0,0],"x":[],"ad":""},{"n":"Burjeel Medical centre","t":"C","a":"العذيبة","loc":"Azaiba","p":["22085253"],"b":[1,1,0],"x":[],"ad":""},{"n":"CAPITAL PHARMACY","t":"P","a":"روي","loc":"MBD","p":["22507991"],"b":[1,1,1],"x":[],"ad":""},{"n":"CAPITAL PHARMACY","t":"P","a":"المعبيلة","loc":"Mabela","p":["24456760"],"b":[1,1,1],"x":[],"ad":"MAABELAH"},{"n":"CAPITAL PHARMACY","t":"P","a":"صلالة","loc":"Salalah","p":["23288904"],"b":[1,1,1],"x":[],"ad":""},{"n":"CAPITAL PHARMACY","t":"P","a":"دارسيت","loc":"Darsait","p":["24780484"],"b":[1,1,1],"x":[],"ad":"DARSAIT,MUSCAT"},{"n":"CAPITAL PHARMACY","t":"P","a":"روي","loc":"Oman House","p":["22800970"],"b":[1,1,1],"x":[],"ad":"CAPITAL PHARMACY"},{"n":"CARE AND CURE POLYCLINIC","t":"C","a":"المصنعة","loc":"Musannah","p":[],"b":[1,1,1],"x":[],"ad":"Al Suwaiq"},{"n":"COIMBATORE AYURVEDIC CENTRE","t":"A","a":"الغبرة","loc":"Al Ghubra","p":["24490102"],"b":[1,1,1],"x":[],"ad":""},{"n":"COIMBATORE AYURVEDIC CENTRE","t":"A","a":"بركاء","loc":"Barka","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"COIMBATORE AYURVEDIC CENTRE","t":"A","a":"السيب","loc":"Seeb","p":["24421010"],"b":[1,1,1],"x":[],"ad":""},{"n":"COIMBATORE AYURVEDIC CENTRE","t":"A","a":"روي","loc":"Ruwi","p":["24787629"],"b":[1,1,1],"x":[],"ad":""},{"n":"CRYSTAL HEALTHCARE","t":"C","a":"سمائل","loc":"Sumail","p":[],"b":[1,1,1],"x":[],"ad":"Al madra Sama'il"},{"n":"CRYSTAL HEALTHCARE","t":"C","a":"المعبيلة","loc":"Mabela Nesto","p":[],"b":[1,1,1],"x":[],"ad":"Al Noor Street, Seeb, Muscat, in Mabela, Oman"},{"n":"Dar Al Huda Homoeocare clinic","t":"M","a":"القرم","loc":"Qurum","p":["24665383"],"b":[1,1,1],"x":[],"ad":""},{"n":"DAR AL MAJD MEDICAL SPECIALIZED COMPLEX","t":"C","a":"صحار","loc":"Sohar","p":["26848040"],"b":[1,1,1],"x":[],"ad":""},{"n":"Dar Alteb Specialized Polyclinic","t":"C","a":"جعلان بني بو علي","loc":"Jalan Bani Bu Ali","p":["25553115"],"b":[1,1,1],"x":[],"ad":""},{"n":"Delta Pharmacy Al Amrat","t":"P","a":"العامرات","loc":"Amerat","p":[],"b":[1,1,1],"x":[],"ad":"NESTO HYPER MARKET, AMERAT"},{"n":"Delta Pharmacy Al Hmbar Sohar","t":"P","a":"صحار","loc":"Sohar","p":[],"b":[1,1,1],"x":[],"ad":"NESTO HYPER MARKET, SOHAR"},{"n":"Delta Pharmacy Al Khoud","t":"P","a":"الخوض","loc":"Al Khoudh","p":[],"b":[1,1,1],"x":[],"ad":"NESTO HYPER MARKET, AL KHOUD"},{"n":"Delta Pharmacy Al Mabela","t":"P","a":"المعبيلة","loc":"Al Mabelah","p":[],"b":[1,1,1],"x":[],"ad":"NESTO HYPER MARKET, MABELA"},{"n":"Delta Pharmacy Al Mabela 3","t":"P","a":"المعبيلة","loc":"Al Mabelah","p":[],"b":[1,1,1],"x":[],"ad":"KENZ HYPERMARKET, MABELA"},{"n":"Delta Pharmacy Al Mussana","t":"P","a":"المصنعة","loc":"Mussanah","p":[],"b":[1,1,1],"x":[],"ad":"NESTO HYPER MARKET, MUSANNA"},{"n":"Delta Pharmacy Al Qurum","t":"P","a":"القرم","loc":"Al Qurum","p":[],"b":[1,1,1],"x":[],"ad":"OPPO QURUM NATIONAL PARK, QURUM"},{"n":"Delta Pharmacy Al Saadah Nesto","t":"P","a":"السعادة","loc":"Al Saadah","p":[],"b":[1,1,1],"x":[],"ad":"NESTO HYPER MARKET, SADA"},{"n":"Delta Pharmacy Al Sawmhan Barka","t":"P","a":"بركاء","loc":"Barka","p":[],"b":[1,1,1],"x":[],"ad":"NESTO HYPER MARKET, BARKA"},{"n":"Delta Pharmacy Al Swady Barka","t":"P","a":"بركاء","loc":"Barka","p":[],"b":[1,1,1],"x":[],"ad":"BEACH ROAD, SAWADI"},{"n":"Delta Pharmacy Awqad Nesto","t":"P","a":"عوقد","loc":"Awqad","p":[],"b":[1,1,1],"x":[],"ad":"NESTO HYPER MARKET, AWQAD"},{"n":"Delta Pharmacy Ewqd Alshmalyh","t":"P","a":"عوقد","loc":"Awqad","p":[],"b":[1,1,1],"x":[],"ad":"AWQAD SOUQ"},{"n":"Delta Pharmacy Falaj Al Qabail","t":"P","a":"فلج القبائل","loc":"Falaj Al Qabayil","p":[],"b":[1,1,1],"x":[],"ad":"NESTO HYPER MARKET, FALAJ"},{"n":"Delta Pharmacy North Al Hail","t":"P","a":"الحيل","loc":"Al Hail","p":[],"b":[1,1,1],"x":[],"ad":"NESTO HYPER MARKET, HAIL"},{"n":"Delta Pharmacy Saham","t":"P","a":"صحم","loc":"Saham","p":[],"b":[1,1,1],"x":[],"ad":"NESTO HYPER MARKET, SAHAM"},{"n":"Delta Pharmacy South Mabela 2","t":"P","a":"المعبيلة","loc":"Mabela","p":[],"b":[1,1,1],"x":[],"ad":"SAFA MALL, SANAYYA, MABELA"},{"n":"Delta Pharmacy Wadi Kabir","t":"P","a":"الوادي الكبير","loc":"Wadi Kabirh","p":[],"b":[1,1,1],"x":[],"ad":"NESTO HYPER MARKET, WADI KABIR"},{"n":"DHOFAR INTERNATIONAL MEDICAL CENTER","t":"C","a":"السعادة","loc":"Saaadah","p":["23238590"],"b":[1,1,1],"x":[],"ad":""},{"n":"Dorat Al Shifa Polyclinic","t":"C","a":"صحم","loc":"SAHAM","p":["26854333"],"b":[1,1,1],"x":[],"ad":""},{"n":"El Shola Polyclinic","t":"C","a":"روي","loc":"Ruwi","p":["24706540"],"b":[1,1,1],"x":[],"ad":""},{"n":"Elite Modern Medical Center","t":"D","a":"الخوض","loc":"Al Khoudh","p":["24283761"],"b":[1,1,1],"x":[],"ad":""},{"n":"ELITE HOSPITAL","t":"C","a":"صحار","loc":"Sohar","p":["26844430"],"b":[1,1,1],"x":[],"ad":""},{"n":"EURO ARABIAN SPECIALIST DENTAL CENTER","t":"D","a":"مدينة السلطان قابوس","loc":"MSQ","p":["24698100"],"b":[1,1,1],"x":[],"ad":"NEXT TO BRITISH COUNCIL"},{"n":"EURO ARABIAN SPECIALIST DENTAL CENTER","t":"D","a":"نزوى","loc":"Nizwa","p":[],"b":[1,1,1],"x":[],"ad":"Behind Hyper Max"},{"n":"EURO ARABIAN SPECIALIST DENTAL CENTER","t":"D","a":"الخوض","loc":"Al Khoudh","p":["24533211"],"b":[1,1,1],"x":[],"ad":"BARAKAT STREET"},{"n":"EURO ARABIAN SPECIALIST DENTAL CENTER","t":"D","a":"صلالة","loc":"Salalah","p":["23298505"],"b":[1,1,1],"x":[],"ad":"al jadeeda street"},{"n":"EURO ARABIAN SPECIALIST DENTAL CENTER","t":"D","a":"صور","loc":"Sur","p":["25535777"],"b":[1,1,1],"x":[],"ad":"Murtafa Street"},{"n":"EURO ARABIAN SPECIALIST DENTAL CENTRE","t":"D","a":"صحار","loc":"Sohar","p":["26940575"],"b":[1,1,1],"x":[],"ad":""},{"n":"Family Health Medical Complex","t":"C","a":"صحار","loc":"Sohar","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"Ferri Clinic","t":"C","a":"المعبيلة","loc":"Mabela","p":["24453050"],"b":[1,1,1],"x":[],"ad":""},{"n":"Finland Eye Center - Al Qurum Main Branch","t":"E","a":"القرم","loc":"Qurum","p":["24564488"],"b":[1,0,0],"x":[],"ad":""},{"n":"Finland Eye Center - Nizwa Branch","t":"E","a":"نزوى","loc":"Nizwa","p":["25433500"],"b":[1,0,0],"x":[],"ad":"Behind Grand Mall Nizwa"},{"n":"Finland Eye Center - SOHAR Branch","t":"E","a":"صحار","loc":"Sohar","p":["26846662"],"b":[1,0,0],"x":[],"ad":""},{"n":"Finland Eye Center - Sur Branch","t":"E","a":"صور","loc":"Sur","p":["25740633"],"b":[1,0,0],"x":[],"ad":"MYCITY CNETER SUR,South Al Sharqiya Governorate"},{"n":"FINLAND Medical CENTER Salalah","t":"H","a":"صلالة","loc":"Salalah","p":["23298515"],"b":[1,1,1],"x":[],"ad":""},{"n":"FINLAND OPTICAL CENTER AVENUES MALL","t":"O","a":"الغبرة","loc":"Al Ghubra","p":["22063944"],"b":[1,1,1],"x":[],"ad":""},{"n":"FINLAND OPTICAL CENTER MUSCAT GRAND MALL","t":"O","a":"الغبرة","loc":"Al Ghubra","p":["22009996"],"b":[1,1,1],"x":[],"ad":""},{"n":"FINLAND OPTICAL CENTER OMAN MALL","t":"O","a":"عُمان مول","loc":"Muscat","p":["24629931"],"b":[1,1,1],"x":[],"ad":""},{"n":"FINLAND OPTICAL CENTER QURUM","t":"O","a":"القرم","loc":"Qurum","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"FINLAND OPTICAL CENTER QURUM CC","t":"O","a":"القرم","loc":"Qurum","p":["24566272"],"b":[1,1,1],"x":[],"ad":""},{"n":"FINLAND OPTICAL CENTER SALALAH GARDENS MALL","t":"O","a":"صلالة","loc":"Salalah","p":["24470655"],"b":[1,1,1],"x":[],"ad":""},{"n":"FINLAND OPTICAL CENTER SEEB CC","t":"O","a":"السيب","loc":"Seeb","p":["23298515"],"b":[1,1,1],"x":[],"ad":""},{"n":"Fusion Medicare","t":"C","a":"العذيبة","loc":"Azaiba","p":["24595956"],"b":[1,1,1],"x":[],"ad":"Al Mamour Building , WAY 319.LOCATION-Azaiba South"},{"n":"GABA PAIN CENTER","t":"C","a":"الحيل","loc":"Al Hail","p":[],"b":[1,0,0],"x":[],"ad":"Al Hail, Seeb Muscat"},{"n":"Gana Medical Center","t":"C","a":"بركة الموز","loc":"Berkat Al Mouz","p":["25443311"],"b":[1,1,1],"x":[],"ad":"Barkat Ak Nooz,Nizwa"},{"n":"Global Indian ayurvedic clinic","t":"A","a":"صلالة","loc":"Salalah","p":["22329568"],"b":[1,1,1],"x":[],"ad":""},{"n":"GOHARAT AL SHARQIYAH MEDICAL CENTER","t":"C","a":"سناو","loc":"Sinaw","p":["25525477"],"b":[1,1,1],"x":[],"ad":""},{"n":"GOLDEN MEDICAL COMPLEX","t":"C","a":"الرستاق","loc":"Al Araqi - Al Rustaq","p":["22842718"],"b":[1,1,1],"x":[],"ad":"Al-Rustaq ( AL IRAQI )"},{"n":"GOLDEN MEDICAL COMPLEX","t":"C","a":"الرستاق","loc":"Al Shareeya - Rustaq","p":["26897610"],"b":[1,1,1],"x":[],"ad":"Al-Rustaq ( Falaj Al-sharah)"},{"n":"Golden Star Optical","t":"O","a":"صحار","loc":"Sohar","p":["26841787"],"b":[1,1,1],"x":[],"ad":"Near Old Hospital"},{"n":"Golden Star Optical","t":"O","a":"صحم","loc":"Saham","p":["26856656"],"b":[1,1,1],"x":[],"ad":""},{"n":"Golden Star Optical","t":"O","a":"البداية","loc":"Bidayah","p":["26709335"],"b":[1,1,1],"x":[],"ad":""},{"n":"GRAND VISION OPTICAL SAHAM","t":"O","a":"صحم","loc":"Saham","p":[],"b":[1,1,1],"x":[],"ad":"Saham Way"},{"n":"GRAND VISION OPTICAL SHINAS","t":"O","a":"شناص","loc":"SHINAS","p":[],"b":[1,1,1],"x":[],"ad":"Shinas-Alraala Way"},{"n":"GRAND VISION OPTICAL SOHAR","t":"O","a":"صحار","loc":"Sohar","p":["99737280"],"b":[1,1,1],"x":[],"ad":"City Center Sohar"},{"n":"GRAND VISION OPTICAL WAQAIBAH","t":"O","a":"الوقيبة","loc":"WAQAIBAH","p":[],"b":[1,1,1],"x":[],"ad":"Al Wiqayah"},{"n":"Green corner Clinic - Gala","t":"C","a":"غلا","loc":"Ghala","p":["22052416"],"b":[1,1,1],"x":[],"ad":""},{"n":"GULF SPECIALIZED HOSPITAL","t":"H","a":"الوطية","loc":"Al Wattayah","p":["22081700"],"b":[1,1,1],"x":[],"ad":""},{"n":"HALA MEDICAL CENTER","t":"C","a":"الوادي الكبير","loc":"Wadi Kabir","p":["24857744"],"b":[1,1,1],"x":[],"ad":""},{"n":"HALA MEDICAL CENTER","t":"C","a":"سناو","loc":"Sinaw","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"Hatat House Pharmacy","t":"P","a":"وادي عدي","loc":"Wadi Adai","p":["24565662"],"b":[1,1,1],"x":[],"ad":""},{"n":"Hatat Polyclinic","t":"C","a":"وادي عدي","loc":"Wadi Adai","p":["24566256"],"b":[1,1,1],"x":[],"ad":""},{"n":"HEALTH AND HAPPINESS CLINICS","t":"C","a":"نزوى","loc":"Nizwa","p":[],"b":[1,1,1],"x":[],"ad":"HEALTH AND HAPPINESS CLINICS"},{"n":"HEALTH LIFE CLINIC","t":"C","a":"الخوير","loc":"Al Khuwaire","p":["24131307"],"b":[1,1,1],"x":[],"ad":""},{"n":"HVC MUSCAT BAY","t":"C","a":"الخوير","loc":"Al Khuwaire","p":["24138093"],"b":[1,1,1],"x":[],"ad":"HVC,MUSCATBAY"},{"n":"IBN AL HAITHAM Medical Complex","t":"C","a":"إبراء","loc":"Ibra","p":["25571899"],"b":[1,1,1],"x":[],"ad":""},{"n":"IBN AL HAITHAM Medical Complex","t":"C","a":"المضيبي","loc":"Mudhaibi","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"IBN AL HAITHAM POLYCLINIC","t":"C","a":"بدية","loc":"Bidaya","p":["25583355"],"b":[1,1,1],"x":[],"ad":""},{"n":"IBN KHALDOON CLINIC","t":"C","a":"نزوى","loc":"Nizwa","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"IBN SINA PHARMACY","t":"P","a":"أدم","loc":"Adam","p":["93219051"],"b":[1,1,1],"x":[],"ad":""},{"n":"IBN SINA PHARMACY","t":"P","a":"نخل","loc":"Nakhal Mall inside","p":["93219051"],"b":[1,1,1],"x":[],"ad":""},{"n":"IBN SINA PHARMACY","t":"P","a":"الدقم","loc":"Duqm","p":["93218641"],"b":[1,1,1],"x":[],"ad":""},{"n":"IBN SINA PHARMACY","t":"P","a":"هيماء","loc":"Haima","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"IBN SINA PHARMACY","t":"P","a":"محوت","loc":"Mahout","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"IBN SINA PHARMACY","t":"P","a":"صور","loc":"Sur","p":["93219052"],"b":[1,1,1],"x":[],"ad":""},{"n":"IBN SINA PHARMACY","t":"P","a":"صحار","loc":"Sohar","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"IBN SINA PHARMACY","t":"P","a":"صلالة","loc":"Salalah","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"IBN SINA PHARMACY","t":"P","a":"الخوض","loc":"Al Khoudh","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"IBN SINA PHARMACY","t":"P","a":"غلا","loc":"Ghala","p":["93219017"],"b":[1,1,1],"x":[],"ad":""},{"n":"IBN SINA PHARMACY","t":"P","a":"الحيل الجنوبية","loc":"Al Hail South","p":["93219016"],"b":[1,1,1],"x":[],"ad":""},{"n":"IBN SINA PHARMACY","t":"P","a":"الخوير","loc":"Al Khuwaire","p":["93219015"],"b":[1,1,1],"x":[],"ad":""},{"n":"IBN SINA PHARMACY","t":"P","a":"روي - شارع ريكس","loc":"Rex Road","p":["93219053"],"b":[1,1,1],"x":[],"ad":""},{"n":"IBN SINA PHARMACY","t":"P","a":"مطرح الكبرى","loc":"Gr.Muttarh","p":["93219053"],"b":[1,1,1],"x":[],"ad":""},{"n":"IBN SINA PHARMACY","t":"P","a":"المعبيلة","loc":"Mabela","p":["93219012"],"b":[1,1,1],"x":[],"ad":""},{"n":"IBN SINA PHARMACY","t":"P","a":"ثمريت","loc":"Thumrait","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"Ibrahim Mohammed Ahmed Al balushi Clinic","t":"A","a":"صحار","loc":"Sohar","p":["26842422"],"b":[1,1,1],"x":[],"ad":"8PWH+RR5, 5015 Way, Sohar, Oman"},{"n":"Ibri city Polyclinic","t":"C","a":"عبري","loc":"Ibri","p":["22020222"],"b":[1,1,1],"x":[],"ad":""},{"n":"Imperial Dental Center","t":"D","a":"مطرح","loc":"Muttrah","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"International Specilaized Center for Heart and Vascular Diseases","t":"C","a":"العذيبة","loc":"Azaiba","p":["24138093"],"b":[1,0,0],"x":[],"ad":""},{"n":"JOHARAT AJMAL SPECIALIZED CLICNIC","t":"C","a":"إبراء","loc":"Ibra","p":["25509951"],"b":[1,1,1],"x":[],"ad":"NORTH SHARQIYA"},{"n":"Juma Al Habsi Polyclinic","t":"C","a":"السيب","loc":"Seeb","p":["24450670"],"b":[1,1,1],"x":[],"ad":"SHARADI AL SADAR ,SEEB"},{"n":"Kazimi International Laboratory","t":"L","a":"الغبرة","loc":"Al Ghubra","p":["22518055"],"b":[1,1,1],"x":[],"ad":""},{"n":"KIMS HEALTH MEDICAL CENTRE","t":"C","a":"الخوير","loc":"Al Khuwaire","p":["24483300"],"b":[1,1,1],"x":[],"ad":""},{"n":"Kims Medical Complex","t":"C","a":"الدقم","loc":"Duqm","p":["24760401"],"b":[1,1,1],"x":[],"ad":""},{"n":"KIMS Oman Airport Clinic","t":"C","a":"السيب","loc":"Seeb","p":["24760100"],"b":[1,1,1],"x":[],"ad":""},{"n":"Kims Oman Hospital","t":"H","a":"دارسيت","loc":"Darsait","p":["24760100"],"b":[1,1,1],"x":[],"ad":""},{"n":"KINAAN MEDICAL CENTER","t":"C","a":"الحيل","loc":"Al Hail","p":["22005523"],"b":[1,1,1],"x":[],"ad":""},{"n":"KOTTAKKAL ARYA VAIDYA SALA","t":"A","a":"روي","loc":"CBD","p":["24791662"],"b":[1,1,1],"x":[],"ad":""},{"n":"Kottakkal Ayurvedic Centre/Kottakkal Arya Vaidya Sala - Ruwi","t":"A","a":"روي","loc":"Ruwi","p":["24701555"],"b":[1,1,1],"x":[],"ad":"Saturn Line International Co LLC ( Kottakkal Ayurvedic Centre)"},{"n":"Kottakkal Ayurvedic Centre/Kottakkal Arya Vaidya Sala - Sohar","t":"A","a":"صحار","loc":"Sohar","p":["26843131"],"b":[1,1,1],"x":[],"ad":""},{"n":"Lama Polyclinic L.L.C","t":"C","a":"الخوير","loc":"Al Khuwaire","p":["24478817"],"b":[1,1,1],"x":[],"ad":"Al Khuwair"},{"n":"Lama Polyclinic L.L.C","t":"C","a":"روي","loc":"Ruwi","p":["24799077"],"b":[1,1,1],"x":[],"ad":""},{"n":"LAMASAT AYURVEDA CLINIC","t":"A","a":"العذيبة","loc":"Azaiba","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"Lifeline Hospital","t":"H","a":"صحار","loc":"Sohar","p":["26651111"],"b":[1,1,1],"x":[],"ad":""},{"n":"Lifeline Hospital","t":"H","a":"صلالة","loc":"Salalah","p":["23213471"],"b":[1,1,1],"x":[],"ad":"Hmadan Plaza building"},{"n":"Lifeline Medical centre","t":"C","a":"دارسيت","loc":"Darsait","p":["24784780"],"b":[1,1,1],"x":[],"ad":""},{"n":"LULUAT ALKHAD MEDICAL POLYCLINIC","t":"C","a":"ينقل","loc":"Yanqil","p":[],"b":[1,1,1],"x":[],"ad":"Soader"},{"n":"MAJAN EYE CENTER","t":"E","a":"بركاء","loc":"Barka","p":["26983200"],"b":[1,1,1],"x":[],"ad":""},{"n":"Marwan Al Balushi Homoeopathy Clinic","t":"M","a":"روي","loc":"Ruwi","p":["24785821"],"b":[1,1,1],"x":[],"ad":"Al Fursan St, Muscat, Muscat Governorate, OM"},{"n":"Maternal and Fetal Care Center","t":"C","a":"الموالح","loc":"Mawaleh","p":["24288206"],"b":[1,1,0],"x":[],"ad":""},{"n":"MAXCARE HOSPITAL","t":"H","a":"صلالة","loc":"Salalah","p":["23292277"],"b":[1,1,1],"x":[],"ad":""},{"n":"Medical Care centre","t":"C","a":"السيب","loc":"Seeb","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"MEDICAL EXCELL COMPLEX","t":"C","a":"بهلاء","loc":"Bahla","p":["25419926"],"b":[1,1,1],"x":[],"ad":"Al Mamora, Bahla"},{"n":"Medical Scan Center","t":"I","a":"الغبرة","loc":"Al Ghubra","p":["24495302"],"b":[1,1,1],"x":[],"ad":"Muscat Governorate, Boshar Wilayat, Al Ghubra Al Janubiyya, Block 237, Way 3716, 1896"},{"n":"MEDSTAR AL GHUBRAH","t":"C","a":"العذيبة","loc":"Azaiba","p":[],"b":[1,1,1],"x":[],"ad":"Al Ghubra Al Shamaliyya, Block 240, Way 4010"},{"n":"METRO PREMIER MEDICAL CENTRE","t":"C","a":"الخوض","loc":"Al Khoudh","p":["24543040"],"b":[1,1,1],"x":[],"ad":"AL KHOUD 6"},{"n":"Modern Al Salama Polyclinic","t":"C","a":"المعبيلة","loc":"Mabela","p":["24451726"],"b":[1,1,1],"x":[],"ad":"Mabela-Al Khair street, South Mabela"},{"n":"Muscat care Medical Centre","t":"C","a":"بركاء","loc":"Barka","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"NMC Medical Center","t":"C","a":"السيب","loc":"Seeb","p":["24423894"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores (Salalah) LLC - 23rd July Street","t":"P","a":"صلالة","loc":"Salalah","p":["23225048"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores (Salalah) LLC - Al Isteqrar Mall","t":"P","a":"الاستقرار مول","loc":"Al Isteqrar Hypermarket","p":["23294010"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores (Salalah) LLC - Al Saada","t":"P","a":"السعادة","loc":"Saaadah","p":["23235653"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores (Salalah) LLC - Auwqad","t":"P","a":"عوقد","loc":"Auwqad Br. Op. Raysut Patrol Pump","p":["23210635"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores (Salalah) LLC - Dhareez","t":"P","a":"الدهاريز","loc":"Dhareez Opp. Shell Patrol Pump","p":["23210635"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores (Salalah) LLC - Dhareez","t":"P","a":"الدهاريز","loc":"Dhareez Opp. Shell Patrol Pump","p":["23235653"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores (Salalah) LLC - Mirbat","t":"P","a":"مرباط","loc":"Mirbat Op. Roudha Mosque","p":["23235653"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Al Aqar","t":"P","a":"العقر","loc":"Al Aqar","p":["26748483"],"b":[1,1,1],"x":[],"ad":"al rustaq"},{"n":"Muscat Pharmacy & Stores LLC-Al Ghobra Pharmacy","t":"P","a":"الغبرة","loc":"Al Ghubra","p":["24497264"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Al Hail","t":"P","a":"الحيل","loc":"Al Hail","p":["24535977"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Al Hamra","t":"P","a":"الحمرية","loc":"Al Hamriya","p":["25422343"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Al Kamil","t":"P","a":"الكامل والوافي","loc":"Al Kamil","p":["25557091"],"b":[1,1,1],"x":[],"ad":"AL SHARQYAH"},{"n":"Muscat Pharmacy & Stores LLC-Al Khod","t":"P","a":"الخوض","loc":"Al Khoudh","p":["24538953"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Al Khuwair Pharmacy","t":"P","a":"الخوير","loc":"Al Khuwaire","p":["24485740"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Al Meera H'market Azaiba Pharmacy","t":"P","a":"العذيبة","loc":"Al Meera H'market","p":["24496249"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Al Sarooj Complex Pharmacy","t":"P","a":"شاطئ القرم","loc":"Al Sarooj Complex Pharmacy","p":["24603534"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Bahla","t":"P","a":"بهلاء","loc":"Bahla","p":["25419740"],"b":[1,1,1],"x":[],"ad":"AL DAKLIYAH"},{"n":"Muscat Pharmacy & Stores LLC-Barka","t":"P","a":"بركاء","loc":"Barka","p":["26885372"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Barka Grand Centre","t":"P","a":"بركاء","loc":"Barka","p":["26984487"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Bidaya","t":"P","a":"البداية","loc":"Bidaya","p":["26708180"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Bilad Bani Bu Ali","t":"P","a":"جعلان بني بو علي","loc":"Bilad Bani Bu Ali","p":["25553984"],"b":[1,1,1],"x":[],"ad":"AL SHARQYAH"},{"n":"Muscat Pharmacy & Stores LLC-Buraimi","t":"P","a":"البريمي","loc":"Buraimi","p":["25653852"],"b":[1,1,1],"x":[],"ad":"AL DAHIRAH"},{"n":"Muscat Pharmacy & Stores LLC-Darseit","t":"P","a":"دارسيت","loc":"Darsait","p":["24788338"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Gr Muttrah Pharmacy","t":"P","a":"مطرح","loc":"Muttrah","p":["24703345"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Hamriya","t":"P","a":"الحمرية","loc":"Al Hamriya","p":["24833323"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Hay Al Rahbah","t":"P","a":"حي الرحبة","loc":"Hay Al Rahbah","p":["24601650"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Hellat A'Saad","t":"P","a":"حلة السعد","loc":"Hellat A'Saad","p":["24505892"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Ibra","t":"P","a":"إبراء","loc":"Ibra","p":["25570473"],"b":[1,1,1],"x":[],"ad":"AL DAHIRA"},{"n":"Muscat Pharmacy & Stores LLC-Ibri Murtafa","t":"P","a":"عبري","loc":"Ibri","p":["25689025"],"b":[1,1,1],"x":[],"ad":"AL DAHIRA"},{"n":"Muscat Pharmacy & Stores LLC-Ibri Sanaya","t":"P","a":"عبري","loc":"Ibri","p":["25689216"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Jawahrat Al Shatti Pharmacy","t":"P","a":"شاطئ القرم","loc":"Jawahrat Al Shatti Pharmacy","p":["24791144"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Khabourah","t":"P","a":"الخابورة","loc":"Khabourah","p":["26802356"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Khasab","t":"P","a":"خصب","loc":"Khasab","p":["26730150"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Liwa","t":"P","a":"لوى","loc":"Liwa","p":["26762622"],"b":[1,1,1],"x":[],"ad":"AL DAHIRA"},{"n":"Muscat Pharmacy & Stores LLC-Mabellah","t":"P","a":"المعبيلة","loc":"Mabela","p":["24456344"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Madinat Sultan Qaboos Pharmacy","t":"P","a":"مدينة السلطان قابوس","loc":"Madinat Qaboos","p":["24601051"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Masirah","t":"P","a":"مصيرة","loc":"Masirah","p":["25504349"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Mawalah Maha","t":"P","a":"الموالح","loc":"Mawaleh","p":["24537080"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Muscat City Centre","t":"P","a":"المصنعة","loc":"Musannah","p":["24558704"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Muscat International Airport - Airside","t":"P","a":"المصنعة","loc":"Musannah","p":["24356879"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Muscat International Airport - Landside","t":"P","a":"المصنعة","loc":"Musannah","p":["24356878"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Musna","t":"P","a":"المصنعة","loc":"Musannah","p":["26868142"],"b":[1,1,1],"x":[],"ad":"AL BATINAH"},{"n":"Muscat Pharmacy & Stores LLC-Muttrah (Nr. Taxi stand)","t":"P","a":"مطرح","loc":"Muttrah","p":["24713778"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Muttrah Souk","t":"P","a":"مطرح","loc":"Muttrah","p":["24712782"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Nizwa","t":"P","a":"نزوى","loc":"Nizwa","p":["22579877"],"b":[1,1,1],"x":[],"ad":"AL DAKLIYAH"},{"n":"Muscat Pharmacy & Stores LLC-Pharma Warehouse Annex","t":"P","a":"مستودع (ملحق)","loc":"Pharma Warehouse Annex","p":["24812321"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Pharma Warehouse New","t":"P","a":"مستودع (جديد)","loc":"Pharma Warehouse New","p":["24814501"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Qurum City Centre","t":"P","a":"القرم","loc":"Qurum","p":["24571396"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Qurum Pharmacy","t":"P","a":"القرم","loc":"Qurum","p":["24571396"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Rustaq","t":"P","a":"الرستاق","loc":"Rustaq","p":["26878631"],"b":[1,1,1],"x":[],"ad":"AL BATINAH"},{"n":"Muscat Pharmacy & Stores LLC-Ruwi","t":"P","a":"روي","loc":"Ruwi","p":["24702542"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Ruwi High Street","t":"P","a":"روي","loc":"Ruwi","p":["24833964"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Ruwi opp. Raymonds","t":"P","a":"روي","loc":"Ruwi","p":["24833964"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Safeer H'market Sohar Pharmacy","t":"P","a":"صحار","loc":"Sohar","p":["26853050"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Saham","t":"P","a":"صحم","loc":"Saham","p":["26854158"],"b":[1,1,1],"x":[],"ad":"AL BATINAH"},{"n":"Muscat Pharmacy & Stores LLC-Seeb","t":"P","a":"السيب","loc":"Seeb","p":["24421691"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Senaw","t":"P","a":"سناو","loc":"Sinaw","p":["25524810"],"b":[1,1,1],"x":[],"ad":"AL SARQYAH"},{"n":"Muscat Pharmacy & Stores LLC-Sohar","t":"P","a":"صحار","loc":"Sohar","p":["26840211"],"b":[1,1,1],"x":[],"ad":"AL BAINAH"},{"n":"Muscat Pharmacy & Stores LLC-Sohar Warehouse","t":"P","a":"صحار","loc":"Sohar","p":["26701752"],"b":[1,1,1],"x":[],"ad":"AL BAINAH"},{"n":"Muscat Pharmacy & Stores LLC-Sur Depot","t":"P","a":"صور","loc":"Sur","p":["24814501"],"b":[1,1,1],"x":[],"ad":"AL SARQUAH"},{"n":"Muscat Pharmacy & Stores LLC-Sur Pharmacy","t":"P","a":"صور","loc":"Sur","p":["25543660"],"b":[1,1,1],"x":[],"ad":"AL SARQUAH"},{"n":"Muscat Pharmacy & Stores LLC-Suwaiq","t":"P","a":"السويق","loc":"Suwaiq","p":["26862128"],"b":[1,1,1],"x":[],"ad":"AL BATINAH"},{"n":"Muscat Pharmacy & Stores LLC-Wadi Adai","t":"P","a":"وادي عدي","loc":"Wadi Adai","p":["24814501"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Wadi Hatat","t":"P","a":"وادي حطاط","loc":"Wadi Hatat","p":["24878817"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Wadi Kabir Nr. Park / Omanoil","t":"P","a":"الوادي الكبير","loc":"Wadi Kabir","p":["24817331"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Wadi Kabir opp Al Maha","t":"P","a":"الوادي الكبير","loc":"Wadi Kabir","p":["24817331"],"b":[1,1,1],"x":[],"ad":""},{"n":"Muscat Pharmacy & Stores LLC-Yanqil","t":"P","a":"ينقل","loc":"Yanqil","p":["25672581"],"b":[1,1,1],"x":[],"ad":"AL DAHIRA"},{"n":"Muscat Private Hospital","t":"H","a":"بوشر","loc":"Bowsher","p":["24583600"],"b":[1,0,0],"x":[],"ad":"AZAIBA"},{"n":"NAHER AL KAWTHER MEDICAL CENTER","t":"C","a":"قريات","loc":"Quriyat","p":["24850225"],"b":[1,1,1],"x":[],"ad":"Building No. 4503, Al Shahbry, 120 Qurayyat, Muscat Governorate, Oman"},{"n":"NAHER AL KAWTHER MEDICAL CENTER","t":"C","a":"الحيل","loc":"AL HAIL","p":["24434766"],"b":[1,1,1],"x":[],"ad":""},{"n":"NEW AL ZAHRAA PHARMACY","t":"P","a":"إبراء","loc":"IBRA","p":["25586390"],"b":[1,1,1],"x":[],"ad":"ALAYAH, IBRA"},{"n":"New Taiba Pharmacy","t":"P","a":"العذيبة","loc":"Azaiba","p":["24399543"],"b":[1,1,1],"x":[],"ad":"HCWC+JG7"},{"n":"NMC Speciality Hospital","t":"H","a":"الغبرة","loc":"Al Ghubra","p":["24504000"],"b":[1,1,1],"x":[],"ad":""},{"n":"NMC Speciality Hospital - Al Hail","t":"H","a":"الحيل","loc":"Al Hail","p":["24269222"],"b":[1,1,1],"x":[],"ad":""},{"n":"Noor Al Shifa Medical Complex","t":"C","a":"ثمريت","loc":"Thumrait","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"Noor Al Shifa Specialized Medical Complex","t":"C","a":"صلالة","loc":"Salalah","p":["23202026"],"b":[1,1,1],"x":[],"ad":""},{"n":"NOOR IRANIAN MEDICAL CENTER SALALAH","t":"C","a":"صلالة","loc":"Salalah","p":["22648800"],"b":[1,1,1],"x":[],"ad":"Meydan al ihtifalat, Salalah"},{"n":"NOOR IRANIAN POLYCLINIC MSQ","t":"C","a":"مدينة السلطان قابوس","loc":"MSQ","p":["24698888"],"b":[1,1,1],"x":[],"ad":"Madinat Sultan Qaboos, Villa, 2540 1947 Way, Muscat"},{"n":"NOUR AL HAYAT HEALTHCARE","t":"C","a":"إزكي","loc":"Izki","p":["22004000"],"b":[1,1,1],"x":[],"ad":""},{"n":"Oman Al Khair Hospital","t":"H","a":"عبري","loc":"Ibri","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"Oman International Hospital","t":"H","a":"العذيبة","loc":"Azaiba","p":[],"b":[1,0,0],"x":[],"ad":""},{"n":"OZONE SPECIALTY MEDICAL COMPLEX","t":"C","a":"بهلاء","loc":"Bhala","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"Paris Optics","t":"O","a":"القرم","loc":"Al Arami Complex Qurum","p":["96143730"],"b":[1,1,1],"x":[],"ad":"Paris Optics"},{"n":"Paris Optics","t":"O","a":"مسقط جراند مول","loc":"Paris Optics Grand Mall","p":[],"b":[1,1,1],"x":[],"ad":"Paris Optics MGM"},{"n":"Pharmacure Pharmacy","t":"P","a":"المعبيلة","loc":"Mabela","p":[],"b":[1,1,1],"x":[],"ad":"Near Al Ssadiq Al Ameen Jamei, South Al Mawale"},{"n":"Prime One Pharmacy","t":"P","a":"العذيبة","loc":"Azaiba","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"PULSE HEALTH CARE","t":"C","a":"بوشر","loc":"Bowsher","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"RAIHAN SPECIALIZED DENTAL CENTER","t":"D","a":"صلالة","loc":"Salalah","p":["23202550"],"b":[1,1,1],"x":[],"ad":"MOATAZA, SALALAH"},{"n":"RAWABI HEALTH CARE MEDICAL CENTER","t":"C","a":"الخوض","loc":"Al Khoudh","p":["24552705"],"b":[1,1,1],"x":[],"ad":""},{"n":"Rawh Al Dhia Medical Complex","t":"C","a":"إزكي","loc":"Izki","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"REGAL MEDICAL COMPLEX","t":"C","a":"صلالة","loc":"Salalah","p":["23290299"],"b":[1,1,1],"x":[],"ad":""},{"n":"RIVOLI EYEZONE AL MOUJ","t":"O","a":"الموج","loc":"Al Mouj - Al Hail","p":["24182580"],"b":[1,0,0],"x":[],"ad":""},{"n":"RIVOLI EYEZONE AVENUES MALL","t":"O","a":"الغبرة","loc":"Avenues Mall - Al Ghubra","p":["22060780"],"b":[1,0,0],"x":[],"ad":""},{"n":"RIVOLI EYEZONE MCC","t":"O","a":"سيتي سنتر مسقط","loc":"Muscat City Center - Al Seeb","p":["24558018"],"b":[1,0,0],"x":[],"ad":""},{"n":"RIVOLI EYEZONE MUSCAT MALL","t":"O","a":"المعبيلة","loc":"Muscat Mall - Al Mabela","p":["24501842"],"b":[1,0,0],"x":[],"ad":""},{"n":"RIVOLI EYEZONE OMAN MALL","t":"O","a":"عُمان مول","loc":"Oman Mall - Bowshar","p":["24470944"],"b":[1,0,0],"x":[],"ad":""},{"n":"RIVOLI EYEZONE QCC","t":"O","a":"القرم","loc":"Qurum City Center - Al Qurum","p":["23288358"],"b":[1,0,0],"x":[],"ad":""},{"n":"RIVOLI EYEZONE SLL GM","t":"O","a":"صلالة","loc":"Salalah Gardens Mall - Salalah","p":["24605123"],"b":[1,0,0],"x":[],"ad":""},{"n":"RIVOLI EYEZONE SOUQ AL MADINA","t":"O","a":"مدينة السلطان قابوس","loc":"Souq Al Madina - MSQ","p":["24605123"],"b":[1,0,0],"x":[],"ad":"UNIT NO. 003,GROUND FLOOR, SOUQ AL MADINA, QURUM"},{"n":"Rusayl Diagnostic Center","t":"I","a":"السيب","loc":"Seeb","p":["22710300"],"b":[1,1,1],"x":[],"ad":""},{"n":"RUSAYL HEALTH CENTRE","t":"C","a":"الرسيل","loc":"Rusayl","p":["22710300"],"b":[1,1,1],"x":[],"ad":""},{"n":"RUSAYL HEALTH CENTRE","t":"C","a":"الدقم","loc":"Bhaja","p":["23410291"],"b":[1,1,1],"x":[],"ad":""},{"n":"RUSAYL HEALTH CENTRE","t":"C","a":"الدقم","loc":"Duqm","p":["22084050"],"b":[1,1,1],"x":[],"ad":"RS Tawoos Pac Accomodation"},{"n":"RUSAYL HEALTH CENTRE","t":"C","a":"مرمول","loc":"Marmul","p":["22084005"],"b":[1,1,1],"x":[],"ad":"Tawoos Renaissance Village"},{"n":"RUSAYL HEALTH CENTRE","t":"C","a":"نمر","loc":"NIMR","p":["22084252"],"b":[1,1,1],"x":[],"ad":"Tawoos Motel Qarnalam"},{"n":"RUSAYL HEALTH CENTRE","t":"C","a":"قرن علم","loc":"Qarnalam","p":["22084252"],"b":[1,1,1],"x":[],"ad":"RS Tawoos Pac Accomodation"},{"n":"Sagar Polyclinic","t":"C","a":"الخوير","loc":"Al Khuwaire","p":["24393600"],"b":[1,1,1],"x":[],"ad":"Near Muscat International Hotel"},{"n":"Sahil Albaraka Pharmacy ( Jaalan Bu Ali )","t":"P","a":"جعلان بني بو علي","loc":"Jalan Bani Bu Ali","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"Sala Medical Complex","t":"D","a":"الخوير","loc":"Al Khuwaire","p":["24485153"],"b":[1,1,1],"x":[],"ad":""},{"n":"Scientific Pharmacy","t":"P","a":"الثرمد","loc":"Al Tharmad","p":["26810310"],"b":[1,1,1],"x":[],"ad":""},{"n":"Scientific Pharmacy","t":"P","a":"صحار","loc":"Sohar","p":["26841174"],"b":[1,1,1],"x":[],"ad":"Shinas"},{"n":"Scientific Pharmacy","t":"P","a":"صحار","loc":"Sohar","p":["23298095"],"b":[1,1,1],"x":[],"ad":"Saham"},{"n":"Scientific Pharmacy","t":"P","a":"شناص","loc":"Shinas","p":["24496546"],"b":[1,1,1],"x":[],"ad":""},{"n":"Scientific Pharmacy","t":"P","a":"صحم","loc":"Saham","p":["23298095"],"b":[1,1,1],"x":[],"ad":""},{"n":"Scientific Pharmacy","t":"P","a":"بركاء","loc":"Barka","p":["23362976"],"b":[1,1,1],"x":[],"ad":""},{"n":"Scientific Pharmacy","t":"P","a":"صلالة","loc":"Salalah","p":["99334995"],"b":[1,1,1],"x":[],"ad":"Wadi Kabir"},{"n":"Scientific Pharmacy","t":"P","a":"صلالة","loc":"Salalah","p":["24810868"],"b":[1,1,1],"x":[],"ad":"Wadi Hatat"},{"n":"Scientific Pharmacy","t":"P","a":"الوادي الكبير","loc":"Wadi Kabir","p":["26747969"],"b":[1,1,1],"x":[],"ad":""},{"n":"Scientific Pharmacy","t":"P","a":"وادي حطاط","loc":"Wadi Hatat","p":["26854302"],"b":[1,1,1],"x":[],"ad":"Qurum"},{"n":"Scientific Pharmacy","t":"P","a":"السيب","loc":"Seeb","p":["24480230"],"b":[1,1,1],"x":[],"ad":"Al Khuwair"},{"n":"Scientific Pharmacy","t":"P","a":"القرم","loc":"Qurum","p":["24621507"],"b":[1,1,1],"x":[],"ad":"Al Khuwair"},{"n":"Scientific Pharmacy","t":"P","a":"المعبيلة","loc":"Mabela","p":["24621507"],"b":[1,1,1],"x":[],"ad":"Mall of Oman Bowsher"},{"n":"Scientific Pharmacy","t":"P","a":"الخوير","loc":"Al Khuwaire","p":["24480679"],"b":[1,1,1],"x":[],"ad":"Ghobra"},{"n":"Scientific Pharmacy","t":"P","a":"الخوير","loc":"Al Khuwaire","p":["26883673"],"b":[1,1,1],"x":[],"ad":"Azaiba"},{"n":"Scientific Pharmacy","t":"P","a":"الخوض","loc":"Al Khoudh","p":["24496436"],"b":[1,1,1],"x":[],"ad":"Ansab"},{"n":"Scientific Pharmacy","t":"P","a":"الغبرة","loc":"Al Ghubra","p":["24480679"],"b":[1,1,1],"x":[],"ad":"Ghobra"},{"n":"Scientific Pharmacy","t":"P","a":"العذيبة","loc":"Azaiba","p":["24587036"],"b":[1,1,1],"x":[],"ad":"Mabela"},{"n":"Season Optics","t":"O","a":"الغبرة","loc":"Al Ghubra","p":["24571923"],"b":[1,1,1],"x":[],"ad":"Season Optics"},{"n":"SHIFA HOSPITAL","t":"H","a":"المعبيلة","loc":"Mabela","p":["24003000"],"b":[1,1,0],"x":[],"ad":""},{"n":"Smile Care Dental Center","t":"D","a":"نزوى","loc":"Nizwa","p":["25431153"],"b":[1,1,1],"x":[],"ad":""},{"n":"Sohar International Medical Centre","t":"C","a":"صحار","loc":"Sohar","p":["93778288"],"b":[1,1,1],"x":[],"ad":"Majaz Al Kubra"},{"n":"Sohar Pharmacy Barka","t":"P","a":"بركاء","loc":"Barka","p":["26840211"],"b":[1,1,1],"x":[],"ad":""},{"n":"Sohar Pharmacy Ruwi","t":"P","a":"روي","loc":"Ruwi","p":["26841825"],"b":[1,1,1],"x":[],"ad":""},{"n":"SRI TATTVA PANCHAKARMA","t":"A","a":"الخوير","loc":"Al Khuwaire","p":[],"b":[1,1,1],"x":[],"ad":"WAY NO 4113, VILLA NO 1109, NEAR AL MAHA FILLING STATION MUSCAT"},{"n":"Star Clinic","t":"C","a":"روي","loc":"Ruwi","p":["24705150"],"b":[1,1,1],"x":[],"ad":""},{"n":"STYLE 88 OPTICAL SHOP AVENUES MALL","t":"O","a":"الغبرة","loc":"Avenues Mall - Al Ghubra","p":["22060780"],"b":[1,0,0],"x":[],"ad":""},{"n":"STYLE 88 OPTICAL SHOP MCC","t":"O","a":"سيتي سنتر مسقط","loc":"Muscat City Center - Al Seeb","p":["24558018"],"b":[1,0,0],"x":[],"ad":""},{"n":"Sun Dental Clinic","t":"D","a":"الخوير","loc":"Al Khuwaire","p":["95961234"],"b":[1,1,1],"x":[],"ad":""},{"n":"SUNRISE MEDICAL CENTER","t":"C","a":"الأنصب","loc":"Ansab","p":[],"b":[1,1,1],"x":[],"ad":"Misfah As Safil"},{"n":"Supercare Clinic","t":"C","a":"المصنعة","loc":"Musannah","p":["26592750"],"b":[1,1,1],"x":[],"ad":""},{"n":"Supercare Medical Complex","t":"C","a":"المصنعة","loc":"Musannah","p":["26815985"],"b":[1,1,1],"x":[],"ad":"AL MUSSANNAH"},{"n":"Taiba Pharmacy","t":"P","a":"نزوى","loc":"Nizwa","p":[],"b":[1,1,1],"x":[],"ad":"Nizwa suqe"},{"n":"Taiba Pharmacy","t":"P","a":"صحار","loc":"Sohar","p":[],"b":[1,1,1],"x":[],"ad":"8PQP+3PP"},{"n":"Taiba Pharmacy","t":"P","a":"صلالة","loc":"Salalah","p":["22071110"],"b":[1,1,1],"x":[],"ad":"SALAM STRAT"},{"n":"Taiba Pharmacy","t":"P","a":"السيب","loc":"Seeb","p":["24184241"],"b":[1,1,1],"x":[],"ad":"AL KHUD"},{"n":"Taiba Pharmacy","t":"P","a":"الخوض","loc":"Al Khoudh","p":["24535086"],"b":[1,1,1],"x":[],"ad":"J6Q3+F79"},{"n":"Taiba Pharmacy","t":"P","a":"الموج","loc":"AL WAVE","p":["24556274"],"b":[1,1,1],"x":[],"ad":""},{"n":"Taiba Pharmacy","t":"P","a":"الحيل","loc":"AL Hail","p":["24535086"],"b":[1,1,1],"x":[],"ad":""},{"n":"Taiba Pharmacy","t":"P","a":"المعبيلة","loc":"Mabela","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"Taiba Pharmacy","t":"P","a":"الموالح","loc":"AL Mawellah","p":[],"b":[1,1,1],"x":[],"ad":"AL Mawaleh"},{"n":"TAJ MODERN DENTAL CLINIC","t":"D","a":"السيب","loc":"Seeb","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"TAKA POLYCLINIC","t":"C","a":"السيب","loc":"Seeb","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"Um Salama Polyclinic","t":"C","a":"العامرات","loc":"Amerat","p":["99537612"],"b":[1,1,1],"x":[],"ad":""},{"n":"VICTORIA PHARMACY","t":"P","a":"الغبرة","loc":"Ghubra","p":["24138093"],"b":[1,1,1],"x":[],"ad":""},{"n":"VITA CARE MEDICAL COMPLEX","t":"C","a":"السعادة","loc":"Saada","p":["23233928"],"b":[1,1,1],"x":[],"ad":""},{"n":"WELLNESS MEDICAL CENTRE","t":"C","a":"الوادي الكبير","loc":"Wadi Kabir","p":["24813100"],"b":[1,1,1],"x":[],"ad":""},{"n":"Yas Medical Centre","t":"C","a":"البريمي","loc":"Buraimi","p":["25655388"],"b":[1,1,1],"x":[],"ad":""},{"n":"YAS Polyclinic","t":"C","a":"البريمي","loc":"Buraimi","p":["25655388"],"b":[1,1,1],"x":[],"ad":""},{"n":"ZAIN MEDICAL CENTER","t":"C","a":"صحار","loc":"Sohar","p":["26649911"],"b":[1,1,0],"x":[],"ad":""},{"n":"ZIRCON DENTAL CLINIC","t":"D","a":"الحيل","loc":"Al Hail","p":[],"b":[1,1,1],"x":[],"ad":""},{"n":"AL HAYAT CLINIC","t":"C","a":"الحيل","loc":"Muscat","p":["22009455"],"b":[1,1,1],"x":[],"ad":"near to shadan al hail complex"},{"n":"RHIYAA INTERNATIONAL MEDICAL CENTER","t":"C","a":"صلالة","loc":"SALALAH","p":["23288101"],"b":[1,1,1],"x":[],"ad":"Opposite Central Market,Salalah"},{"n":"Metro Hospital","t":"H","a":"بركاء","loc":"Barka","p":["22700999"],"b":[1,1,1],"x":[],"ad":"Lulu Hypermarket Barka"}],"areas":[{"ar":"الموالح","wil":"السيب","gov":"مسقط","lat":23.615,"lng":58.24,"ap":0,"en":["AL Mawellah","Mawaleh"]},{"ar":"روي","wil":"مطرح","gov":"مسقط","lat":23.5985,"lng":58.545,"ap":0,"en":["Cbd","Mbd","Oman House","Ruwi"]},{"ar":"صلالة","wil":"صلالة","gov":"ظفار","lat":17.02,"lng":54.09,"ap":0,"en":["Salalah","Salalah Gardens Mall - Salalah"]},{"ar":"بركاء","wil":"بركاء","gov":"جنوب الباطنة","lat":23.68,"lng":57.885,"ap":0,"en":["Barka"]},{"ar":"شارع 18 نوفمبر","wil":"بوشر","gov":"مسقط","lat":23.58,"lng":58.37,"ap":0,"en":["18th Nov Street"]},{"ar":"الحيل","wil":"السيب","gov":"مسقط","lat":23.655,"lng":58.265,"ap":0,"en":["AL Hail","Al Hail","Muscat"]},{"ar":"المعبيلة","wil":"السيب","gov":"مسقط","lat":23.64,"lng":58.13,"ap":0,"en":["Al Mabelah","Mabela","Mabela Nesto","Mabilah","Muscat Mall - Al Mabela","Sinaya Mabela"]},{"ar":"جامع السلطان قابوس الأكبر","wil":"بوشر","gov":"مسقط","lat":23.584,"lng":58.388,"ap":0,"en":["Sqgm"]},{"ar":"العامرات","wil":"العامرات","gov":"مسقط","lat":23.52,"lng":58.5,"ap":0,"en":["Amerat"]},{"ar":"الخابورة","wil":"الخابورة","gov":"شمال الباطنة","lat":23.963,"lng":57.096,"ap":0,"en":["Khabourah"]},{"ar":"الردة","wil":"صحم","gov":"شمال الباطنة","lat":24.12,"lng":56.95,"ap":1,"en":["Raddha"]},{"ar":"العذيبة","wil":"بوشر","gov":"مسقط","lat":23.592,"lng":58.365,"ap":0,"en":["Al Meera H'market","Azaiba"]},{"ar":"عبري","wil":"عبري","gov":"الظاهرة","lat":23.225,"lng":56.517,"ap":0,"en":["Ibri"]},{"ar":"الخوض","wil":"السيب","gov":"مسقط","lat":23.6,"lng":58.17,"ap":0,"en":["Al Khoudh"]},{"ar":"الخوير","wil":"بوشر","gov":"مسقط","lat":23.59,"lng":58.42,"ap":0,"en":["Al Khuwaire"]},{"ar":"صور","wil":"صور","gov":"جنوب الشرقية","lat":22.567,"lng":59.528,"ap":0,"en":["Sur"]},{"ar":"بهلاء","wil":"بهلاء","gov":"الداخلية","lat":22.97,"lng":57.3,"ap":0,"en":["Bahla","Bhala"]},{"ar":"فرق","wil":"نزوى","gov":"الداخلية","lat":22.89,"lng":57.54,"ap":0,"en":["Farq","Farq2"]},{"ar":"نزوى","wil":"نزوى","gov":"الداخلية","lat":22.933,"lng":57.533,"ap":0,"en":["Nizwa"]},{"ar":"دماء والطائيين","wil":"دماء والطائيين","gov":"شمال الشرقية","lat":22.97,"lng":58.4,"ap":1,"en":["Dima Wa Al Taeen","Wadi Al Tayeen"]},{"ar":"إبراء","wil":"إبراء","gov":"شمال الشرقية","lat":22.69,"lng":58.54,"ap":0,"en":["Al Hamdi Ibra","Al ayat Ibra","Ibra"]},{"ar":"جعلان بني بو علي","wil":"جعلان بني بو علي","gov":"جنوب الشرقية","lat":22.023,"lng":59.343,"ap":0,"en":["Bilad Bani Bu Ali","Jalan Bani Bu Ali"]},{"ar":"سمد الشأن","wil":"المضيبي","gov":"شمال الشرقية","lat":22.8,"lng":58.13,"ap":0,"en":["Samad Al Shan"]},{"ar":"السويق","wil":"السويق","gov":"شمال الباطنة","lat":23.8495,"lng":57.4386,"ap":0,"en":["Al Suwaiq","Suwaiq"]},{"ar":"ضنك","wil":"ضنك","gov":"الظاهرة","lat":23.551,"lng":56.258,"ap":0,"en":["Dhank"]},{"ar":"الخضراء","wil":"","gov":"جنوب الباطنة","lat":23.68,"lng":57.88,"ap":1,"en":["Al Kahadra"]},{"ar":"سناو","wil":"المضيبي","gov":"شمال الشرقية","lat":22.5,"lng":58.04,"ap":0,"en":["Sinaw"]},{"ar":"الكامل والوافي","wil":"الكامل والوافي","gov":"جنوب الشرقية","lat":22.215,"lng":59.195,"ap":0,"en":["Al Kamil"]},{"ar":"مطرح","wil":"مطرح","gov":"مسقط","lat":23.618,"lng":58.565,"ap":0,"en":["Muttrah"]},{"ar":"السوادي","wil":"بركاء","gov":"جنوب الباطنة","lat":23.775,"lng":57.785,"ap":0,"en":["Al sawadi","Sawadi"]},{"ar":"السيب","wil":"السيب","gov":"مسقط","lat":23.67,"lng":58.19,"ap":0,"en":["Seeb"]},{"ar":"بركة الموز","wil":"نزوى","gov":"الداخلية","lat":22.9,"lng":57.67,"ap":0,"en":["Barakat Al Mouz","Berkat Al Mouz","Birkat Al Mawz"]},{"ar":"الوادي الكبير","wil":"مطرح","gov":"مسقط","lat":23.59,"lng":58.57,"ap":0,"en":["Wadi Kabir","Wadi Kabirh"]},{"ar":"القرم","wil":"بوشر","gov":"مسقط","lat":23.61,"lng":58.49,"ap":0,"en":["Al Arami Complex Qurum","Al Qurum","Qurum","Qurum City Center - Al Qurum"]},{"ar":"شناص","wil":"شناص","gov":"شمال الباطنة","lat":24.743,"lng":56.466,"ap":0,"en":["Shinas"]},{"ar":"الغبرة","wil":"بوشر","gov":"مسقط","lat":23.588,"lng":58.395,"ap":0,"en":["Al Ghubra","Avenues Mall - Al Ghubra","Ghubra"]},{"ar":"الثرمد","wil":"السويق","gov":"شمال الباطنة","lat":23.82,"lng":57.5,"ap":1,"en":["Al Tharmad"]},{"ar":"المضيبي","wil":"المضيبي","gov":"شمال الشرقية","lat":22.57,"lng":58.12,"ap":0,"en":["Mudhaibi"]},{"ar":"سمائل","wil":"سمائل","gov":"الداخلية","lat":23.3,"lng":57.98,"ap":0,"en":["Sumail"]},{"ar":"عراقي","wil":"عبري","gov":"الظاهرة","lat":23.27,"lng":56.45,"ap":1,"en":["Araqi"]},{"ar":"إزكي","wil":"إزكي","gov":"الداخلية","lat":22.933,"lng":57.767,"ap":0,"en":["Izki"]},{"ar":"جعلان بني بو حسن","wil":"جعلان بني بو حسن","gov":"جنوب الشرقية","lat":22.07,"lng":59.27,"ap":0,"en":["Jalan Bani Bu Hassan"]},{"ar":"مصيرة","wil":"مصيرة","gov":"جنوب الشرقية","lat":20.68,"lng":58.87,"ap":0,"en":["Masirah"]},{"ar":"صحار","wil":"صحار","gov":"شمال الباطنة","lat":24.347,"lng":56.709,"ap":0,"en":["Sohar"]},{"ar":"المصنعة","wil":"المصنعة","gov":"جنوب الباطنة","lat":23.777,"lng":57.642,"ap":0,"en":["Musannah","Mussanah"]},{"ar":"الأنصب","wil":"بوشر","gov":"مسقط","lat":23.533,"lng":58.36,"ap":0,"en":["Al Ansab","Ansab"]},{"ar":"غلا","wil":"بوشر","gov":"مسقط","lat":23.56,"lng":58.375,"ap":0,"en":["Ghala"]},{"ar":"الحمرية","wil":"مطرح","gov":"مسقط","lat":23.608,"lng":58.55,"ap":0,"en":["Al Hamriya"]},{"ar":"الوطية","wil":"مطرح","gov":"مسقط","lat":23.603,"lng":58.518,"ap":0,"en":["Al Wattayah"]},{"ar":"لوى","wil":"لوى","gov":"شمال الباطنة","lat":24.53,"lng":56.57,"ap":0,"en":["Liwa"]},{"ar":"عُمان مول","wil":"بوشر","gov":"مسقط","lat":23.584,"lng":58.398,"ap":0,"en":["Muscat","Oman Mall - Bowshar"]},{"ar":"الدقم","wil":"الدقم","gov":"الوسطى","lat":19.66,"lng":57.7,"ap":0,"en":["Bhaja","Duqm"]},{"ar":"أدم","wil":"أدم","gov":"الداخلية","lat":22.38,"lng":57.53,"ap":0,"en":["Adam"]},{"ar":"بدبد","wil":"بدبد","gov":"الداخلية","lat":23.405,"lng":58.125,"ap":0,"en":["Bidbid"]},{"ar":"فلج القبائل","wil":"صحار","gov":"شمال الباطنة","lat":24.43,"lng":56.6,"ap":1,"en":["Al Falaj","Falaj","Falaj Al Qabayil"]},{"ar":"مقنيات","wil":"عبري","gov":"الظاهرة","lat":23.1,"lng":56.7,"ap":1,"en":["Maqniyat"]},{"ar":"مدينة السلطان قابوس","wil":"بوشر","gov":"مسقط","lat":23.598,"lng":58.44,"ap":0,"en":["Madinat Qaboos","Msq","Souq Al Madina - MSQ"]},{"ar":"صحم","wil":"صحم","gov":"شمال الباطنة","lat":24.172,"lng":56.889,"ap":0,"en":["Saham"]},{"ar":"دارسيت","wil":"مطرح","gov":"مسقط","lat":23.615,"lng":58.548,"ap":0,"en":["Darsait"]},{"ar":"السعادة","wil":"صلالة","gov":"ظفار","lat":17.04,"lng":54.16,"ap":0,"en":["Al Saadah","Saaadah","Saada"]},{"ar":"عوقد","wil":"صلالة","gov":"ظفار","lat":17.03,"lng":54.04,"ap":0,"en":["Auwqad Br. Op. Raysut Patrol Pump","Awqad"]},{"ar":"الرستاق","wil":"الرستاق","gov":"جنوب الباطنة","lat":23.39,"lng":57.425,"ap":0,"en":["Al Araqi - Al Rustaq","Al Shareeya - Rustaq","Rustaq"]},{"ar":"البداية","wil":"السويق","gov":"شمال الباطنة","lat":23.923,"lng":57.169,"ap":0,"en":["Bidaya","Bidayah"]},{"ar":"الوقيبة","wil":"صحار","gov":"شمال الباطنة","lat":24.4,"lng":56.65,"ap":1,"en":["Waqaibah"]},{"ar":"وادي عدي","wil":"مطرح","gov":"مسقط","lat":23.578,"lng":58.525,"ap":0,"en":["Wadi Adai"]},{"ar":"بدية","wil":"بدية","gov":"شمال الشرقية","lat":22.45,"lng":58.8,"ap":0,"en":["Bidaya"]},{"ar":"نخل","wil":"نخل","gov":"جنوب الباطنة","lat":23.395,"lng":57.83,"ap":0,"en":["Nakhal Mall inside"]},{"ar":"هيماء","wil":"هيماء","gov":"الوسطى","lat":19.958,"lng":56.276,"ap":0,"en":["Haima"]},{"ar":"محوت","wil":"محوت","gov":"الوسطى","lat":20.57,"lng":58.1,"ap":1,"en":["Mahout"]},{"ar":"الحيل الجنوبية","wil":"السيب","gov":"مسقط","lat":23.64,"lng":58.27,"ap":0,"en":["Al Hail South"]},{"ar":"روي - شارع ريكس","wil":"مطرح","gov":"مسقط","lat":23.595,"lng":58.542,"ap":0,"en":["Rex Road"]},{"ar":"مطرح الكبرى","wil":"مطرح","gov":"مسقط","lat":23.605,"lng":58.55,"ap":0,"en":["Gr.Muttarh"]},{"ar":"ثمريت","wil":"ثمريت","gov":"ظفار","lat":17.665,"lng":54.025,"ap":0,"en":["Thumrait"]},{"ar":"ينقل","wil":"ينقل","gov":"الظاهرة","lat":23.585,"lng":56.54,"ap":0,"en":["Yanqil"]},{"ar":"الاستقرار مول","wil":"صلالة","gov":"ظفار","lat":17.02,"lng":54.09,"ap":1,"en":["Al Isteqrar Hypermarket"]},{"ar":"الدهاريز","wil":"صلالة","gov":"ظفار","lat":17.03,"lng":54.14,"ap":0,"en":["Dhareez Opp. Shell Patrol Pump"]},{"ar":"مرباط","wil":"مرباط","gov":"ظفار","lat":16.99,"lng":54.69,"ap":0,"en":["Mirbat Op. Roudha Mosque"]},{"ar":"العقر","wil":"الرستاق","gov":"جنوب الباطنة","lat":23.39,"lng":57.425,"ap":1,"en":["Al Aqar"]},{"ar":"شاطئ القرم","wil":"بوشر","gov":"مسقط","lat":23.608,"lng":58.462,"ap":0,"en":["Al Sarooj Complex Pharmacy","Jawahrat Al Shatti Pharmacy"]},{"ar":"البريمي","wil":"البريمي","gov":"البريمي","lat":24.25,"lng":55.79,"ap":0,"en":["Buraimi"]},{"ar":"حي الرحبة","wil":"مسقط","gov":"مسقط","lat":23.59,"lng":58.4,"ap":1,"en":["Hay Al Rahbah"]},{"ar":"حلة السعد","wil":"مسقط","gov":"مسقط","lat":23.59,"lng":58.4,"ap":1,"en":["Hellat A'Saad"]},{"ar":"خصب","wil":"خصب","gov":"مسندم","lat":26.18,"lng":56.25,"ap":0,"en":["Khasab"]},{"ar":"مستودع (ملحق)","wil":"مسقط","gov":"مسقط","lat":23.59,"lng":58.4,"ap":1,"en":["Pharma Warehouse Annex"]},{"ar":"مستودع (جديد)","wil":"مسقط","gov":"مسقط","lat":23.59,"lng":58.4,"ap":1,"en":["Pharma Warehouse New"]},{"ar":"وادي حطاط","wil":"مطرح","gov":"مسقط","lat":23.585,"lng":58.55,"ap":0,"en":["Wadi Hatat"]},{"ar":"بوشر","wil":"بوشر","gov":"مسقط","lat":23.565,"lng":58.4,"ap":0,"en":["Bowsher"]},{"ar":"قريات","wil":"قريات","gov":"مسقط","lat":23.262,"lng":58.918,"ap":0,"en":["Quriyat"]},{"ar":"مسقط جراند مول","wil":"بوشر","gov":"مسقط","lat":23.58,"lng":58.393,"ap":0,"en":["Paris Optics Grand Mall"]},{"ar":"الموج","wil":"السيب","gov":"مسقط","lat":23.625,"lng":58.28,"ap":0,"en":["Al Mouj - Al Hail","Al Wave"]},{"ar":"سيتي سنتر مسقط","wil":"السيب","gov":"مسقط","lat":23.603,"lng":58.245,"ap":0,"en":["Muscat City Center - Al Seeb"]},{"ar":"الرسيل","wil":"السيب","gov":"مسقط","lat":23.56,"lng":58.19,"ap":0,"en":["Rusayl"]},{"ar":"مرمول","wil":"ثمريت","gov":"ظفار","lat":18.13,"lng":55.18,"ap":1,"en":["Marmul"]},{"ar":"نمر","wil":"ثمريت","gov":"ظفار","lat":18.558,"lng":55.877,"ap":1,"en":["Nimr"]},{"ar":"قرن علم","wil":"أدم","gov":"الداخلية","lat":21.316,"lng":57.099,"ap":1,"en":["Qarnalam"]},{"ar":"مسقط القديمة","wil":"مسقط","gov":"مسقط","lat":23.614,"lng":58.593,"ap":0,"en":[]},{"ar":"منح","wil":"منح","gov":"الداخلية","lat":22.8,"lng":57.6,"ap":0,"en":[]},{"ar":"الحمراء","wil":"الحمراء","gov":"الداخلية","lat":23.12,"lng":57.28,"ap":0,"en":[]},{"ar":"الجبل الأخضر","wil":"الجبل الأخضر","gov":"الداخلية","lat":23.07,"lng":57.655,"ap":0,"en":[]},{"ar":"العوابي","wil":"العوابي","gov":"جنوب الباطنة","lat":23.3,"lng":57.53,"ap":0,"en":[]},{"ar":"وادي المعاول","wil":"وادي المعاول","gov":"جنوب الباطنة","lat":23.43,"lng":57.79,"ap":0,"en":[]},{"ar":"القابل","wil":"القابل","gov":"شمال الشرقية","lat":22.58,"lng":58.7,"ap":0,"en":[]},{"ar":"وادي بني خالد","wil":"وادي بني خالد","gov":"شمال الشرقية","lat":22.6,"lng":59.08,"ap":0,"en":[]},{"ar":"محضة","wil":"محضة","gov":"البريمي","lat":24.4,"lng":55.97,"ap":0,"en":[]},{"ar":"دبا","wil":"دبا","gov":"مسندم","lat":25.62,"lng":56.265,"ap":0,"en":[]},{"ar":"مدحاء","wil":"مدحاء","gov":"مسندم","lat":25.28,"lng":56.33,"ap":0,"en":[]},{"ar":"طاقة","wil":"طاقة","gov":"ظفار","lat":17.04,"lng":54.4,"ap":0,"en":[]},{"ar":"سدح","wil":"سدح","gov":"ظفار","lat":17.053,"lng":55.065,"ap":0,"en":[]},{"ar":"المزيونة","wil":"المزيونة","gov":"ظفار","lat":17.85,"lng":52.65,"ap":0,"en":[]}],"black":[{"n":"Al Mandhar Al Badie Opticals","c":"Buraimi","k":"Optical Center"},{"n":"BAHLA MODERN OPTICAL","c":"Bahla","k":"Optical Center"},{"n":"Sameer optical","c":"Sohar","k":"Optical Center"},{"n":"Shami Optical","c":"Sohar","k":"Optical Center"},{"n":"Across Golden Gulf Optical","c":"Sohar","k":"Optical Center"},{"n":"Al Mukhtar Optical - Buraimi","c":"Buraimi","k":"Optical Center"},{"n":"Husain Sulaiman Al Mahruqi Trad","c":"","k":"Medical Center"},{"n":"2000 Optical","c":"","k":"Optical Center"},{"n":"Better Vision","c":"","k":"Optical All Centers"}],"asof":"يناير 2026"};
+</script>
+<script>
+/* NLGIC finder — search core (no DOM). Expects DATA = {providers, areas}. */
+var CORE = (function () {
+  'use strict';
+
+  var TYPE_AR = { H: 'مستشفى', C: 'مجمع / مركز طبي', P: 'صيدلية', D: 'عيادة أسنان', E: 'مركز عيون',
+    O: 'محل نظارات', I: 'مركز أشعة', L: 'مختبر', A: 'طب أيورفيدا', M: 'طب هوميوباثي' };
+  var TYPE_PL = { H: 'المستشفيات', C: 'المجمعات والمراكز الطبية', P: 'الصيدليات', D: 'عيادات الأسنان',
+    E: 'مراكز العيون', O: 'محلات النظارات', I: 'مراكز الأشعة', L: 'المختبرات', A: 'مراكز الأيورفيدا', M: 'عيادات الهوميوباثي' };
+
+  function norm(s) {
+    return String(s || '').toLowerCase()
+      .replace(/[ً-ٰٟـ]/g, '')
+      .replace(/[أإآٱ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي')
+      .replace(/ؤ/g, 'و').replace(/ئ/g, 'ي')
+      .replace(/[٠-٩]/g, function (d) { return String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)); })
+      .replace(/[^ء-يa-z0-9\s]/g, ' ')
+      .replace(/\s+/g, ' ').trim();
+  }
+  var isAr = function (t) { return /[ء-ي]/.test(t); };
+  function stripAl(t) { return (t.indexOf('ال') === 0 && t.length > 3) ? t.slice(2) : t; }
+
+  // ---------- symptom dictionary ----------
+  // exact: emergency keys only match whole words (so "حرقان" never triggers "حرق")
+  var SYMPTOMS = [
+    { id: 'chest', label: 'ألم صدر / جلطة', emerg: true, types: ['H'], names: /heart|cardi/i,
+      keys: ['الم صدر', 'الم في الصدر', 'الم بالصدر', 'وجع صدر', 'وجع في الصدر', 'صدري يوجعني', 'نوبه قلبيه', 'جلطه', 'سكته', 'سكته دماغيه', 'chest pain', 'heart attack', 'stroke'] },
+    { id: 'breath', label: 'ضيق تنفس', emerg: true, types: ['H'],
+      keys: ['ضيق تنفس', 'ضيق نفس', 'ضيق في التنفس', 'كتمه', 'صعوبه تنفس', 'صعوبه في التنفس', 'ما اقدر اتنفس', 'اختناق', 'shortness of breath', 'cant breathe'] },
+    { id: 'bleed', label: 'نزيف / حادث', emerg: true, types: ['H'],
+      keys: ['نزيف', 'ينزف', 'حادث', 'حادث سير', 'اصابه', 'bleeding', 'accident'] },
+    { id: 'faint', label: 'إغماء / تشنج', emerg: true, types: ['H'],
+      keys: ['اغماء', 'مغمي عليه', 'فقدان وعي', 'غيبوبه', 'تشنج', 'تشنجات', 'صرع', 'faint', 'fainted', 'unconscious', 'seizure'] },
+    { id: 'burn', label: 'حروق / تسمم / لدغة', emerg: true, types: ['H'],
+      keys: ['حرق', 'حروق', 'تسمم', 'لدغه', 'عقرب', 'ثعبان', 'حيه', 'burn', 'burns', 'poison', 'poisoning', 'snake'] },
+    { id: 'labor', label: 'ولادة', emerg: true, types: ['H'], names: /maternal|fetal/i,
+      keys: ['ولاده', 'طلق', 'labor', 'labour'] },
+    { id: 'emerg', label: 'طوارئ', emerg: true, types: ['H'],
+      keys: ['طوارئ', 'طواري', 'اسعاف', 'emergency', 'er'] },
+    { id: 'fracture', label: 'كسر / عظام', types: ['H'], names: /ortho/i,
+      keys: ['كسر', 'مكسور', 'كسور', 'عظام', 'عظم', 'fracture', 'broken', 'orthopedic', 'ortho'] },
+    { id: 'joint', label: 'ظهر / مفاصل', types: ['C', 'H'], names: /ortho/i,
+      keys: ['ظهر', 'ظهري', 'الم ظهر', 'مفاصل', 'ركبه', 'ركبتي', 'رقبه', 'كتف', 'back pain', 'joint', 'knee'] },
+    { id: 'dental', label: 'أسنان', types: ['D', 'H'], wide: ['C'], names: /dental|smile|teeth/i, ex: 'D',
+      keys: ['اسنان', 'سن', 'سني', 'ضرس', 'ضرسي', 'ضروس', 'لثه', 'تسوس', 'حشوه', 'تقويم', 'خلع ضرس', 'tooth', 'teeth', 'dental', 'dentist'] },
+    { id: 'eye', label: 'عيون', types: ['E', 'H'], wide: ['C'], names: /\beye\b|ophthal/i, ex: 'E',
+      keys: ['عين', 'عيون', 'عيني', 'عيوني', 'نظر', 'ضعف نظر', 'رمد', 'احمرار عين', 'eye', 'eyes', 'vision', 'ophthalmology'] },
+    { id: 'glasses', label: 'نظارات وعدسات', types: ['O', 'E'],
+      keys: ['نظاره', 'نظارات', 'عدسات', 'عدسات لاصقه', 'glasses', 'lenses', 'optical', 'optics'] },
+    { id: 'imaging', label: 'أشعة', types: ['I', 'H'],
+      keys: ['اشعه', 'رنين', 'رنين مغناطيسي', 'سونار', 'تصوير', 'مقطعيه', 'mri', 'ct', 'scan', 'xray', 'x ray', 'ultrasound'] },
+    { id: 'lab', label: 'تحاليل', types: ['L', 'H', 'C'],
+      keys: ['تحليل', 'تحاليل', 'فحص دم', 'فحص', 'مختبر', 'مختبرات', 'فيتامين', 'lab', 'laboratory', 'blood test', 'test', 'vitamin'] },
+    { id: 'pharm', label: 'دواء / صيدلية', types: ['P'], names: /pharmacy/i,
+      keys: ['دواء', 'ادويه', 'علاج', 'وصفه', 'صيدليه', 'صيدليات', 'فارمسي', 'pharmacy', 'pharmacies', 'medicine', 'drugstore'] },
+    { id: 'preg', label: 'حمل / نساء', types: ['H', 'C'], names: /maternal|fetal|women/i,
+      keys: ['حمل', 'حامل', 'نسائيه', 'نساء', 'دوره', 'متابعه حمل', 'pregnant', 'pregnancy', 'gynecology', 'women'] },
+    { id: 'kids', label: 'أطفال', types: ['H', 'C'],
+      keys: ['طفل', 'اطفال', 'ولدي', 'بنتي', 'رضيع', 'ياهل', 'يهال', 'baby', 'child', 'kids', 'pediatric'] },
+    { id: 'heart', label: 'قلب', types: ['H'], names: /heart|cardi/i,
+      keys: ['قلب', 'قلبي', 'خفقان', 'ضربات القلب', 'heart', 'cardiology', 'palpitation'] },
+    { id: 'endo', label: 'غدد وهرمونات', types: ['C', 'H', 'L'], names: /endocrin|thyro/i,
+      keys: ['غده', 'غده درقيه', 'درقيه', 'هرمونات', 'thyroid', 'hormone', 'hormones', 'endocrinology'] },
+    { id: 'skin', label: 'جلدية', types: ['C', 'H'], names: /dermat|skin|laser/i,
+      keys: ['جلد', 'جلديه', 'طفح', 'حكه', 'اكزيما', 'حبوب الوجه', 'skin', 'rash', 'dermatology', 'eczema'] },
+    { id: 'ent', label: 'أنف وأذن وحنجرة', types: ['C', 'H'], names: /\bent\b/i,
+      keys: ['اذن', 'اذني', 'انف', 'جيوب', 'حنجره', 'ent', 'ear', 'nose', 'sinus'] },
+    { id: 'general', label: 'أعراض عامة', types: ['C', 'H'],
+      keys: ['حراره', 'حمي', 'سخونه', 'زكام', 'رشح', 'انفلونزا', 'برد', 'كحه', 'سعال', 'صداع', 'راسي', 'دوخه', 'دوار', 'تعب', 'تعبان', 'ارهاق',
+        'الم بطن', 'وجع بطن', 'بطني', 'مغص', 'اسهال', 'استفراغ', 'ترجيع', 'قيء', 'غثيان', 'حلق', 'حلقي', 'التهاب', 'لوز', 'حساسيه',
+        'ضغط', 'سكري', 'سكر', 'بول', 'حرقان', 'مسالك', 'كلي', 'نفسي', 'قلق', 'اكتئاب', 'وجع', 'الم', 'مريض', 'دكتور', 'طبيب',
+        'fever', 'flu', 'cold', 'cough', 'headache', 'dizzy', 'stomach', 'diarrhea', 'vomiting', 'nausea', 'throat', 'allergy',
+        'diabetes', 'pressure', 'urine', 'kidney', 'pain', 'sick', 'doctor', 'gp'] },
+    { id: 'ayur', label: 'أيورفيدا', types: ['A'],
+      keys: ['ايورفيدا', 'طب هندي', 'مساج', 'ayurveda', 'ayurvedic', 'panchakarma'] },
+    { id: 'homeo', label: 'هوميوباثي', types: ['M'],
+      keys: ['هوميوباثي', 'طب مثلي', 'homeopathy', 'homoeopathy', 'homeo'] }
+  ];
+  var TYPE_WORDS = [
+    { t: 'H', keys: ['مستشفي', 'مستشفيات', 'مشفي', 'مشافي', 'hospital', 'hospitals'] },
+    { t: 'C', keys: ['عياده', 'عيادات', 'مجمع', 'مجمع طبي', 'مركز', 'مركز طبي', 'مركز صحي', 'مستوصف', 'بوليكلينك', 'بولي كلينك',
+      'clinic', 'clinics', 'polyclinic', 'medical center', 'medical centre', 'complex', 'center', 'centre'] }
+  ];
+  var STOP = ['ابي', 'ابغي', 'ابغا', 'اريد', 'اقرب', 'قريب', 'قريبه', 'وين', 'في', 'من', 'عند', 'عندي', 'فيني', 'احس', 'بي', 'لي',
+    'مع', 'او', 'اللي', 'شي', 'الحين', 'حق', 'ابا', 'يوجعني', 'توجعني', 'شديد', 'قوي', 'خفيف', 'كثير', 'وايد', 'شويه', 'يا', 'هل',
+    'مكان', 'اماكن', 'فيه', 'فيها', 'فيني', 'عنده', 'عندها', 'عندنا', 'يحس', 'تحس', 'يشتكي', 'تشتكي', 'يعاني', 'اعاني', 'تعاني', 'ابوي', 'امي', 'زوجتي', 'اخوي', 'اختي', 'شخص', 'لو', 'اذا', 'كذا', 'هنا', 'هناك', 'near', 'nearest', 'me', 'in', 'at', 'the', 'closest', 'i', 'have', 'my', 'to', 'for', 'and', 'of', 'a', 'al', 'el', 'llc', 'l', 'c'];
+
+  // ---------- skeletons for Arabic <-> English name matching ----------
+  var AR_MAP = { 'ب': 'b', 'ت': 't', 'ث': 't', 'ج': 'j', 'ح': 'h', 'خ': 'k', 'د': 'd', 'ذ': 'd', 'ر': 'r', 'ز': 's', 'س': 's', 'ش': 's',
+    'ص': 's', 'ض': 'd', 'ط': 't', 'ظ': 'd', 'ع': '', 'غ': 'G', 'ف': 'f', 'ق': 'k', 'ك': 'k', 'ل': 'l', 'م': 'm', 'ن': 'n', 'ه': 'h',
+    'و': '', 'ي': '', 'ا': '', 'ء': '' };
+  function collapse(s) { return s.replace(/(.)\1+/g, '$1'); }
+  function skelVariants(tok, isQuery) {
+    var out;
+    if (isAr(tok)) {
+      var t = stripAl(tok);
+      var s = '';
+      for (var i = 0; i < t.length; i++) s += (AR_MAP[t[i]] !== undefined ? AR_MAP[t[i]] : '');
+      s = collapse(s);
+      out = [s];
+      if (/h$/.test(s) && s.length > 1) out.push(s.slice(0, -1)); // final ة / ه
+    } else {
+      var e = tok.replace(/kh/g, 'k').replace(/sh/g, 's').replace(/th/g, 't').replace(/dh/g, 'd').replace(/gh/g, 'G')
+        .replace(/ph/g, 'f').replace(/q|c/g, 'k').replace(/z/g, 's').replace(/p/g, 'b').replace(/v/g, 'f').replace(/x/g, 'ks')
+        .replace(/g/g, 'j').replace(/[aeiouyw]/g, '').replace(/[^a-zG0-9]/g, '');
+      e = collapse(e);
+      out = [e];
+      if (!isQuery && /[th]$/.test(e) && e.length > 1) out.push(e.slice(0, -1));
+    }
+    return out.filter(Boolean);
+  }
+  function lev1(a, b) { // true if edit distance <= 1
+    if (Math.abs(a.length - b.length) > 1) return false;
+    var i = 0, j = 0, d = 0;
+    while (i < a.length && j < b.length) {
+      if (a[i] === b[j]) { i++; j++; continue; }
+      if (++d > 1) return false;
+      if (a.length > b.length) i++; else if (b.length > a.length) j++; else { i++; j++; }
+    }
+    return d + (a.length - i) + (b.length - j) <= 1;
+  }
+  function skelMatch(qv, nv) {
+    for (var i = 0; i < qv.length; i++) for (var j = 0; j < nv.length; j++) {
+      var q = qv[i], n = nv[j];
+      if (q === n) return true;
+      if (q.length >= 3 && n.indexOf(q) === 0) return true;
+      if (q.length >= 4 && n.length >= 4 && lev1(q, n)) return true;
+    }
+    return false;
+  }
+
+  // ---------- prepare ----------
+  var NAME_SKIP = ['msq', 'cbd', 'mbd', 'sqgm', 'nr', 'opp', 'br', 'op', 'ex', 'ltd', 'co'];
+  var BLACK = [];
+  var P = [], AREA = {}, AREA_KEYS = [], SYM_KEYS = [], TYPE_KEYS = [], STOPSET = {};
+  function init(DATA) {
+    AREA = {};
+    DATA.areas.forEach(function (a) { AREA[a.ar] = a; });
+    P = DATA.providers.map(prepP);
+    BLACK = (DATA.black || []).map(function (b, i) { return prepP({ n: b.n, t: '', a: '', loc: b.c, p: [], b: [0, 0, 0], x: [] }, i); });
+    STOP.forEach(function (w) { STOPSET[w] = 1; });
+    return initKeys(DATA);
+  }
+  function prepP(p, i) {
+    {
+      var toks = norm(p.n.replace(/\(.*?\)/g, ' ').replace(/excluding.*$/i, ' ')).split(' ')
+        .filter(function (t) { return t && STOP.indexOf(t) < 0; });
+      toks = toks.filter(function (t) { return skelVariants(t).length && NAME_SKIP.indexOf(t) < 0; });
+      var sk = toks.map(skelVariants);
+      var starts = [], acc = 0;
+      sk.forEach(function (v) { starts.push(acc); acc += v[0].length; });
+      return { id: i, n: p.n, t: p.t, a: p.a, loc: p.loc, p: p.p, b: p.b, x: p.x, ad: p.ad || '', area: AREA[p.a],
+        sk: sk, vk: toks.map(function (t) { return vskel(t)[0]; }), starts: starts, full: sk.map(function (v) { return v[0]; }).join('') };
+    }
+  }
+  function initKeys(DATA) {
+
+    SYM_KEYS = [];
+    SYMPTOMS.forEach(function (s) {
+      s.keys.forEach(function (k) {
+        var toks = norm(k).split(' ');
+        SYM_KEYS.push({ s: s, toks: toks, prefix: !s.emerg });
+      });
+    });
+    SYM_KEYS.sort(function (a, b) { return b.toks.length - a.toks.length; });
+    TYPE_KEYS = [];
+    TYPE_WORDS.forEach(function (w) { w.keys.forEach(function (k) { TYPE_KEYS.push({ t: w.t, toks: norm(k).split(' ') }); }); });
+    TYPE_KEYS.sort(function (a, b) { return b.toks.length - a.toks.length; });
+
+    var EXTRA = { 'بركاء': ['بركا', 'barka'], 'السيب': ['seeb'], 'الموالح': ['mawaleh', 'mawalih'], 'المعبيلة': ['mabela', 'maabela', 'mabella'],
+      'الخوض': ['khoud', 'khoudh', 'alkhoud'], 'الخوير': ['khuwair', 'khuwaire'], 'العذيبة': ['azaiba', 'azaibah'], 'الغبرة': ['ghubra', 'ghubrah'],
+      'روي': ['ruwi'], 'القرم': ['qurum', 'qurm'], 'الكامل والوافي': ['الكامل', 'kamil'], 'إبراء': ['ابرا', 'ibra'],
+      'صلالة': ['salalah', 'ظفار', 'dhofar'], 'نزوى': ['nizwa', 'الداخليه'], 'عبري': ['ibri', 'الظاهره'], 'خصب': ['khasab', 'مسندم', 'musandam'],
+      'صحار': ['sohar', 'suhar'], 'السويق': ['suwaiq', 'suwayq'], 'المصنعة': ['musannah', 'mussanah', 'masnaa'], 'الثرمد': ['thurmad', 'tharmad'],
+      'جعلان بني بو علي': ['جعلان', 'jalan'], 'مدينة السلطان قابوس': ['msq', 'مدينه قابوس'], 'الدقم': ['duqm'], 'صور': ['sur'],
+      'البريمي': ['buraimi'], 'الرستاق': ['rustaq'], 'بهلاء': ['بهلا', 'bahla'], 'سمائل': ['سمايل', 'sumail', 'samail'] };
+    var seen = {};
+    AREA_KEYS = [];
+    function addKey(str, area) {
+      var toks = norm(str).split(' ').filter(function (t) { return t && t !== 'al'; }).map(stripAl);
+      var k = toks.join(' ');
+      if (!k || seen[k]) return;
+      seen[k] = 1;
+      AREA_KEYS.push({ toks: toks, area: area });
+    }
+    var byWil = {};
+    DATA.areas.forEach(function (a) {
+      if (a.lat == null) return;
+      if (a.ap && a.wil === 'مسقط') return; // Muscat-wide placeholders aren't searchable places
+      addKey(a.ar, a);
+      a.en.forEach(function (e) { addKey(e, a); });
+      (EXTRA[a.ar] || []).forEach(function (e) { addKey(e, a); });
+      if (!byWil[a.wil] || a.ar === a.wil) byWil[a.wil] = a;
+    });
+    Object.keys(byWil).forEach(function (w) { addKey(w, byWil[w]); });
+    AREA_KEYS.sort(function (a, b) { return b.toks.join(' ').length - a.toks.join(' ').length; });
+    return P;
+  }
+
+  function tokMatch(tok, k, prefixOK) {
+    var c = [tok];
+    ['ال', 'وال', 'بال', 'لل', 'و', 'ب'].forEach(function (p) {
+      if (tok.indexOf(p) === 0 && tok.length > p.length + 1) c.push(tok.slice(p.length));
+    });
+    for (var i = 0; i < c.length; i++) {
+      if (c[i] === k) return true;
+      if (prefixOK && k.length >= 4 && c[i].indexOf(k) === 0) return true;
+    }
+    return false;
+  }
+  function findSeq(tokens, used, keyToks, prefixOK, stripKeyAl) {
+    var L = keyToks.length;
+    for (var i = 0; i + L <= tokens.length; i++) {
+      var ok = true;
+      for (var j = 0; j < L; j++) {
+        if (used[i + j]) { ok = false; break; }
+        var kt = keyToks[j];
+        if (!tokMatch(tokens[i + j], kt, prefixOK && j === L - 1)) { ok = false; break; }
+      }
+      if (ok) return i;
+    }
+    return -1;
+  }
+
+  function parse(q) {
+    var tokens = applyAlias(norm(q)).split(' ').filter(Boolean);
+    var used = tokens.map(function () { return false; });
+    var syms = [], types = {}, area = null;
+    // area first for multi-word places (e.g. "الوادي الكبير"), but only exact
+    for (var a = 0; a < AREA_KEYS.length && !area; a++) {
+      var ak = AREA_KEYS[a];
+      var i = findSeq(tokens.map(stripAl), used, ak.toks, false);
+      if (i >= 0) { area = ak.area; for (var j = 0; j < ak.toks.length; j++) used[i + j] = true; }
+    }
+    TYPE_KEYS.forEach(function (tk) {
+      var i;
+      while ((i = findSeq(tokens, used, tk.toks, false)) >= 0) {
+        for (var j = 0; j < tk.toks.length; j++) used[i + j] = true;
+        types[tk.t] = 1;
+      }
+    });
+    SYM_KEYS.forEach(function (sk) {
+      var i;
+      while ((i = findSeq(tokens, used, sk.toks, sk.prefix)) >= 0) {
+        for (var j = 0; j < sk.toks.length; j++) used[i + j] = true;
+        if (syms.indexOf(sk.s) < 0) syms.push(sk.s);
+      }
+    });
+    var nameToks = [];
+    tokens.forEach(function (t, i) { if (!used[i] && !STOPSET[t] && !STOPSET[stripAl(t)]) nameToks.push(t); });
+    // generic "pain/sick" words alone shouldn't outrank a specific symptom
+    if (syms.length > 1) syms = syms.filter(function (s) { return s.id !== 'general'; });
+    return { tokens: tokens, syms: syms, types: Object.keys(types), area: area, nameToks: nameToks };
+  }
+
+  function hav(a, b) {
+    if (!a || !b || a.lat == null || b.lat == null) return Infinity;
+    var R = 6371, toR = Math.PI / 180;
+    var dLat = (b.lat - a.lat) * toR, dLng = (b.lng - a.lng) * toR;
+    var s = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(a.lat * toR) * Math.cos(b.lat * toR) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return 2 * R * Math.asin(Math.sqrt(s));
+  }
+
+  function symAccepts(s, p, wide) {
+    if (s.ex && p.x.indexOf(s.ex) >= 0) return false;
+    if (s.types.indexOf(p.t) >= 0) return true;
+    if (wide && s.wide && s.wide.indexOf(p.t) >= 0) return true;
+    return !!(s.names && s.names.test(p.n));
+  }
+
+  var TRANS = { 'خاص': 'private', 'دولي': 'international', 'عالمي': 'international global', 'تخصصي': 'speciality specialized specialist',
+    'متخصص': 'specialized specialist', 'حديث': 'modern', 'طبي': 'medical', 'وطني': 'national', 'عائله': 'family', 'امريكي': 'american',
+    'ذهبي': 'golden', 'نجمه': 'star', 'خليج': 'gulf', 'رعايه': 'care', 'صحي': 'health', 'صحه': 'health', 'ابتسامه': 'smile', 'عمان': 'oman',
+    'ماسح': 'scan', 'علمي': 'scientific', 'علميه': 'scientific', 'حديثه': 'modern', 'دوليه': 'international',
+    'وطنيه': 'national', 'عالميه': 'international global', 'تخصصيه': 'speciality specialized', 'متخصصه': 'specialized specialist',
+    'ذهبيه': 'golden', 'طبيه': 'medical', 'صحيه': 'health', 'عربيه': 'arabian', 'هنديه': 'indian', 'امريكيه': 'american',
+    'مستشار': 'consultant', 'ملكي': 'royal', 'ملكيه': 'royal', 'نخبه': 'elite', 'سعاده': 'saada', 'بيت': 'house', 'تشخيص': 'diagnostic', 'هندي': 'indian', 'عربي': 'arabian', 'مسقط': 'muscat' };
+  var ALIAS = [['ان ام سي', 'nmc'], ['اي ام سي', 'nmc'], ['كيه ام اس', 'kims'], ['كيمس', 'kims'], ['ستار كير', 'starcare'], ['لايف لاين', 'lifeline'],
+    ['ماكس كير', 'maxcare'], ['سوبر كير', 'supercare'], ['يورو عربيان', 'euro arabian'], ['ثايروكير', 'thyrocare'], ['فنلندا', 'finland'],
+    ['فنلند', 'finland'], ['باريس', 'paris'], ['بومباي', 'bombay']];
+  function applyAlias(nq) {
+    var s = ' ' + nq + ' ';
+    ALIAS.forEach(function (a) { s = s.split(' ' + norm(a[0]) + ' ').join(' ' + a[1] + ' '); });
+    return s.trim();
+  }
+  // vowel-keeping transliteration, only used to break ties between same-skeleton names (هتات vs Hayat)
+  var AR_V = { 'ا': 'a', 'ي': 'y', 'و': 'w', 'ع': 'a', 'ء': '' };
+  function vskel(tok) { // returns array of variants
+    var s = '';
+    if (isAr(tok)) {
+      var t = stripAl(tok), endH = /ه$/.test(t);
+      t = t.replace(/ه$/, '');
+      for (var i = 0; i < t.length; i++) s += (AR_V[t[i]] !== undefined ? AR_V[t[i]] : (AR_MAP[t[i]] || ''));
+      s = collapse(s);
+      return endH ? [s, s + 't', s + 'h'] : [s];
+    }
+    s = tok.replace(/kh/g, 'k').replace(/sh/g, 's').replace(/th/g, 't').replace(/dh/g, 'd').replace(/gh/g, 'G')
+      .replace(/ph/g, 'f').replace(/q|c/g, 'k').replace(/z/g, 's').replace(/p/g, 'b').replace(/v/g, 'f')
+      .replace(/g/g, 'j').replace(/[eiou]/g, 'a').replace(/[^a-zG]/g, '');
+    return [collapse(s)];
+  }
+  function lev(a, b) {
+    var m = a.length, n = b.length, d = [], i, j;
+    for (i = 0; i <= m; i++) d[i] = [i];
+    for (j = 0; j <= n; j++) d[0][j] = j;
+    for (i = 1; i <= m; i++) for (j = 1; j <= n; j++)
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    return d[m][n];
+  }
+  function qVariants(t) {
+    var tv = [], tr = TRANS[stripAl(t)];
+    if (tr) tr.split(' ').forEach(function (w) { tv = tv.concat(skelVariants(w, true)); });
+    return { prim: skelVariants(t, true), trans: tv };
+  }
+  // loose vowel skeleton: every vowel/semivowel becomes "a" (used to reject random 2-letter skeleton hits)
+  function looseV(s) { return collapse(s.replace(/[ywaeiou]/g, 'a')); }
+  function tokHit(qv, nv) { // 1 exact, 0.6 prefix/near, 0 none
+    var best = 0;
+    for (var i = 0; i < qv.length; i++) for (var j = 0; j < nv.length; j++) {
+      var q = qv[i], n = nv[j];
+      if (q === n) {
+        if (q.length >= 2 || nv[0].length <= 2) return 1;
+        continue;
+      }
+      if (q.length >= 3 && n.indexOf(q) === 0) best = Math.max(best, 0.6);
+      else if (q.length >= 4 && n.length >= 4 && lev1(q, n)) best = Math.max(best, 0.6);
+    }
+    return best;
+  }
+  function nameScore(p, nameToks, qFull) {
+    var hits = 0, sim = 0;
+    for (var i = 0; i < nameToks.length; i++) {
+      var t = nameToks[i];
+      if (/^\d{4,}$/.test(t)) {
+        if (p.p.some(function (n) { return n.indexOf(t) >= 0; })) { hits += 1; sim += 1; continue; }
+        return null;
+      }
+      var qv = qVariants(t);
+      if (!qv.prim.length && !qv.trans.length) continue;
+      var vqs = vskel(t), h = 0, bs = 0;
+      for (var k = 0; k < p.sk.length; k++) {
+        var vn = p.vk[k], sk = 0, lk = 0;
+        vqs.forEach(function (vq) {
+          var m = Math.max(vq.length, vn.length) || 1; sk = Math.max(sk, 1 - lev(vq, vn) / m);
+          var a = looseV(vq), b = looseV(vn), m2 = Math.max(a.length, b.length) || 1; lk = Math.max(lk, 1 - lev(a, b) / m2);
+        });
+        var longV = qv.prim.filter(function (v) { return v.length >= 3; });
+        var shortV = qv.prim.filter(function (v) { return v.length < 3; });
+        var hk = longV.length ? tokHit(longV, p.sk[k]) : 0;
+        if (!hk && shortV.length && lk >= 0.6) hk = tokHit(shortV, p.sk[k]); // very short skeletons need a close spelling too
+        if (qv.trans.length) { var ht = tokHit(qv.trans, p.sk[k]); if (ht > hk) { hk = ht; sk = Math.max(sk, 0.9); } }
+        if (hk > h) h = hk;
+        if (hk && sk > bs) bs = sk;
+      }
+      if (!h) { hits = -1; break; }
+      hits += h;
+      sim += bs;
+    }
+    if (hits < 0) {
+      // compound written apart/together, e.g. "لايف لاين" vs "Lifeline"
+      if (nameToks.length >= 2 && qFull.length >= 5 && p.starts.some(function (st) { return p.full.substr(st, qFull.length) === qFull; }))
+        return { hits: nameToks.length * 0.9, sim: 0.5 };
+      return null;
+    }
+    return { hits: hits, sim: sim / nameToks.length };
+  }
+
+  // band: -1 all, 0 A+, 1 A, 2 B
+  function search(q, origin, band, wide) {
+    var pr = parse(q);
+    var ref = pr.area ? { lat: pr.area.lat, lng: pr.area.lng, label: pr.area.ar } : origin;
+    var pool = P.filter(function (p) { return band < 0 || p.b[band] === 1; });
+    var cand = pool, scope = 'all';
+    if (pr.syms.length) {
+      cand = pool.filter(function (p) { return pr.syms.some(function (s) { return symAccepts(s, p, wide); }); });
+      scope = 'sym';
+    } else if (pr.types.length) {
+      cand = pool.filter(function (p) { return pr.types.indexOf(p.t) >= 0; });
+      scope = 'type';
+    } else if (!pr.nameToks.length && pr.area) {
+      cand = pool.filter(function (p) { return p.t === 'H' || p.t === 'C'; });
+      scope = 'area';
+    } else if (!pr.nameToks.length) {
+      cand = pool.filter(function (p) { return p.t === 'H'; });
+      scope = 'default';
+    }
+    var nameMiss = false, results, black = [], fuzzy = false;
+    var dist = function (p) { return hav(ref, p.area); };
+    if (pr.nameToks.length) {
+      var qFull = pr.nameToks.map(function (t) { return (skelVariants(t)[0] || ''); }).join('');
+      var scoreIn = function (list) {
+        var hs = [];
+        list.forEach(function (p) { var r = nameScore(p, pr.nameToks, qFull); if (r) hs.push({ p: p, h: r.hits, s: r.sim }); });
+        if (!hs.length) return hs;
+        var bh = Math.max.apply(null, hs.map(function (x) { return x.h; }));
+        hs = hs.filter(function (x) { return x.h >= bh - 0.01; });
+        var bsim = Math.max.apply(null, hs.map(function (x) { return x.s; }));
+        return hs.filter(function (x) { return x.s >= bsim - 0.12; });
+      };
+      black = scoreIn(BLACK).map(function (h) { return h.p.n + (h.p.loc ? ' (' + h.p.loc + ')' : ''); });
+      var hits = scoreIn(cand);
+      if (!hits.length && scope === 'type') hits = scoreIn(pool);
+      if (hits.length) {
+        fuzzy = hits[0].h < pr.nameToks.length - 0.01;
+        results = hits.map(function (h) { return { p: h.p, d: dist(h.p) }; });
+      } else if (scope === 'sym') {
+        results = cand.map(function (p) { return { p: p, d: dist(p) }; }); // extra words ignored
+      } else {
+        nameMiss = true;
+        results = (scope === 'all' ? [] : cand).map(function (p) { return { p: p, d: dist(p) }; });
+      }
+    } else {
+      results = cand.map(function (p) { return { p: p, d: dist(p) }; });
+    }
+    results.sort(function (a, b) {
+      if (a.d === b.d) return a.p.n.localeCompare(b.p.n);
+      return a.d - b.d;
+    });
+    return { parsed: pr, ref: ref, results: results, nameMiss: nameMiss, scope: scope,
+      emerg: pr.syms.some(function (s) { return s.emerg; }),
+      canWiden: pr.syms.some(function (s) { return !!s.wide; }), black: black, fuzzy: fuzzy };
+  }
+
+  return { init: init, search: search, parse: parse, norm: norm, hav: hav, TYPE_AR: TYPE_AR, TYPE_PL: TYPE_PL, SYMPTOMS: SYMPTOMS };
+})();
+if (typeof module !== 'undefined') module.exports = CORE;
+
+</script>
+<script>
+(function () {
+  'use strict';
+  var P = CORE.init(DATA);
+  var AREA = {};
+  DATA.areas.forEach(function (a) { AREA[a.ar] = a; });
+
+  var $ = function (id) { return document.getElementById(id); };
+  var qEl = $('q'), areaEl = $('area'), bandEl = $('band'), resEl = $('results'), countEl = $('count'),
+      noteEl = $('note'), emergEl = $('emerg'), moreEl = $('more'), clearEl = $('clear'), gpsEl = $('gps');
+
+  var store = {
+    get: function (k) { try { return window.localStorage.getItem(k); } catch (e) { return null; } },
+    set: function (k, v) { try { window.localStorage.setItem(k, v); } catch (e) {} }
+  };
+
+  // ---- location picker ----
+  var GOV_ORDER = ['مسقط', 'شمال الباطنة', 'جنوب الباطنة', 'الداخلية', 'الظاهرة', 'البريمي', 'شمال الشرقية', 'جنوب الشرقية', 'الوسطى', 'ظفار', 'مسندم'];
+  var pickable = DATA.areas.filter(function (a) { return a.lat != null && !(a.ap && a.wil === 'مسقط'); });
+  GOV_ORDER.forEach(function (g) {
+    var list = pickable.filter(function (a) { return a.gov === g; })
+      .sort(function (a, b) { return a.ar.localeCompare(b.ar, 'ar'); });
+    if (!list.length) return;
+    var og = document.createElement('optgroup');
+    og.label = g;
+    list.forEach(function (a) {
+      var o = document.createElement('option');
+      o.value = a.ar; o.textContent = a.ar;
+      og.appendChild(o);
+    });
+    areaEl.appendChild(og);
+  });
+  var gpsOpt = null;
+  var savedArea = store.get('biw_hosp_area');
+  areaEl.value = (savedArea && AREA[savedArea]) ? savedArea : 'السويق';
+  var savedBand = store.get('biw_hosp_band');
+  if (savedBand !== null && /^-?[0-2]$|^-1$/.test(savedBand)) bandEl.value = savedBand;
+  var gpsPoint = null;
+
+  function origin() {
+    if (areaEl.value === '__gps' && gpsPoint) return gpsPoint;
+    var a = AREA[areaEl.value] || AREA['السويق'];
+    return { lat: a.lat, lng: a.lng, label: a.ar };
+  }
+
+  // GPS: works when the page runs on its own (installed app / normal browser tab), blocked inside framed viewers.
+  var framed = true;
+  try { framed = window.self !== window.top; } catch (e) { framed = true; }
+  function locate(silent) {
+    if (!silent) gpsEl.textContent = 'جاري تحديد موقعك…';
+    try {
+      navigator.geolocation.getCurrentPosition(function (pos) {
+        var me = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        var near = null, nd = Infinity;
+        pickable.forEach(function (a) { var d = CORE.hav(me, a); if (d < nd) { nd = d; near = a; } });
+        gpsPoint = { lat: me.lat, lng: me.lng, label: 'موقعك الحالي' };
+        if (!gpsOpt) {
+          gpsOpt = document.createElement('option');
+          gpsOpt.value = '__gps';
+          areaEl.insertBefore(gpsOpt, areaEl.firstChild);
+        }
+        gpsOpt.textContent = 'موقعي الحالي' + (near ? ' (قرب ' + near.ar + ')' : '');
+        areaEl.value = '__gps';
+        gpsEl.textContent = 'حدّث موقعي بالـ GPS';
+        run();
+      }, function () {
+        if (silent) return;
+        gpsEl.textContent = 'حدد موقعي بالـ GPS';
+        countEl.textContent = 'ما قدرنا نحدد موقعك. تأكد إن الموقع مسموح للتطبيق، أو اختر منطقتك من القائمة.';
+      }, { enableHighAccuracy: false, timeout: 12000, maximumAge: 300000 });
+    } catch (e) { if (!silent) gpsEl.hidden = true; }
+  }
+  if (navigator.geolocation && !framed) {
+    gpsEl.hidden = false;
+    try {
+      if (navigator.permissions && navigator.permissions.query) {
+        navigator.permissions.query({ name: 'geolocation' }).then(function (s) {
+          if (s.state === 'granted') locate(true);        // already allowed: use it without asking
+        }, function () {});
+      }
+    } catch (e) {}
+  }
+  gpsEl.addEventListener('click', function () { locate(false); });
+
+  // ---- chips ----
+  var CHIPS = [['حرارة'], ['ألم ضرس'], ['عيون'], ['ألم في الصدر', 1], ['كسر'], ['حمل'], ['أطفال'], ['أشعة'], ['تحاليل'], ['صيدلية'], ['نظارات'], ['مستشفى']];
+  var chipsEl = $('chips');
+  CHIPS.forEach(function (c) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'chip' + (c[1] ? ' em' : ''); b.textContent = c[0];
+    b.addEventListener('click', function () { qEl.value = c[0]; wide = false; run(); });
+    chipsEl.appendChild(b);
+  });
+
+  // ---- helpers ----
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function cleanName(n) {
+    n = n.replace(/\(\s*excluding[^)]*\)/ig, '').replace(/\s+excluding\s+dental\s*$/i, '').replace(/\s+/g, ' ').trim();
+    if (n === n.toUpperCase() || /\b[a-z][A-Z]/.test(n)) {
+      n = n.toLowerCase().replace(/\b([a-z])([a-z]*)/g, function (m, a, b) {
+        var w = a + b;
+        if (['llc', 'nmc', 'kims', 'msq', 'mri', 'ent'].indexOf(w) >= 0) return w.toUpperCase();
+        return a.toUpperCase() + b;
+      });
+    }
+    return n;
+  }
+  function fmtPhone(d) { return d.length === 8 ? d.slice(0, 4) + ' ' + d.slice(4) : d; }
+  var PHONE_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg>';
+  var BAND_NAMES = ['A Plus', 'A', 'B'];
+  function bandText(b) {
+    var on = BAND_NAMES.filter(function (n, i) { return b[i]; });
+    if (on.length === 3) return 'يقبل كل الفئات';
+    if (!on.length) return '';
+    return 'يقبل فئة ' + on.join(' و ') + ' فقط';
+  }
+  function mapUrl(p) {
+    var q = cleanName(p.n).replace(/\s*-\s*/g, ' ') + ' ' + p.loc + ' Oman';
+    return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q);
+  }
+
+  function item(r) {
+    var p = r.p, a = p.area || {};
+    var sign;
+    if (!isFinite(r.d)) sign = '<div class="sign unknown" aria-label="المسافة غير معروفة"><b>?</b><span>كم</span></div>';
+    else {
+      var km = r.d < 1 ? '&lt;1' : String(Math.round(r.d));
+      sign = '<div class="sign" aria-label="حوالي ' + Math.max(1, Math.round(r.d)) + ' كيلومتر"><b>' + (a.ap ? '≈' : '') + km + '</b><span>كم</span></div>';
+    }
+    var where = esc(a.ar || p.loc) + (a.wil && a.wil !== a.ar && a.wil !== 'مسقط' ? '، ' + esc(a.wil) : '') + (a.gov ? ' (' + esc(a.gov) + ')' : '');
+    var warn = [];
+    if (p.x.indexOf('D') >= 0) warn.push('ما يشمل الأسنان');
+    if (p.x.indexOf('E') >= 0) warn.push('ما يشمل العيون');
+    var phones = p.p.map(function (d) {
+      return '<a class="tel" href="tel:+968' + d + '">' + PHONE_SVG + '<bdi>' + fmtPhone(d) + '</bdi></a>' +
+        '<button type="button" class="copy" data-n="' + d + '">نسخ</button>';
+    }).join('');
+    return '<li class="r">' + sign + '<div>' +
+      '<h3><bdi>' + esc(cleanName(p.n)) + '</bdi></h3>' +
+      '<p class="meta"><span class="type">' + CORE.TYPE_AR[p.t] + '</span> في ' + where + '</p>' +
+      (p.ad ? '<p class="addr"><bdi>' + esc(p.ad) + '</bdi></p>' : '') +
+      (warn.length ? '<p class="warn">' + warn.join('، ') + '</p>' : '') +
+      (phones ? '<div class="phones">' + phones + '</div>' : '<p class="nophone">ما في رقم هاتف بالقائمة، شوف الخريطة.</p>') +
+      '<div class="foot"><a href="' + mapUrl(p) + '" target="_blank" rel="noopener">افتح بالخريطة</a>' +
+      '<span class="bands">' + bandText(p.b) + '</span></div>' +
+      '</div></li>';
+  }
+
+  // ---- run ----
+  var PAGE = 15, shown = 0, current = [], wide = false;
+  function run() {
+    var q = qEl.value;
+    clearEl.hidden = !q;
+    var band = parseInt(bandEl.value, 10);
+    var res = CORE.search(q, origin(), band, wide);
+    current = res.results; shown = 0;
+    emergEl.hidden = !res.emerg;
+
+    var pr = res.parsed, notes = [];
+    if (pr.syms.length) notes.push('فهمنا إنك تدور على: ' + esc(pr.syms.map(function (s) { return s.label; }).join('، ')) + '.');
+    if (pr.area) notes.push('الترتيب من الأقرب إلى ' + esc(pr.area.ar) + '.');
+    if (res.black && res.black.length) notes.push('<span class="black">تنبيه: ' + esc(res.black.join('، ')) + ' في قائمة Liva السوداء، يعني ما يقبلون تأمينك.</span>');
+    if (res.fuzzy) notes.push('<span class="miss">ما لقينا «' + esc(pr.nameToks.join(' ')) + '» بالضبط في الشبكة. هذي أقرب أسماء تشبهه.</span>');
+    if (res.nameMiss) notes.push('<span class="miss">ما لقينا اسم يشبه «' + esc(pr.nameToks.join(' ')) + '». جرّب تكتبه بالإنجليزي أو بجزء من الاسم.</span>');
+    var widenBtn = '';
+    if (res.canWiden) {
+      widenBtn = wide
+        ? ' <button type="button" class="widen" id="widen">اعرض المتخصص فقط</button>'
+        : ' <button type="button" class="widen" id="widen">ضيف المجمعات الطبية (بعضها فيه هالتخصص)</button>';
+    }
+    noteEl.hidden = !(notes.length || widenBtn);
+    noteEl.innerHTML = notes.join(' ') + widenBtn;
+    var wb = $('widen');
+    if (wb) wb.addEventListener('click', function () { wide = !wide; run(); });
+
+    var refLabel = res.ref.label;
+    if (!current.length) {
+      countEl.textContent = '';
+      resEl.innerHTML = res.nameMiss ? '' : '<li class="empty">ما في نتائج بهذي الفئة. جرّب «كل الفئات».</li>';
+    } else {
+      countEl.textContent = (res.scope === 'default' && !q.trim())
+        ? 'أقرب المستشفيات إلى ' + refLabel
+        : res.scope === 'area' ? 'أقرب المستشفيات والعيادات إلى ' + refLabel + ' (' + current.length + ')'
+        : current.length + ' نتيجة، من الأقرب إلى ' + refLabel;
+      resEl.innerHTML = '';
+      more();
+    }
+  }
+  function more() {
+    var next = current.slice(shown, shown + PAGE);
+    resEl.insertAdjacentHTML('beforeend', next.map(item).join(''));
+    shown += next.length;
+    var left = current.length - shown;
+    moreEl.hidden = left <= 0;
+    moreEl.textContent = 'اعرض ' + Math.min(PAGE, left) + ' زيادة (باقي ' + left + ')';
+  }
+  moreEl.addEventListener('click', more);
+
+  resEl.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('.copy') : null;
+    if (!b) return;
+    var n = b.getAttribute('data-n');
+    var done = function (ok) {
+      b.textContent = ok ? 'تم النسخ' : n;
+      setTimeout(function () { b.textContent = 'نسخ'; }, 1800);
+    };
+    try {
+      navigator.clipboard.writeText(n).then(function () { done(true); }, function () { done(false); });
+    } catch (err) { done(false); }
+  });
+
+  var t;
+  qEl.addEventListener('input', function () { wide = false; clearTimeout(t); t = setTimeout(run, 140); });
+  $('form').addEventListener('submit', function (e) { e.preventDefault(); clearTimeout(t); run(); qEl.blur(); });
+  clearEl.addEventListener('click', function () { qEl.value = ''; wide = false; run(); qEl.focus(); });
+  areaEl.addEventListener('change', function () { if (areaEl.value !== '__gps') store.set('biw_hosp_area', areaEl.value); run(); });
+  bandEl.addEventListener('change', function () { store.set('biw_hosp_band', bandEl.value); run(); });
+
+  run();
+})();
+</script>
+</body>
+</html>
