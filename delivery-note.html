@@ -597,7 +597,7 @@ window.addEventListener('error',function(ev){
     <tr class="header-row"><td class="sign-left"></td><td class="engineer small-header">BIW Engineer</td><td class="representative company-header">Company Representative</td><td class="supervisor small-header">Receiver</td></tr>
     <tr><td class="name-label">Name</td><td id="outBiwEngineerName" class="engineer-names"></td><td rowspan="3"></td><td id="outReceiverName" class="engineer-names"></td></tr>
     <tr><td class="comment-label">Comment</td><td></td><td></td></tr>
-    <tr><td class="sign-label-text">Sign</td><td><div class="signature-box"><img id="outBiwSignature" class="signature-img" alt="BIW Signature"></div></td><td></td></tr>
+    <tr><td class="sign-label-text">Sign</td><td><div class="signature-box"><img id="outBiwSignature" class="signature-img" alt="BIW Signature"></div></td><td><div class="signature-box"><img id="outEspSignature" class="signature-img" alt="ESP Signature"></div></td></tr>
   </table>
 </div></div>
 
@@ -844,5 +844,11 @@ document.addEventListener("DOMContentLoaded",()=>{
   drop.addEventListener("drop",e=>{e.preventDefault();drop.classList.remove("on");handlePhotoFiles(e.dataTransfer.files);});
   updateReport();
 });
+</script>
+<script src="signature-pad.js"></script>
+<script>
+/* v3.16.0: توقيع اختياري على شاشة كاملة — يطلع في مربع التوقيع بنفس تنسيق تواقيع المهندسين */
+(function(){function go(){ if(window.BIWSign) window.BIWSign.attach({tool:'delivery-note', nameInputId:'receiverInput', imgId:'outEspSignature', label:'المستلم', title:'توقيع المستلم (Receiver)', resetFns:['clearForm']}); }
+ if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', go); else go(); })();
 </script>
 </body></html>

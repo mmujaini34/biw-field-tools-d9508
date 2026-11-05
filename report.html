@@ -487,6 +487,7 @@ window.addEventListener('error',function(ev){
       <div id="outRemarks" class="remarks-text" style="left:78px;top:1514px;width:1245px;height:150px;font-size:22px"></div>
       <div id="outFieldEngineer" class="sig-wrap" style="left:275px;top:1679px;width:360px;height:100px"><span id="outFieldEngineerName"></span><img id="outFieldEngineerSign" alt="" style="display:none"></div>
       <div id="outEspSupervisorBottom" class="out" style="left:820px;top:1685px;width:300px;height:24px"></div>
+      <div id="outEspSupervisorSig" class="sig-wrap" style="left:820px;top:1709px;width:300px;height:70px"><img id="outEspSupervisorSign" alt="" style="display:none"></div>
     </div>
   </div>
 </div>
@@ -617,7 +618,7 @@ function renderElectricalOutputs(){
   root.innerHTML='';
   elecRows.forEach((r,i)=>{
     const t=normalizeTime(r.time); const y=ELECTRICAL_Y[i];
-    const vals=[ t?'2000':'', t, toEnglishDigits(r.phph).trim(), t?phgFormat(r.phg):'' ];
+    const vals=[ t?'2000':'', t, t?toEnglishDigits(r.phph).trim():'', t?phgFormat(r.phg):'' ]; /* v3.16: مرحلة بدون وقت مكتوب = ما تطلع في التقرير */
     const coords=[{x:382,w:215},{x:602,w:214},{x:820,w:298},{x:1122,w:232}];
     vals.forEach((val,j)=>{const d=document.createElement('div'); d.className='out center'; d.style.left=coords[j].x+'px'; d.style.top=y+'px'; d.style.width=coords[j].w+'px'; d.style.height='26px'; d.textContent=val; root.appendChild(d);});
   });
@@ -946,6 +947,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   ready(hookReset);
 })();
 </script>
+<script src="ts-share.js"></script>
 <script>
 /* v3.15.0: تكتب رقم البئر (rb23 / RB23 / RB-23 / rb-23) — لو له تايم شيت محفوظ يطلع فوق زر «استخدام» يعبي القطع والسيريال والبيانات */
 (function(){
@@ -1007,7 +1009,8 @@ document.addEventListener('DOMContentLoaded',()=>{
     var info=[n+' قطعة']; if(st.selectedClient) info.push('<bdi>'+escH(st.selectedClient)+'</bdi>'); if(range) info.push(range);
     bar=document.createElement('div'); bar.id='tsStoreBar'; bar.setAttribute('data-state','offer');
     bar.setAttribute('style','position:sticky;top:46px;z-index:50;margin:10px 0 12px;padding:12px 14px;border-radius:14px;background:#ecfdf5;border:1.5px solid #0f766e;color:#0b3b33;direction:rtl;text-align:right;display:flex;align-items:center;gap:8px;flex-wrap:nowrap;box-shadow:0 8px 22px rgba(15,118,110,.18)');
-    bar.innerHTML='<div style="flex:1 1 auto;min-width:0;font-size:14px;line-height:1.55"><b style="font-size:15.5px">تايم شيت <span dir="ltr">'+escH(e.well||'')+'</span> موجود</b><br>'+info.join('، ')+
+    var who = (e.fromCloud && e.by && (!window.BIWTsShare || e.by!==window.BIWTsShare.me())) ? ' <span style="font-weight:700;font-size:12.5px;color:#0f766e">(من جوال <bdi>'+escH(e.by)+'</bdi>)</span>' : '';
+    bar.innerHTML='<div style="flex:1 1 auto;min-width:0;font-size:14px;line-height:1.55"><b style="font-size:15.5px">تايم شيت <span dir="ltr">'+escH(e.well||'')+'</span> موجود</b>'+who+'<br>'+info.join('، ')+
       '<br><span style="color:#5b6b6e;font-size:12.5px">محفوظ لين <span dir="ltr">'+fmt(until)+'</span> وبعدها ينحذف</span></div>'+
       '<button type="button" id="tsStoreUse" style="font:inherit;font-weight:900;font-size:16px;padding:11px 16px;border-radius:11px;border:0;background:#0f766e;color:#fff;cursor:pointer;flex:none">استخدام</button>'+
       '<button type="button" id="tsStoreX" aria-label="إغلاق" style="font:inherit;font-size:18px;line-height:1;width:34px;height:34px;border-radius:9px;border:1px solid #94a3b8;background:#fff;color:#334155;cursor:pointer;flex:none">×</button>';
@@ -1026,7 +1029,16 @@ document.addEventListener('DOMContentLoaded',()=>{
       var doneBar=bar; setTimeout(function(){ if(bar===doneBar) hide(); }, 15000);
     };
   }
+  var seq=0;
   function check(){
+    var w=document.getElementById('wellInput'); if(!w) return;
+    var k0=wellKey(w.value), my=++seq;
+    if(k0 && window.BIWTsShare){
+      window.BIWTsShare.lookup(k0).then(function(){ if(my===seq && wellKey(w.value)===k0) checkLocal(); });   /* السحابة: لو فيه نسخة أحدث من جوال ثاني */
+    }
+    checkLocal();
+  }
+  function checkLocal(){
     var w=document.getElementById('wellInput'); if(!w) return;
     var k=wellKey(w.value), store=purge();
     if(!k || !store[k]){ if(bar && bar.getAttribute('data-state')==='offer') hide(); return; }
@@ -1103,6 +1115,87 @@ document.addEventListener('DOMContentLoaded',()=>{
     w.__biwEng=true; window.resetReportForm=w;
   }
   setTimeout(hookReset, 400);
+})();
+</script>
+<script src="signature-pad.js"></script>
+<script>
+/* v3.16.0: توقيع اختياري على شاشة كاملة — يطلع في مربع التوقيع بنفس تنسيق تواقيع المهندسين */
+(function(){function go(){ if(window.BIWSign) window.BIWSign.attach({tool:'report', nameInputId:'espSupervisorInput', imgId:'outEspSupervisorSign', label:'ESP Supervisor', resetFns:['resetReportForm']}); }
+ if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', go); else go(); })();
+</script>
+<script>
+/* v3.16.0: قبل ما يطلع الـ PDF — يقارن السيريال نمبر بالتايم شيت لنفس البئر (من الجهاز أو السحابة) وينبهك لو مو مطابق */
+(function(){
+  if(typeof window.createPdfBlob!=='function') return;
+  var STORE='biw_ts_store', TTL=3*86400000;
+  function wellKey(v){ return window.BIWTsShare ? window.BIWTsShare.wellKey(v) : String(v||'').toUpperCase().replace(/[^A-Z0-9]/g,''); }
+  function toks(v){ return String(v||'').replace(/[٠-٩]/g,function(d){return '٠١٢٣٤٥٦٧٨٩'.indexOf(d);}).split(/[\/\\,;\s]+/)
+      .map(function(t){ return t.replace(/\D/g,''); }).filter(function(t){ return t.length>0; }); }
+  function escH(v){ return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+  function timeout(p, ms){ return Promise.race([p, new Promise(function(r){ setTimeout(function(){ r(null); }, ms); })]); }
+  function findSheet(key){
+    var local=null; try{ local=(JSON.parse(localStorage.getItem(STORE)||'{}')||{})[key]||null; }catch(e){}
+    if(local && Date.now()-(local.savedAt||0)>TTL) local=null;
+    if(!window.BIWTsShare) return Promise.resolve(local);
+    return timeout(window.BIWTsShare.lookup(key), 4500).then(function(x){ return x||local; }, function(){ return local; });
+  }
+  function issues(entry){
+    var out=[], ts={};
+    ((entry.state||{}).items||[]).forEach(function(r){
+      var p=String(r.part||'').trim(); if(!p) return;
+      ts[p]=(ts[p]||[]).concat(toks(r.serial));
+    });
+    partRows.forEach(function(r,i){
+      var it=CATALOG[Number(r.catalogIndex)]; if(!it || it.serialRequired===false) return;
+      var mine=toks(r.serial); if(!mine.length) return;
+      if(!ts[it.part]){ out.push({i:i, part:it.part, rep:r.serial, ts:null}); return; }
+      var bad=mine.filter(function(t){ return ts[it.part].indexOf(t)===-1; });
+      if(bad.length) out.push({i:i, part:it.part, rep:r.serial, ts:ts[it.part].join(' / ')});
+    });
+    return out;
+  }
+  function ask(list, well){
+    return new Promise(function(resolve){
+      var ov=document.createElement('div');
+      ov.setAttribute('style','position:fixed;inset:0;z-index:2147482000;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;padding:16px;direction:rtl');
+      var rows=list.map(function(x){
+        return '<div style="border:1px solid #fde68a;background:#fffbeb;border-radius:12px;padding:10px 12px;margin:8px 0;font-size:14px;line-height:1.6">'+
+          '<b>Item '+(x.i+1)+' — <bdi>'+escH(x.part)+'</bdi></b><br>'+
+          'في التقرير: <b dir="ltr">'+escH(x.rep)+'</b><br>'+
+          (x.ts ? 'في التايم شيت: <b dir="ltr">'+escH(x.ts)+'</b>' : '<span style="color:#b45309">القطعة هذي مو موجودة في التايم شيت</span>')+'</div>';
+      }).join('');
+      ov.innerHTML='<div style="background:#fff;border-radius:18px;max-width:440px;width:100%;max-height:86vh;overflow:auto;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.35);font-family:inherit">'+
+        '<div style="font-weight:900;font-size:18px;color:#b45309;margin-bottom:4px">⚠ في خطأ في السيريال نمبر</div>'+
+        '<div style="font-size:14px;color:#334155">السيريال مو مطابق للتايم شيت حق البئر <b dir="ltr">'+escH(well)+'</b>. تأكد منه:</div>'+rows+
+        '<div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">'+
+        '<button type="button" id="snFix" style="flex:2 1 160px;font:inherit;font-weight:900;font-size:15px;padding:12px;border-radius:12px;border:0;background:#0f766e;color:#fff;min-height:48px;cursor:pointer">أرجع وأصلّح</button>'+
+        '<button type="button" id="snGo" style="flex:1 1 120px;font:inherit;font-weight:700;font-size:14px;padding:12px;border-radius:12px;border:1px solid #cbd5e1;background:#fff;color:#0f172a;min-height:48px;cursor:pointer">كمّل كذا</button></div></div>';
+      document.body.appendChild(ov);
+      ov.querySelector('#snFix').onclick=function(){ ov.remove(); resolve(false); };
+      ov.querySelector('#snGo').onclick=function(){ ov.remove(); resolve(true); };
+    });
+  }
+  var orig=window.createPdfBlob;
+  window.createPdfBlob=async function(){
+    try{
+      var errs=(typeof validate==='function') ? validate() : [];
+      if(!errs.length){                                         /* نفحص السيريال بس لما باقي التقرير مكتمل */
+        var w=document.getElementById('wellInput'), key=wellKey(w?w.value:'');
+        if(key){
+          var entry=await findSheet(key);
+          var list=entry ? issues(entry) : [];
+          if(list.length){
+            var go=await ask(list, w.value);
+            if(!go){
+              if(typeof goWizardStep==='function'){ try{ goWizardStep(1); }catch(e){} }
+              throw new Error('وقفنا: صحّح السيريال نمبر وبعدين طلّع الـ PDF.');
+            }
+          }
+        }
+      }
+    }catch(e){ if(e && /وقفنا/.test(e.message)) throw e; }   /* أي خلل بالفحص نفسه ما يوقف الـ PDF */
+    return orig.apply(this, arguments);
+  };
 })();
 </script>
 </body>

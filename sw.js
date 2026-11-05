@@ -1,5 +1,5 @@
-/* BIW Field Tools — Service Worker v3.15.1 (Safari-proof, redirect-proof, offline-first) */
-const CACHE_NAME = 'biw-field-tools-v3.15.1';
+/* BIW Field Tools — Service Worker v3.16.0 (Safari-proof, redirect-proof, offline-first) */
+const CACHE_NAME = 'biw-field-tools-v3.16.0';
 /* طابور رفع الأرشيف: نفس الكود المستخدم بالصفحات */
 try { importScripts('./archive-queue.js'); } catch (e) {}
 const ASSETS = [
@@ -16,6 +16,8 @@ const ASSETS = [
   './admin.html',
   './archive.js',
   './archive-queue.js',
+  './signature-pad.js',
+  './ts-share.js',
   './bg.jpg',
   './libs/html2canvas.min.js',
   './libs/jspdf.umd.min.js',
